@@ -5,6 +5,7 @@
         <img class="logo" src="@/assets/logo.svg" width="30px" />
         <span>电商管理后台</span>
       </div>
+      <div class="menu_span"></div>
       <a-menu
         v-model:openKeys="state.openKeys"
         v-model:selectedKeys="state.selectedKeys"
@@ -21,13 +22,52 @@
   </a-layout>
 </template>
 
-<style>
+<style scoped>
 .logo_title {
   display: flex;
   justify-content: center;
   align-items: center;
   line-height: 30px;
   height: 64px;
+}
+
+/* 修改菜单项的圆角 */
+:deep(.ant-menu-dark .ant-menu-item),
+:deep(.ant-menu-dark .ant-menu-submenu-title) {
+  border-radius: 3px;
+}
+
+.menu_span {
+  width: 100%;
+  height: 30px;
+  background-color: #232b40;
+}
+
+/* 修改侧边栏背景色 */
+:deep(.ant-layout-sider) {
+  background-color: #232b40 !important; /* 深灰色背景 */
+  color: #d5d7dd;
+}
+
+:deep(.ant-menu-dark) {
+  background-color: #232b40 !important;
+  color: #d5d7dd;
+}
+
+:deep(.ant-menu-inline) {
+  background-color: #232b40 !important;
+  color: #d5d7dd;
+}
+
+/* 一级菜单项悬浮 */
+:deep(.ant-menu-dark .ant-menu-item:not(.ant-menu-item-selected):hover),
+:deep(.ant-menu-dark .ant-menu-submenu-title:not(.ant-menu-item-selected):hover) {
+  background-color: #3f475b !important;
+}
+
+/* 子菜单项悬浮*/
+:deep(.ant-menu-dark .ant-menu-submenu .ant-menu-item:not(.ant-menu-item-selected):hover) {
+  background-color: #3f475b !important;
 }
 </style>
 
@@ -39,15 +79,8 @@ export default {
 
 <script lang="ts" setup>
 import { ref, watch, h } from 'vue'
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  PieChartOutlined,
-  MailOutlined,
-  DesktopOutlined,
-  InboxOutlined,
-  AppstoreOutlined,
-} from '@ant-design/icons-vue'
+import { MailOutlined, InboxOutlined } from '@ant-design/icons-vue'
+import type { CSSProperties } from 'vue'
 const state = ref({
   collapsed: false,
   selectedKeys: ['1'],
@@ -58,34 +91,77 @@ const items = ref([
   {
     key: '1',
     icon: () => h(InboxOutlined),
-    label: 'Option 3',
-    title: 'Option 3',
+    label: '工作台',
+    title: '工作台',
   },
   {
     key: 'sub1',
     icon: () => h(MailOutlined),
-    label: 'Navigation One',
-    title: 'Navigation One',
+    label: '内容管理',
+    title: '内容管理',
     children: [
       {
         key: '2',
-        label: 'Option 5',
-        title: 'Option 5',
+        label: '自定义页面',
+        title: '自定义页面',
       },
       {
         key: '3',
-        label: 'Option 6',
-        title: 'Option 6',
+        label: '广告位管理',
+        title: '广告位管理',
       },
       {
         key: '4',
-        label: 'Option 7',
-        title: 'Option 7',
+        label: '热搜词管理',
+        title: '热搜词管理',
       },
       {
         key: '5',
-        label: 'Option 8',
-        title: 'Option 8',
+        label: '评价管理',
+        title: '评价管理',
+      },
+      {
+        key: '6',
+        label: '文章管理',
+        title: '文章管理',
+      },
+      {
+        key: '7',
+        label: '栏目管理',
+        title: '栏目管理',
+      },
+    ],
+  },
+  {
+    key: 'sub2',
+    icon: () => h(MailOutlined),
+    label: '商品管理',
+    title: '商品管理',
+    children: [
+      {
+        key: '8',
+        label: '商品管理',
+        title: '商品管理',
+      },
+      {
+        key: '9',
+        label: '商品分组',
+        title: '商品分组',
+      },
+      {
+        key: '10',
+        label: '品牌管理',
+        title: '品牌管理',
+      },
+      {
+        key: '11',
+        label: '商品标签',
+        title: '商品标签',
+      },
+      {
+        key: '12',
+        label: '商品属性',
+        title: '商品属性',
       },
     ],
   },
@@ -101,7 +177,6 @@ const toggleCollapsed = () => {
   state.value.openKeys = state.value.collapsed ? [] : state.value.preOpenKeys
 }
 
-import type { CSSProperties } from 'vue'
 const headerStyle: CSSProperties = {
   textAlign: 'center',
   color: '#fff',
