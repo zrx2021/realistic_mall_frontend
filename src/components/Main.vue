@@ -81,27 +81,9 @@ export default {
 import { ref, watch, onMounted } from 'vue'
 import type { CSSProperties, Component } from 'vue'
 import { h } from 'vue'
-import { InboxOutlined, MailOutlined } from '@ant-design/icons-vue'
+import { InboxOutlined, MailOutlined, DashboardOutlined } from '@ant-design/icons-vue'
 import { getUserMenu } from '@/api/user'
-import type { MenuItem } from '@/types/menu'
-
-// 定义菜单项接口
-interface MenuItem {
-  key: string
-  icon?: string | (() => Component)
-  label: string
-  title: string
-  children?: MenuItem[]
-}
-
-// 定义处理后的菜单项接口
-interface ProcessedMenuItem {
-  key: string
-  icon?: () => Component
-  label: string
-  title: string
-  children?: ProcessedMenuItem[]
-}
+import type { MenuItem, MenuItemRaw } from '@/types/menu'
 
 const state = ref({
   collapsed: false,
@@ -111,22 +93,41 @@ const state = ref({
 })
 
 // 菜单数据
-const items = ref<ProcessedMenuItem[]>([])
+const items = ref<MenuItem[]>([])
 
 // 图标映射
 const iconMap: Record<string, Component> = {
   InboxOutlined,
   MailOutlined,
+  DashboardOutlined,
   // 可以根据需要添加更多图标
 }
 
 // 处理菜单数据
-const processMenuItems = (menuItems: MenuItem[]): ProcessedMenuItem[] => {
-  return menuItems.map((item) => ({
-    ...item,
-    icon: typeof item.icon === 'string' ? () => h(iconMap[item.icon as string]) : item.icon,
-    children: item.children ? processMenuItems(item.children) : undefined,
-  }))
+const processMenuItems = (menuItems: MenuItemRaw[]): MenuItem[] => {
+  // 按 sort 字段排序
+  const sortedItems = [...menuItems].sort((a, b) => a.sort - b.sort)
+
+  return sortedItems.map((item) => {
+    const menuItem: MenuItem = {
+      key: item.key || String(item.id), // 使用 key 或将 id 转为字符串
+      label: item.label || item.title,
+      title: item.title,
+      path: item.path,
+    }
+
+    // 处理图标
+    if (item.icon && iconMap[item.icon]) {
+      menuItem.icon = () => h(iconMap[item.icon as string])
+    }
+
+    // 处理子菜单
+    if (item.children && item.children.length > 0) {
+      menuItem.children = processMenuItems(item.children)
+    }
+
+    return menuItem
+  })
 }
 
 // 获取菜单数据
@@ -137,85 +138,25 @@ const fetchMenuItems = async () => {
   } catch (error) {
     console.error('获取菜单失败：', error)
     // 使用示例数据作为后备
-    items.value = [
+    const fallbackData: MenuItemRaw[] = [
       {
+        id: 1,
+        parentId: null,
         key: '1',
-        icon: () => h(InboxOutlined),
+        icon: 'DashboardOutlined',
         label: '工作台',
         title: '工作台',
-      },
-      {
-        key: 'sub1',
-        icon: () => h(MailOutlined),
-        label: '内容管理',
-        title: '内容管理',
-        children: [
-          {
-            key: '2',
-            label: '自定义页面',
-            title: '自定义页面',
-          },
-          {
-            key: '3',
-            label: '广告位管理',
-            title: '广告位管理',
-          },
-          {
-            key: '4',
-            label: '热搜词管理',
-            title: '热搜词管理',
-          },
-          {
-            key: '5',
-            label: '评价管理',
-            title: '评价管理',
-          },
-          {
-            key: '6',
-            label: '文章管理',
-            title: '文章管理',
-          },
-          {
-            key: '7',
-            label: '栏目管理',
-            title: '栏目管理',
-          },
-        ],
-      },
-      {
-        key: 'sub2',
-        icon: () => h(MailOutlined),
-        label: '商品管理',
-        title: '商品管理',
-        children: [
-          {
-            key: '8',
-            label: '商品管理',
-            title: '商品管理',
-          },
-          {
-            key: '9',
-            label: '商品分组',
-            title: '商品分组',
-          },
-          {
-            key: '10',
-            label: '品牌管理',
-            title: '品牌管理',
-          },
-          {
-            key: '11',
-            label: '商品标签',
-            title: '商品标签',
-          },
-          {
-            key: '12',
-            label: '商品属性',
-            title: '商品属性',
-          },
-        ],
+        path: '/workbench',
+        sort: 1,
+        visible: true,
+        children: [],
+        createTime: null,
+        updateTime: null,
+        createBy: null,
+        updateBy: null,
       },
     ]
+    items.value = processMenuItems(fallbackData)
   }
 }
 

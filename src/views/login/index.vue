@@ -87,14 +87,21 @@ export default {
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { UserOutlined, LockOutlined, MobileOutlined, SafetyOutlined } from '@ant-design/icons-vue'
 import { login, phoneLogin, sendCode } from '@/api/user'
-import { setToken, setUserInfo, getAutoLoginStatus, setAutoLoginStatus } from '@/utils/auth'
+import {
+  setToken,
+  setUserInfo,
+  getAutoLoginStatus,
+  setAutoLoginStatus,
+  getToken,
+} from '@/utils/auth'
 import type { LoginParams, PhoneLoginParams, UserInfo } from '@/types/user'
 
 const router = useRouter()
+const route = useRoute()
 const loading = ref(false)
 const activeKey = ref('account')
 const rememberMe = ref(false)
@@ -171,7 +178,8 @@ const handleAccountLogin = async () => {
   try {
     loading.value = true
     const res = await login(accountForm)
-    handleLoginSuccess(res.data)
+    const { token } = res
+    handleLoginSuccess(token)
   } catch (error) {
     console.error('登录失败：', error)
     message.error('登录失败，请检查用户名和密码')
@@ -195,24 +203,30 @@ const handlePhoneLogin = async () => {
 }
 
 // 处理登录成功
-const handleLoginSuccess = (data: { token: string; userInfo: UserInfo }) => {
-  const { token, userInfo } = data
+// const handleLoginSuccess = (data: { token: string; userInfo: UserInfo }) => {
+const handleLoginSuccess = (token: string) => {
+  // const { token, userInfo } = data
   setToken(token)
-  setUserInfo(userInfo)
+  // 暂时注释
+  // setUserInfo(userInfo)
 
   if (rememberMe.value) {
     setAutoLoginStatus(3) // 设置3天自动登录
   }
 
   message.success('登录成功')
-  router.push('/')
+
+  // 获取重定向地址
+  const redirect = route.query.redirect as string
+  router.push(redirect || '/')
 }
 
 // 检查自动登录状态
 onMounted(() => {
   const isAutoLogin = getAutoLoginStatus()
-  if (isAutoLogin) {
-    router.push('/')
+  if (isAutoLogin && getToken()) {
+    const redirect = route.query.redirect as string
+    router.push(redirect || '/')
   }
 })
 
@@ -239,7 +253,7 @@ const handleForgotPassword = () => {
   align-items: center;
   min-height: 100vh;
   background: #f0f2f5;
-  background-image: url('@/assets/login-bg.svg');
+  background-image: url('@/assets/background.jpg');
   background-repeat: no-repeat;
   background-position: center 110px;
   background-size: 100%;

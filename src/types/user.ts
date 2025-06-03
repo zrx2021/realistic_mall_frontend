@@ -32,12 +32,7 @@ export interface SendCodeParams {
 
 // 登录响应接口
 export interface LoginResponse {
-  code: number
-  data: {
-    token: string
-    userInfo: UserInfo
-  }
-  message: string
+  token: string
 }
 
 // 发送验证码响应接口

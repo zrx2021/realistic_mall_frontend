@@ -6,7 +6,7 @@ import type {
   SendCodeParams,
   SendCodeResponse,
 } from '@/types/user'
-import type { MenuItem } from '@/types/menu'
+import type { MenuItemRaw } from '@/types/menu'
 
 // 账号密码登录
 export const login = (data: LoginParams) => {
@@ -25,5 +25,5 @@ export const sendCode = (data: SendCodeParams) => {
 
 // 获取用户菜单
 export const getUserMenu = () => {
-  return get<MenuItem[]>('/menu')
+  return get<MenuItemRaw[]>('/menu')
 }

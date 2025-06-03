@@ -1,9 +1,22 @@
-<script setup lang="ts">
-import Main from '@/components/Main.vue'
+<script lang="ts">
+export default {
+  name: 'App',
+}
 </script>
 
 <template>
-  <Main></Main>
+  <router-view></router-view>
 </template>
 
-<style scoped></style>
+<style>
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+}
+</style>
