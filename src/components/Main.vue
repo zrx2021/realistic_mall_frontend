@@ -73,110 +73,161 @@
 
 <script lang="ts">
 export default {
-  name: 'Main',
+  name: 'MainLayout',
 }
 </script>
 
 <script lang="ts" setup>
-import { ref, watch, h } from 'vue'
-import { MailOutlined, InboxOutlined } from '@ant-design/icons-vue'
-import type { CSSProperties } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import type { CSSProperties, Component } from 'vue'
+import { h } from 'vue'
+import { InboxOutlined, MailOutlined } from '@ant-design/icons-vue'
+import { getUserMenu } from '@/api/user'
+import type { MenuItem } from '@/types/menu'
+
+// 定义菜单项接口
+interface MenuItem {
+  key: string
+  icon?: string | (() => Component)
+  label: string
+  title: string
+  children?: MenuItem[]
+}
+
+// 定义处理后的菜单项接口
+interface ProcessedMenuItem {
+  key: string
+  icon?: () => Component
+  label: string
+  title: string
+  children?: ProcessedMenuItem[]
+}
+
 const state = ref({
   collapsed: false,
   selectedKeys: ['1'],
   openKeys: ['sub1'],
   preOpenKeys: ['sub1'],
 })
-const items = ref([
-  {
-    key: '1',
-    icon: () => h(InboxOutlined),
-    label: '工作台',
-    title: '工作台',
-  },
-  {
-    key: 'sub1',
-    icon: () => h(MailOutlined),
-    label: '内容管理',
-    title: '内容管理',
-    children: [
+
+// 菜单数据
+const items = ref<ProcessedMenuItem[]>([])
+
+// 图标映射
+const iconMap: Record<string, Component> = {
+  InboxOutlined,
+  MailOutlined,
+  // 可以根据需要添加更多图标
+}
+
+// 处理菜单数据
+const processMenuItems = (menuItems: MenuItem[]): ProcessedMenuItem[] => {
+  return menuItems.map((item) => ({
+    ...item,
+    icon: typeof item.icon === 'string' ? () => h(iconMap[item.icon as string]) : item.icon,
+    children: item.children ? processMenuItems(item.children) : undefined,
+  }))
+}
+
+// 获取菜单数据
+const fetchMenuItems = async () => {
+  try {
+    const data = await getUserMenu()
+    items.value = processMenuItems(data)
+  } catch (error) {
+    console.error('获取菜单失败：', error)
+    // 使用示例数据作为后备
+    items.value = [
       {
-        key: '2',
-        label: '自定义页面',
-        title: '自定义页面',
+        key: '1',
+        icon: () => h(InboxOutlined),
+        label: '工作台',
+        title: '工作台',
       },
       {
-        key: '3',
-        label: '广告位管理',
-        title: '广告位管理',
+        key: 'sub1',
+        icon: () => h(MailOutlined),
+        label: '内容管理',
+        title: '内容管理',
+        children: [
+          {
+            key: '2',
+            label: '自定义页面',
+            title: '自定义页面',
+          },
+          {
+            key: '3',
+            label: '广告位管理',
+            title: '广告位管理',
+          },
+          {
+            key: '4',
+            label: '热搜词管理',
+            title: '热搜词管理',
+          },
+          {
+            key: '5',
+            label: '评价管理',
+            title: '评价管理',
+          },
+          {
+            key: '6',
+            label: '文章管理',
+            title: '文章管理',
+          },
+          {
+            key: '7',
+            label: '栏目管理',
+            title: '栏目管理',
+          },
+        ],
       },
       {
-        key: '4',
-        label: '热搜词管理',
-        title: '热搜词管理',
-      },
-      {
-        key: '5',
-        label: '评价管理',
-        title: '评价管理',
-      },
-      {
-        key: '6',
-        label: '文章管理',
-        title: '文章管理',
-      },
-      {
-        key: '7',
-        label: '栏目管理',
-        title: '栏目管理',
-      },
-    ],
-  },
-  {
-    key: 'sub2',
-    icon: () => h(MailOutlined),
-    label: '商品管理',
-    title: '商品管理',
-    children: [
-      {
-        key: '8',
+        key: 'sub2',
+        icon: () => h(MailOutlined),
         label: '商品管理',
         title: '商品管理',
+        children: [
+          {
+            key: '8',
+            label: '商品管理',
+            title: '商品管理',
+          },
+          {
+            key: '9',
+            label: '商品分组',
+            title: '商品分组',
+          },
+          {
+            key: '10',
+            label: '品牌管理',
+            title: '品牌管理',
+          },
+          {
+            key: '11',
+            label: '商品标签',
+            title: '商品标签',
+          },
+          {
+            key: '12',
+            label: '商品属性',
+            title: '商品属性',
+          },
+        ],
       },
-      {
-        key: '9',
-        label: '商品分组',
-        title: '商品分组',
-      },
-      {
-        key: '10',
-        label: '品牌管理',
-        title: '品牌管理',
-      },
-      {
-        key: '11',
-        label: '商品标签',
-        title: '商品标签',
-      },
-      {
-        key: '12',
-        label: '商品属性',
-        title: '商品属性',
-      },
-    ],
-  },
-])
+    ]
+  }
+}
+
+// 监听菜单展开/收起
 watch(
   () => state.value.openKeys,
   (_val, oldVal) => {
     state.value.preOpenKeys = oldVal
   },
 )
-const toggleCollapsed = () => {
-  state.value.collapsed = !state.value.collapsed
-  state.value.openKeys = state.value.collapsed ? [] : state.value.preOpenKeys
-}
 
+// 组件样式
 const headerStyle: CSSProperties = {
   textAlign: 'center',
   color: '#fff',
@@ -200,4 +251,9 @@ const siderStyle: CSSProperties = {
   color: '#fff',
   backgroundColor: '#3ba0e9',
 }
+
+// 组件挂载时获取菜单数据
+onMounted(() => {
+  fetchMenuItems()
+})
 </script>
