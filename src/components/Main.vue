@@ -37,6 +37,19 @@
   border-radius: 3px;
 }
 
+/* 统一设置菜单图标大小 */
+:deep(.ant-menu-item .anticon) {
+  font-size: 16px !important;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+:deep(.ant-menu-submenu-title .anticon) {
+  font-size: 16px !important;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
 .menu_span {
   width: 100%;
   height: 30px;
@@ -81,9 +94,9 @@ export default {
 import { ref, watch, onMounted } from 'vue'
 import type { CSSProperties, Component } from 'vue'
 import { h } from 'vue'
-import { InboxOutlined, MailOutlined, DashboardOutlined } from '@ant-design/icons-vue'
 import { getUserMenu } from '@/api/user'
 import type { MenuItem, MenuItemRaw } from '@/types/menu'
+import * as AntIcons from '@ant-design/icons-vue'
 
 const state = ref({
   collapsed: false,
@@ -95,14 +108,6 @@ const state = ref({
 // 菜单数据
 const items = ref<MenuItem[]>([])
 
-// 图标映射
-const iconMap: Record<string, Component> = {
-  InboxOutlined,
-  MailOutlined,
-  DashboardOutlined,
-  // 可以根据需要添加更多图标
-}
-
 // 处理菜单数据
 const processMenuItems = (menuItems: MenuItemRaw[]): MenuItem[] => {
   // 按 sort 字段排序
@@ -110,15 +115,35 @@ const processMenuItems = (menuItems: MenuItemRaw[]): MenuItem[] => {
 
   return sortedItems.map((item) => {
     const menuItem: MenuItem = {
-      key: item.key || String(item.id), // 使用 key 或将 id 转为字符串
+      key: item.key || String(item.id),
       label: item.label || item.title,
       title: item.title,
       path: item.path,
     }
 
     // 处理图标
-    if (item.icon && iconMap[item.icon]) {
-      menuItem.icon = () => h(iconMap[item.icon as string])
+    if (item.icon) {
+      // 判断是否为本地图标（以.png、.jpg、.svg等结尾）
+      if (/\.(png|jpe?g|svg|gif)$/i.test(item.icon)) {
+        // 从路径中提取文件名
+        const iconFileName = item.icon.split('/').pop() || ''
+        menuItem.icon = () =>
+          h('img', {
+            src: new URL(`../assets/menu/${iconFileName}`, import.meta.url).href,
+            style: {
+              width: '16px',
+              height: '16px',
+              marginRight: '10px',
+              verticalAlign: 'middle',
+            },
+          })
+      } else {
+        // 使用 Ant Design 图标
+        const AntIcon = (AntIcons as Record<string, Component>)[item.icon]
+        if (AntIcon) {
+          menuItem.icon = () => h(AntIcon)
+        }
+      }
     }
 
     // 处理子菜单
@@ -143,11 +168,27 @@ const fetchMenuItems = async () => {
         id: 1,
         parentId: null,
         key: '1',
-        icon: 'DashboardOutlined',
+        icon: 'DashboardOutlined', // Ant Design 图标
         label: '工作台',
         title: '工作台',
         path: '/workbench',
         sort: 1,
+        visible: true,
+        children: [],
+        createTime: null,
+        updateTime: null,
+        createBy: null,
+        updateBy: null,
+      },
+      {
+        id: 2,
+        parentId: null,
+        key: '2',
+        icon: 'goods.png', // 本地图标
+        label: '商品管理',
+        title: '商品管理',
+        path: '/goods',
+        sort: 2,
         visible: true,
         children: [],
         createTime: null,
