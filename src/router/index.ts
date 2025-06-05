@@ -17,11 +17,22 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Main',
-    component: () => import('@/components/Main.vue'),
+    component: () => import('@/views/Main.vue'),
     meta: {
       title: '首页',
       requiresAuth: true,
     },
+    children: [
+      {
+        path: 'contents/pages',
+        name: 'ContentsManagement',
+        component: () => import('@/views/menu/contents/contentsManagement.vue'),
+        meta: {
+          title: '内容管理',
+          requiresAuth: true,
+        },
+      },
+    ],
   },
   // 将所有未匹配的路由重定向到首页
   {

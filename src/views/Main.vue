@@ -13,6 +13,7 @@
         theme="dark"
         :inline-collapsed="state.collapsed"
         :items="items"
+        @click="handleMenuClick($event.item.path)"
       ></a-menu>
     </a-layout-sider>
     <a-layout>
@@ -31,6 +32,18 @@
             />
           </div>
           <div class="header-right">
+            <div class="search-container">
+              <a-input-search
+                v-model:value="searchValue"
+                placeholder="搜索..."
+                style="width: 300px"
+                @search="onSearch"
+              >
+                <template #prefix>
+                  <SearchOutlined style="color: rgba(0, 0, 0, 0.45)" />
+                </template>
+              </a-input-search>
+            </div>
             <a-badge :count="unreadMessages" class="message-badge">
               <BellOutlined class="header-icon" @click="handleMessageClick" />
             </a-badge>
@@ -60,7 +73,11 @@
           </div>
         </div>
       </a-layout-header>
-      <a-layout-content :style="contentStyle">Content</a-layout-content>
+      <a-layout-content :style="contentStyle">
+        <a-flex :style="contentStyle" justify="space-around" vertical gap="middle">
+          <router-view />
+        </a-flex>
+      </a-layout-content>
     </a-layout>
   </a-layout>
 </template>
@@ -172,7 +189,7 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
 }
 
 .trigger-icon {
@@ -215,6 +232,29 @@
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   z-index: 10;
 }
+
+.search-container {
+  margin-right: 8px;
+  width: 300px;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+:deep(.ant-input-affix-wrapper) {
+  border-radius: 4px;
+}
+
+:deep(.ant-input-search) {
+  max-height: 32px;
+}
+
+:deep(.ant-input-search .ant-input) {
+  &:hover,
+  &:focus {
+    border-color: #1890ff;
+  }
+}
 </style>
 
 <script lang="ts">
@@ -225,6 +265,7 @@ export default {
 
 <script lang="ts" setup>
 import { ref, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import type { CSSProperties, Component } from 'vue'
 import { h } from 'vue'
 import { getUserMenu } from '@/api/user'
@@ -237,6 +278,7 @@ import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
+  SearchOutlined,
 } from '@ant-design/icons-vue'
 
 const state = ref({
@@ -253,6 +295,11 @@ const items = ref<MenuItem[]>([])
 const userName = ref('Admin User')
 const userAvatar = ref('https://api.dicebear.com/7.x/avataaars/svg?seed=admin')
 const unreadMessages = ref(5)
+
+const searchValue = ref('')
+
+// 获取路由实例
+const router = useRouter()
 
 // 处理菜单数据
 const processMenuItems = (menuItems: MenuItemRaw[]): MenuItem[] => {
@@ -360,6 +407,17 @@ const handleMessageClick = () => {
   console.log('Navigate to messages page')
 }
 
+// 处理搜索
+const onSearch = (value: string) => {
+  console.log('搜索:', value)
+}
+
+// 处理菜单点击
+const handleMenuClick = (path: string) => {
+  console.log('菜单点击:', path)
+  router.push(path || '/')
+}
+
 // 组件样式
 const headerStyle: CSSProperties = {
   height: '64px',
@@ -368,14 +426,17 @@ const headerStyle: CSSProperties = {
 }
 
 const contentStyle: CSSProperties = {
-  textAlign: 'center',
-  minHeight: 120,
+  display: 'flex',
+  width: '100%',
+  justifyContent: 'flex-start',
+  alignContent: 'center',
   lineHeight: '120px',
   color: '#fff',
-  backgroundColor: '#108ee9',
+  backgroundColor: '#F4F4F4',
 }
 
 const siderStyle: CSSProperties = {
+  minHeight: '100vh',
   textAlign: 'center',
   lineHeight: '120px',
   color: '#fff',

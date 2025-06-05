@@ -91,14 +91,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { UserOutlined, LockOutlined, MobileOutlined, SafetyOutlined } from '@ant-design/icons-vue'
 import { login, phoneLogin, sendCode } from '@/api/user'
-import {
-  setToken,
-  setUserInfo,
-  getAutoLoginStatus,
-  setAutoLoginStatus,
-  getToken,
-} from '@/utils/auth'
-import type { LoginParams, PhoneLoginParams, UserInfo } from '@/types/user'
+import { setToken, getAutoLoginStatus, setAutoLoginStatus, getToken } from '@/utils/auth'
+import type { LoginParams, PhoneLoginParams } from '@/types/user'
 
 const router = useRouter()
 const route = useRoute()
@@ -202,13 +196,8 @@ const handlePhoneLogin = async () => {
   }
 }
 
-// 处理登录成功
-// const handleLoginSuccess = (data: { token: string; userInfo: UserInfo }) => {
 const handleLoginSuccess = (token: string) => {
-  // const { token, userInfo } = data
   setToken(token)
-  // 暂时注释
-  // setUserInfo(userInfo)
 
   if (rememberMe.value) {
     setAutoLoginStatus(3) // 设置3天自动登录
