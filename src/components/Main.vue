@@ -1,9 +1,9 @@
 <template>
   <a-layout>
-    <a-layout-sider :style="siderStyle">
+    <a-layout-sider :style="siderStyle" v-model:collapsed="state.collapsed">
       <div class="logo_title">
         <img class="logo" src="@/assets/logo.svg" width="30px" />
-        <span>电商管理后台</span>
+        <span class="title">电商管理后台</span>
       </div>
       <div class="menu_span"></div>
       <a-menu
@@ -16,7 +16,50 @@
       ></a-menu>
     </a-layout-sider>
     <a-layout>
-      <a-layout-header :style="headerStyle">Header</a-layout-header>
+      <a-layout-header :style="headerStyle">
+        <div class="header-container">
+          <div class="header-left">
+            <MenuUnfoldOutlined
+              v-if="state.collapsed"
+              class="trigger-icon"
+              @click="() => (state.collapsed = !state.collapsed)"
+            />
+            <MenuFoldOutlined
+              v-else
+              class="trigger-icon"
+              @click="() => (state.collapsed = !state.collapsed)"
+            />
+          </div>
+          <div class="header-right">
+            <a-badge :count="unreadMessages" class="message-badge">
+              <BellOutlined class="header-icon" @click="handleMessageClick" />
+            </a-badge>
+            <a-dropdown>
+              <div class="user-dropdown">
+                <a-avatar :size="32" :src="userAvatar" />
+                <span class="username">{{ userName }}</span>
+              </div>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item key="profile">
+                    <UserOutlined />
+                    <span>个人中心</span>
+                  </a-menu-item>
+                  <a-menu-item key="settings">
+                    <SettingOutlined />
+                    <span>设置</span>
+                  </a-menu-item>
+                  <a-menu-divider />
+                  <a-menu-item key="logout">
+                    <LogoutOutlined />
+                    <span>退出登录</span>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+          </div>
+        </div>
+      </a-layout-header>
       <a-layout-content :style="contentStyle">Content</a-layout-content>
     </a-layout>
   </a-layout>
@@ -29,6 +72,36 @@
   align-items: center;
   line-height: 30px;
   height: 64px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.logo_title .logo {
+  margin-right: 8px;
+  transition: -right 0.3s;
+}
+
+.logo_title .title {
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+/* 折叠时的样式 */
+:deep(.ant-layout-sider-collapsed) {
+  .logo_title {
+    padding: 0 16px;
+  }
+
+  .logo_title .logo {
+    margin-right: 0;
+  }
+
+  .logo_title .title {
+    opacity: 0;
+    display: inline-block;
+    width: 0;
+  }
 }
 
 /* 修改菜单项的圆角 */
@@ -82,6 +155,66 @@
 :deep(.ant-menu-dark .ant-menu-submenu .ant-menu-item:not(.ant-menu-item-selected):hover) {
   background-color: #3f475b !important;
 }
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.trigger-icon {
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.3s;
+  padding: 0 12px;
+}
+
+.trigger-icon:hover {
+  color: #1890ff;
+}
+
+.header-icon {
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 12px;
+}
+
+.message-badge {
+  cursor: pointer;
+}
+
+.user-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 0 12px;
+}
+
+.username {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+:deep(.ant-layout-header) {
+  background: #fff;
+  padding: 0;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  z-index: 10;
+}
 </style>
 
 <script lang="ts">
@@ -97,6 +230,14 @@ import { h } from 'vue'
 import { getUserMenu } from '@/api/user'
 import type { MenuItem, MenuItemRaw } from '@/types/menu'
 import * as AntIcons from '@ant-design/icons-vue'
+import {
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  BellOutlined,
+  UserOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+} from '@ant-design/icons-vue'
 
 const state = ref({
   collapsed: false,
@@ -107,6 +248,11 @@ const state = ref({
 
 // 菜单数据
 const items = ref<MenuItem[]>([])
+
+// 用户信息
+const userName = ref('Admin User')
+const userAvatar = ref('https://api.dicebear.com/7.x/avataaars/svg?seed=admin')
+const unreadMessages = ref(5)
 
 // 处理菜单数据
 const processMenuItems = (menuItems: MenuItemRaw[]): MenuItem[] => {
@@ -209,14 +355,16 @@ watch(
   },
 )
 
+// 处理消息点击
+const handleMessageClick = () => {
+  console.log('Navigate to messages page')
+}
+
 // 组件样式
 const headerStyle: CSSProperties = {
-  textAlign: 'center',
-  color: '#fff',
-  height: 64,
-  paddingInline: 50,
+  height: '64px',
   lineHeight: '64px',
-  backgroundColor: '#7dbcea',
+  position: 'relative',
 }
 
 const contentStyle: CSSProperties = {
