@@ -24,37 +24,39 @@
 
   <!-- 模板选择器 -->
   <template-selector
-    :isVisable="dialogVisible"
+    :isVisable="isTemplateDialogVisible"
     @getSelectedId="handleSelect"
-    @closeDialog="dialogVisible = false"
+    @closeDialog="closeTemplateDialog"
   />
 </template>
 
-<script lang="ts">
-import { ref } from 'vue'
-
-const statusValue = ref('1')
-const searchValue = ref('')
-
-export default {
-  name: 'ContentsManagement',
-}
-</script>
-
 <script lang="ts" setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import type { CSSProperties } from 'vue'
 import { columns, data as tableData } from '@/tables/page'
 import TemplateSelector from '@/components/dialog/TemplateSelector.vue'
 
-const dialogVisible = ref(false)
+const router = useRouter()
+const statusValue = ref('1')
+const searchValue = ref('')
+const isTemplateDialogVisible = ref(false)
 
 const showTemplateSelector = () => {
-  dialogVisible.value = true
+  isTemplateDialogVisible.value = true
+}
+
+const closeTemplateDialog = () => {
+  isTemplateDialogVisible.value = false
 }
 
 const handleSelect = (templateId: string) => {
   console.log('选择的模板ID:', templateId)
-  // TODO: 处理模板选择后的逻辑
+  // 这里可以根据模板ID进行相应的处理
+  router.push({
+    path: '/content/pages/edit',
+    query: { templateId },
+  })
 }
 
 const pagination = {

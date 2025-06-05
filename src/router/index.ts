@@ -24,7 +24,7 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
-        path: 'contents/pages',
+        path: '/contents/pages',
         name: 'ContentsManagement',
         component: () => import('@/views/menu/contents/Contents.vue'),
         meta: {
@@ -33,6 +33,15 @@ const routes: RouteRecordRaw[] = [
         },
       },
     ],
+  },
+  {
+    path: '/content/pages/edit',
+    name: 'ContentPageEdit',
+    component: () => import('@/views/content/layout.vue'),
+    meta: {
+      title: '新增编辑页面',
+      requiresAuth: true,
+    },
   },
   // 将所有未匹配的路由重定向到首页
   {

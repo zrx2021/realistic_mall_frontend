@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, defineProps, defineEmits } from 'vue'
+import { ref, computed, defineEmits } from 'vue'
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons-vue'
 
 const emit = defineEmits(['getSelectedId', 'closeDialog'])
