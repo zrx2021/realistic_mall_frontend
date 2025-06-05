@@ -1,7 +1,7 @@
 <template>
   <a-flex :style="containerStyle" vertical gap="middle">
     <a-flex :style="boxStyle" justify="space-between" gap="middle">
-      <a-button type="primary">新建页面</a-button>
+      <a-button type="primary" @click="showTemplateSelector">新建页面</a-button>
       <a-flex style="width: 420px" gap="middle">
         <!-- 查询状态下拉框 -->
         <a-select :style="selectStyle" v-model:value="statusValue">
@@ -21,6 +21,13 @@
       <a-table :columns="columns" :data-source="tableData" :pagination="pagination" />
     </a-flex>
   </a-flex>
+
+  <!-- 模板选择器 -->
+  <template-selector
+    :isVisable="dialogVisible"
+    @getSelectedId="handleSelect"
+    @closeDialog="dialogVisible = false"
+  />
 </template>
 
 <script lang="ts">
@@ -37,6 +44,18 @@ export default {
 <script lang="ts" setup>
 import type { CSSProperties } from 'vue'
 import { columns, data as tableData } from '@/tables/page'
+import TemplateSelector from '@/components/dialog/TemplateSelector.vue'
+
+const dialogVisible = ref(false)
+
+const showTemplateSelector = () => {
+  dialogVisible.value = true
+}
+
+const handleSelect = (templateId: string) => {
+  console.log('选择的模板ID:', templateId)
+  // TODO: 处理模板选择后的逻辑
+}
 
 const pagination = {
   total: tableData.length,

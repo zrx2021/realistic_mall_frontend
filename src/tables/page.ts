@@ -56,7 +56,7 @@ export const columns: TableColumnsType<DataType> = [
         h(
           'a',
           {
-            style: { marginRight: '15px' },
+            style: { marginRight: '15px', userSelect: 'none' },
             onClick: () => console.log('编辑', record),
           },
           '编辑',
@@ -64,7 +64,7 @@ export const columns: TableColumnsType<DataType> = [
         h(
           'a',
           {
-            style: { marginRight: '15px' },
+            style: { marginRight: '15px', userSelect: 'none' },
             onClick: () => console.log('复制', record),
           },
           '复制',
@@ -72,7 +72,7 @@ export const columns: TableColumnsType<DataType> = [
         h(
           'a',
           {
-            style: { color: '#ff4d4f' },
+            style: { color: '#ff4d4f', userSelect: 'none' },
             onClick: () => console.log('删除', record),
           },
           '删除',
