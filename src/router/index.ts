@@ -26,7 +26,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'contents/pages',
         name: 'ContentsManagement',
-        component: () => import('@/views/menu/contents/contentsManagement.vue'),
+        component: () => import('@/views/menu/contents/Contents.vue'),
         meta: {
           title: '内容管理',
           requiresAuth: true,

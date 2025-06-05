@@ -18,10 +18,7 @@
       </a-flex>
     </a-flex>
     <a-flex :style="boxStyle" justify="space-around" vertical gap="middle">
-      <a-button type="primary">Primary</a-button>
-      <a-button type="primary">Primary</a-button>
-      <a-button type="primary">Primary</a-button>
-      <a-button type="primary">Primary</a-button>
+      <a-table :columns="columns" :data-source="tableData" :pagination="pagination" />
     </a-flex>
   </a-flex>
 </template>
@@ -39,6 +36,15 @@ export default {
 
 <script lang="ts" setup>
 import type { CSSProperties } from 'vue'
+import { columns, data as tableData } from '@/tables/page'
+
+const pagination = {
+  total: tableData.length,
+  pageSize: 10,
+  showTotal: (total: number) => `共 ${total} 条`,
+  showSizeChanger: true,
+  showQuickJumper: true,
+}
 
 const searchStyle: CSSProperties = {
   float: 'right',
@@ -82,5 +88,13 @@ const boxStyle: CSSProperties = {
 :deep(.ant-select-item-option-selected) {
   color: #333;
   background-color: #e6f4ff !important;
+}
+
+:deep(.ant-table-wrapper) {
+  width: 100%;
+}
+
+:deep(.ant-table-pagination) {
+  margin: 16px 0 0 0 !important;
 }
 </style>
