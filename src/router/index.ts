@@ -42,6 +42,13 @@ const routes: RouteRecordRaw[] = [
       title: '新增编辑页面',
       requiresAuth: true,
     },
+    children: [
+      {
+        path: '/content/pages/edit/title',
+        name: 'TitleSetting',
+        component: () => import('@/views/content/TitleSetting.vue'),
+      },
+    ],
   },
   // 将所有未匹配的路由重定向到首页
   {

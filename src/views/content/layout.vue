@@ -39,7 +39,7 @@
                   class="component-item"
                   v-for="item in category.components"
                   :key="item.id"
-                  @click="addComponent(item)"
+                  @click="addComponent(item.id)"
                   @mouseenter="handleMouseEnter(item.id)"
                   @mouseleave="handleMouseLeave(item.id)"
                 >
@@ -71,19 +71,19 @@
             <a-tag color="blue">未选择组件</a-tag>
           </div>
           <div class="settings-content">
-            <div class="settings-placeholder" v-if="false">
+            <div class="settings-placeholder" v-if="componentList.length === 0">
               <setting-outlined class="settings-icon" />
               <p>选择组件后，此处显示配置选项</p>
             </div>
-            <div class="setting-tabs">
+            <div class="settings-component" v-if="componentList.length">
+              <router-view />
+            </div>
+            <div class="setting-tabs" v-if="componentList.length">
               <div class="right-panel-tabs">
                 <div v-for="tab in rightTabs" :key="tab.name" class="tab-item">
                   <img :src="imageMap[tab.name]" :alt="tab.name" width="32px" />
                 </div>
               </div>
-            </div>
-            <div class="settings-component">
-              <router-view />
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@
 
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ArrowLeftOutlined,
@@ -179,6 +179,34 @@ const swapImage = (item: number) => {
   imageMap.value[item + 'hover'] = temp
 }
 
+const componentList = reactive([
+  { id: 1, type: 1, order: 1, data: { title: '标题' } },
+  {
+    id: 1,
+    type: 6,
+    order: 1,
+    data: {
+      fixed: 'false/top',
+      outline: 'sqare/circle',
+      align: 'left/center',
+      height: '100px',
+      backgroundColor: '',
+      outlineColor: '',
+      color: '',
+    },
+  },
+  {
+    id: 1,
+    type: 4,
+    order: 1,
+    data: {
+      styleTemplate: '',
+      images: [{ imgUrl: '', tag: '', link: '' }],
+    },
+  },
+  { id: 1, type: 9, order: 1, data: { context: '', backgroundColor: '', color: '' } },
+])
+
 // 鼠标事件处理
 const handleMouseEnter = (item: number) => {
   swapImage(item)
@@ -189,8 +217,14 @@ const handleMouseLeave = (item: number) => {
 }
 
 // 添加组件
-const addComponent = (item: ComponentItem) => {
-  console.log('添加组件:', item.name)
+const addComponent = (id: number) => {
+  console.log('添加组件:', id)
+  router.push({
+    path: '/content/pages/edit/title',
+    query: {
+      id,
+    },
+  })
 }
 
 // 返回上一页
@@ -284,6 +318,7 @@ const headerStyle: CSSProperties = {
   border-left: 1px solid #e8e8e8;
   background: #fff;
   height: 100%;
+  overflow-y: auto;
 }
 
 .settings-header {
@@ -300,6 +335,11 @@ const headerStyle: CSSProperties = {
   font-weight: 500;
 }
 
+.settings-content {
+  height: 100%;
+  overflow-y: auto;
+}
+
 .settings-placeholder {
   text-align: center;
   padding: 40px 20px;
@@ -312,11 +352,19 @@ const headerStyle: CSSProperties = {
   margin-bottom: 16px;
 }
 
+.settings-component {
+  float: left;
+  width: calc(100% - 65px);
+  overflow-y: auto;
+}
+
 .right-panel-tabs {
   float: right;
+  height: 100%;
   display: flex;
   flex-direction: column;
   border-left: 1px solid #e8e8e8;
+  overflow-y: auto;
 }
 
 .tab-item {
@@ -326,6 +374,13 @@ const headerStyle: CSSProperties = {
   align-items: center;
   justify-content: center;
   border-bottom: 1px solid #e8e8e8;
+}
+
+.setting-component {
+  width: calc(100% - 64px);
+  height: 100%;
+  overflow-y: auto;
+  background-color: red;
 }
 
 /* 组件项样式 */
