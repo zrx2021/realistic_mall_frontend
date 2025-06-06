@@ -65,14 +65,26 @@
         </div>
 
         <!-- 组件设置区域 -->
-        <div class="settings-panel">
+        <div class="right-panel">
           <div class="settings-header">
             <h3>组件设置</h3>
             <a-tag color="blue">未选择组件</a-tag>
           </div>
-          <div class="settings-placeholder">
-            <setting-outlined class="settings-icon" />
-            <p>选择组件后，此处显示配置选项</p>
+          <div class="settings-content">
+            <div class="settings-placeholder" v-if="false">
+              <setting-outlined class="settings-icon" />
+              <p>选择组件后，此处显示配置选项</p>
+            </div>
+            <div class="setting-tabs">
+              <div class="right-panel-tabs">
+                <div v-for="tab in rightTabs" :key="tab.name" class="tab-item">
+                  <img :src="imageMap[tab.name]" :alt="tab.name" width="32px" />
+                </div>
+              </div>
+            </div>
+            <div class="settings-component">
+              <router-view />
+            </div>
           </div>
         </div>
       </a-flex>
@@ -111,7 +123,16 @@ onMounted(() => {
       imageMap.value[item.id + 'hover'] = getImageUrl(item.icon, true)
     })
   })
+  rightTabs.value.forEach((tab) => {
+    imageMap.value[tab.name] = getImageUrl(tab.icon, false)
+    imageMap.value[tab.name + 'hover'] = getImageUrl(tab.icon, true)
+  })
 })
+
+const rightTabs = ref([
+  { name: '组件设置', icon: '组件设置' },
+  { name: '组件排序', icon: '组件排序' },
+])
 
 // 组件分类结构
 const componentCategories = ref([
@@ -258,13 +279,19 @@ const headerStyle: CSSProperties = {
   padding: 16px;
 }
 
+.right-panel {
+  width: 400px;
+  border-left: 1px solid #e8e8e8;
+  background: #fff;
+  height: 100%;
+}
+
 .settings-header {
   display: flex;
   align-items: center;
+  padding: 16px;
   justify-content: space-between;
-  padding-bottom: 16px;
   border-bottom: 1px solid #e8e8e8;
-  margin-bottom: 20px;
 }
 
 .settings-header h3 {
@@ -283,6 +310,22 @@ const headerStyle: CSSProperties = {
   font-size: 48px;
   color: #d9d9d9;
   margin-bottom: 16px;
+}
+
+.right-panel-tabs {
+  float: right;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #e8e8e8;
+}
+
+.tab-item {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #e8e8e8;
 }
 
 /* 组件项样式 */
