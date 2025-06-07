@@ -48,6 +48,11 @@ const routes: RouteRecordRaw[] = [
         name: 'TitleSetting',
         component: () => import('@/views/content/TitleSetting.vue'),
       },
+      {
+        path: '/content/pages/edit/EditorElevator',
+        name: 'ElevatorSetting',
+        component: () => import('@/views/content/ElevatorSetting.vue'),
+      },
     ],
   },
   // 将所有未匹配的路由重定向到首页

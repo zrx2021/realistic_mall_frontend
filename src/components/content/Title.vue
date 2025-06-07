@@ -1,10 +1,10 @@
 <template class="title-container">
-  <h3 v-text="props.ObjData"></h3>
+  <h3 v-text="props.objData"></h3>
 </template>
 
 <script setup lang="ts">
 const props = defineProps<{
-  ObjData: string
+  objData: string
 }>()
 </script>
 

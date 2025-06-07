@@ -1,8 +1,26 @@
 import { reactive, ref } from 'vue'
 import { getImageUrl } from '@/utils/image'
-import { getUniqueId } from '@/utils/unqiueId'
+import { getUniqueId } from '@/utils/uniqueId'
 
 import Title from '@/components/content/Title.vue'
+import Elevator from '@/components/content/Elevator.vue'
+import { deepClone } from '@/utils/deepCopy'
+
+export interface Target {
+  label?: string
+  image?: string
+  jumpUrl: string
+}
+
+export interface TabList {
+  id: number
+  type: number
+  target: Target[]
+}
+
+export interface objData {
+  objData: TabList
+}
 
 export const initMap = () => {
   availableComponents.value.forEach((item) => {
@@ -12,12 +30,21 @@ export const initMap = () => {
   })
 }
 
-const getTemplate = (id: number) => {
+const getTemplate = (id: number, isAdd: boolean) => {
   const template = componentTemplate.find((item) => item.type === id) || null
   if (template) {
-    const newTemplate = { ...template }
-    newTemplate.id = getUniqueId()
-    return newTemplate
+    if (isAdd) {
+      // 使用...template 是浅拷贝
+      // const newTemplate = { ...template }
+      // console.log('新模板是：', newTemplate)
+      // 深拷贝逻辑
+      // const newTemplate = JSON.parse(JSON.stringify(template))
+      const newTemplate = deepClone(template)
+      newTemplate.id = getUniqueId()
+      return newTemplate
+    } else {
+      return template
+    }
   } else {
     return null
   }
@@ -29,17 +56,18 @@ export const getComponent = (type: number) => {
   switch (fileName) {
     case 'Title':
       return Title
+    case 'Elevator':
+      return Elevator
     default:
       return null
   }
 }
 
 // 添加组件
-export const addComponentAndJump = (id: number) => {
-  console.log('添加组件:', id)
+export const addAndEditComponent = (id: number, isAdd: boolean) => {
   const fileSuffix = fileMap.value[id] || null
 
-  const template = getTemplate(id)
+  const template = getTemplate(id, isAdd)
   if (template) {
     const returnData = {
       path: `/content/pages/edit/Editor${fileSuffix}`,
@@ -47,7 +75,9 @@ export const addComponentAndJump = (id: number) => {
         id,
       },
     }
-    componentList.push(template)
+    if (isAdd) {
+      componentList.push(template)
+    }
     return returnData
   }
 }
@@ -57,8 +87,22 @@ const componentTemplate = [
     id: getUniqueId(),
     name: '标题',
     type: 1,
-    order: 1,
     data: '请输入标题',
+  },
+  {
+    id: getUniqueId(),
+    name: '电梯导航',
+    type: 2,
+    data: reactive({
+      id: getUniqueId(),
+      type: 1,
+      target: [
+        { label: '导航1', jumpUrl: '' },
+        { label: '导航2', jumpUrl: '' },
+        { label: '导航3', jumpUrl: '' },
+        { label: '导航4', jumpUrl: '' },
+      ],
+    }),
   },
 ]
 

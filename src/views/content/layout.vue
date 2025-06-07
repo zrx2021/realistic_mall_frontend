@@ -78,7 +78,11 @@
               <p>从左侧拖拽或点击组件添加到此处</p>
             </div>
             <div v-for="item in componentList" :key="item.id">
-              <component :is="getComponent(item.type)" :ObjData="item.data" />
+              <component
+                :is="getComponent(item.type)"
+                :objData="item.data"
+                @click="handleClick(item.id)"
+              />
             </div>
           </div>
         </div>
@@ -125,7 +129,7 @@ import {
 } from '@ant-design/icons-vue'
 import {
   availableComponents,
-  addComponentAndJump,
+  addAndEditComponent as addOrEditComponent,
   getComponent,
   componentList,
   initMap,
@@ -151,12 +155,20 @@ const headerStyle: CSSProperties = {
   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
 }
 
+const handleClick = (id: number) => {
+  console.log('点击', id)
+  const returnData = addOrEditComponent(id, false)
+  if (returnData) {
+    router.push(returnData)
+  }
+}
+
 const handlePreview = () => {
   console.log('预览', componentList)
 }
 
 const addComponent = (id: number) => {
-  const returnData = addComponentAndJump(id)
+  const returnData = addOrEditComponent(id, true)
   if (returnData) {
     router.push(returnData)
   }
