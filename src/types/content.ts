@@ -34,11 +34,6 @@ const getTemplate = (id: number, isAdd: boolean) => {
   const template = componentTemplate.find((item) => item.type === id) || null
   if (template) {
     if (isAdd) {
-      // 使用...template 是浅拷贝
-      // const newTemplate = { ...template }
-      // console.log('新模板是：', newTemplate)
-      // 深拷贝逻辑
-      // const newTemplate = JSON.parse(JSON.stringify(template))
       const newTemplate = deepClone(template)
       newTemplate.id = getUniqueId()
       return newTemplate

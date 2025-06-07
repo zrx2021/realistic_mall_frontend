@@ -1,5 +1,5 @@
-<template>
-  <a-tabs v-if="props.objData.type === 1">
+<template class="title-container">
+  <a-tabs v-if="props.objData.type === 1" class="tabs-container" centered>
     <a-tab-pane
       v-for="item in props.objData.target"
       :key="getUniqueId() + item.jumpUrl"
@@ -28,7 +28,20 @@ const props = withDefaults(defineProps<objData>(), {
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.title-container {
+}
+
+.tabs-container {
+  min-width: 350px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+}
+
+.tabs-container:hover {
+  border: 1px dashed #1890ff;
+}
+</style>
 
 <script lang="ts">
 export default {
