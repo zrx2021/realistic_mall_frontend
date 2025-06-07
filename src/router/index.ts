@@ -44,7 +44,7 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
-        path: '/content/pages/edit/title',
+        path: '/content/pages/edit/EditorTitle',
         name: 'TitleSetting',
         component: () => import('@/views/content/TitleSetting.vue'),
       },

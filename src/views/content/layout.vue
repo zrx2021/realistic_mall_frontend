@@ -30,7 +30,7 @@
         <div class="component-panel">
           <a-tabs v-model:activeKey="activeTab" centered class="component-tabs">
             <a-tab-pane
-              v-for="category in componentCategories"
+              v-for="category in availableComponents"
               :key="category.name"
               :tab="category.name"
             >
@@ -44,7 +44,16 @@
                   @mouseleave="handleMouseLeave(item.id)"
                 >
                   <div class="component-icon">
-                    <img :src="imageMap[item.id]" :alt="item.name" />
+                    <img
+                      :src="imageMap[item.name + '-hover']"
+                      :alt="item.name"
+                      v-show="indexArray[item.id]"
+                    />
+                    <img
+                      :src="imageMap[item.name]"
+                      :alt="item.name"
+                      v-show="!indexArray[item.id]"
+                    />
                   </div>
                   <span class="component-name">{{ item.name }}</span>
                 </div>
@@ -56,10 +65,20 @@
         <!-- 内容编辑区域 -->
         <div class="editor-area">
           <div class="editor-container">
-            <div class="placeholder-content">
+            <div class="editor-container-inner">
+              <img
+                src="@/assets/content/page/editing/手机头部.png"
+                alt="placeholder"
+                width="375px"
+              />
+            </div>
+            <div class="placeholder-content" v-if="componentList.length === 0">
               <laptop-outlined class="placeholder-icon" />
               <h3>内容编辑区</h3>
               <p>从左侧拖拽或点击组件添加到此处</p>
+            </div>
+            <div v-for="item in componentList" :key="item.id">
+              <component :is="getComponent(item.type)" :ObjData="item.data" />
             </div>
           </div>
         </div>
@@ -94,7 +113,7 @@
 
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ArrowLeftOutlined,
@@ -104,135 +123,24 @@ import {
   LaptopOutlined,
   SettingOutlined,
 } from '@ant-design/icons-vue'
+import {
+  availableComponents,
+  addComponentAndJump,
+  getComponent,
+  componentList,
+  initMap,
+  initImageMap,
+  imageMap,
+} from '@/types/content'
 
-const imageMap = ref<Record<string, string>>({})
 const router = useRouter()
-
-const getImageUrl = (icon: string, isHover: boolean) => {
-  return new URL(
-    `../../assets/content/page/editing/${icon}${isHover ? '-hover' : ''}.svg`,
-    import.meta.url,
-  ).href
-}
-
-onMounted(() => {
-  // 初始化图片映射
-  componentCategories.value.forEach((type) => {
-    type.components.forEach((item) => {
-      imageMap.value[item.id] = getImageUrl(item.icon, false)
-      imageMap.value[item.id + 'hover'] = getImageUrl(item.icon, true)
-    })
-  })
-  rightTabs.value.forEach((tab) => {
-    imageMap.value[tab.name] = getImageUrl(tab.icon, false)
-    imageMap.value[tab.name + 'hover'] = getImageUrl(tab.icon, true)
-  })
-})
-
+const activeTab = ref('基础组件')
 const rightTabs = ref([
   { name: '组件设置', icon: '组件设置' },
   { name: '组件排序', icon: '组件排序' },
 ])
 
-// 组件分类结构
-const componentCategories = ref([
-  {
-    name: '基础组件',
-    components: [
-      { id: 1, name: '标题文本', icon: '标题文本', category: '基础组件' },
-      { id: 2, name: '电梯导航', icon: '电梯导航', category: '基础组件' },
-      { id: 3, name: '商品', icon: '商品', category: '基础组件' },
-      { id: 4, name: '图片', icon: '图片', category: '基础组件' },
-      { id: 5, name: '富文本', icon: '富文本', category: '基础组件' },
-      { id: 6, name: '搜索', icon: '搜索', category: '基础组件' },
-      { id: 7, name: '辅助分割', icon: '辅助分割', category: '基础组件' },
-      { id: 8, name: '视频', icon: '视频', category: '基础组件' },
-      { id: 9, name: '公告', icon: '公告', category: '基础组件' },
-    ],
-  },
-  {
-    name: '营销组件',
-    components: [
-      { id: 10, name: '优惠券', icon: '优惠券', category: '营销组件' },
-      { id: 11, name: '限时折扣', icon: '限时折扣', category: '营销组件' },
-      { id: 12, name: '秒杀', icon: '秒杀', category: '营销组件' },
-      { id: 13, name: '拼团', icon: '拼团', category: '营销组件' },
-      { id: 14, name: '满减', icon: '满减', category: '营销组件' },
-      { id: 15, name: '积分', icon: '积分', category: '营销组件' },
-    ],
-  },
-  {
-    name: '高级组件',
-    components: [
-      { id: 16, name: '轮播图', icon: '轮播图', category: '高级组件' },
-      { id: 17, name: '分类导航', icon: '分类导航', category: '高级组件' },
-      { id: 18, name: '会员卡', icon: '会员卡', category: '高级组件' },
-    ],
-  },
-])
-
-const activeTab = ref('基础组件')
-
-const swapImage = (item: number) => {
-  const temp = imageMap.value[item]
-  imageMap.value[item] = imageMap.value[item + 'hover']
-  imageMap.value[item + 'hover'] = temp
-}
-
-const componentList = reactive([
-  { id: 1, type: 1, order: 1, data: { title: '标题' } },
-  {
-    id: 1,
-    type: 6,
-    order: 1,
-    data: {
-      fixed: 'false/top',
-      outline: 'sqare/circle',
-      align: 'left/center',
-      height: '100px',
-      backgroundColor: '',
-      outlineColor: '',
-      color: '',
-    },
-  },
-  {
-    id: 1,
-    type: 4,
-    order: 1,
-    data: {
-      styleTemplate: '',
-      images: [{ imgUrl: '', tag: '', link: '' }],
-    },
-  },
-  { id: 1, type: 9, order: 1, data: { context: '', backgroundColor: '', color: '' } },
-])
-
-// 鼠标事件处理
-const handleMouseEnter = (item: number) => {
-  swapImage(item)
-}
-
-const handleMouseLeave = (item: number) => {
-  swapImage(item)
-}
-
-// 添加组件
-const addComponent = (id: number) => {
-  console.log('添加组件:', id)
-  router.push({
-    path: '/content/pages/edit/title',
-    query: {
-      id,
-    },
-  })
-}
-
-// 返回上一页
-const goBack = () => {
-  router.push({
-    path: '/contents/pages',
-  })
-}
+const indexArray = ref<boolean[]>([])
 
 // 样式定义
 const headerStyle: CSSProperties = {
@@ -242,12 +150,42 @@ const headerStyle: CSSProperties = {
   lineHeight: '64px',
   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
 }
+
+const addComponent = (id: number) => {
+  const returnData = addComponentAndJump(id)
+  if (returnData) {
+    router.push(returnData)
+  }
+}
+
+// 鼠标事件处理
+const handleMouseEnter = (index: number) => {
+  indexArray.value[index] = true
+}
+
+const handleMouseLeave = (index: number) => {
+  indexArray.value[index] = false
+}
+
+// 返回上一页
+const goBack = () => {
+  router.push({
+    path: '/contents/pages',
+  })
+}
+
+onMounted(() => {
+  initMap()
+  initImageMap()
+  indexArray.value = Array(availableComponents.value.length).fill(false)
+})
 </script>
 
 <style scoped>
 /* 整体布局 */
 .main-container {
   height: calc(100vh - 64px);
+  justify-content: space-between;
 }
 
 /* 组件面板 */
@@ -265,26 +203,24 @@ const headerStyle: CSSProperties = {
 
 /* 编辑区域 */
 .editor-area {
-  flex: 1;
   padding: 20px;
-  background: #f8f8f8;
+  height: 100%;
   overflow-y: auto;
 }
 
 .editor-container {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  min-height: 80vh;
   display: flex;
+  width: 375px;
+  text-align: center;
+  background: #fff;
   align-items: center;
+  flex-direction: column;
   justify-content: center;
 }
 
 .placeholder-content {
-  text-align: center;
-  color: #999;
   padding: 40px;
+  color: #999;
 }
 
 .placeholder-icon {
