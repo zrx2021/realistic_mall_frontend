@@ -8,7 +8,7 @@
           <span class="page-title">页面编辑 - 首页</span>
         </div>
         <a-space>
-          <a-button variant="outlined" class="action-btn">
+          <a-button variant="outlined" class="action-btn" @click="handlePreview">
             <template #icon><eye-outlined /></template>
             预览
           </a-button>
@@ -149,6 +149,10 @@ const headerStyle: CSSProperties = {
   height: '64px',
   lineHeight: '64px',
   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+}
+
+const handlePreview = () => {
+  console.log('预览', componentList)
 }
 
 const addComponent = (id: number) => {

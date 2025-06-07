@@ -1,5 +1,6 @@
 import { reactive, ref } from 'vue'
 import { getImageUrl } from '@/utils/image'
+import { getUniqueId } from '@/utils/unqiueId'
 
 import Title from '@/components/content/Title.vue'
 
@@ -12,7 +13,14 @@ export const initMap = () => {
 }
 
 const getTemplate = (id: number) => {
-  return componentTemplate.find((item) => item.type === id) || null
+  const template = componentTemplate.find((item) => item.type === id) || null
+  if (template) {
+    const newTemplate = { ...template }
+    newTemplate.id = getUniqueId()
+    return newTemplate
+  } else {
+    return null
+  }
 }
 
 export const getComponent = (type: number) => {
@@ -46,7 +54,7 @@ export const addComponentAndJump = (id: number) => {
 
 const componentTemplate = [
   {
-    id: Date.now() + Math.random().toString().split('.')[1],
+    id: getUniqueId(),
     name: '标题',
     type: 1,
     order: 1,
