@@ -29,15 +29,12 @@ export const initMap = () => {
   })
 }
 
-const getTemplate = (id: number, isAdd: boolean) => {
-  const template = componentTemplate.find((item) => item.type === id) || null
+export const getTemplate = (type: number) => {
+  const template = componentTemplate.find((item) => item.type === type) || null
   if (template) {
-    if (isAdd) {
-      const newTemplate = ref(JSON.parse(JSON.stringify(template)))
-      newTemplate.value.id = getUniqueId()
-      return newTemplate.value
-    }
-    return template
+    const newTemplate = ref(JSON.parse(JSON.stringify(template)))
+    newTemplate.value.id = getUniqueId()
+    return newTemplate.value
   }
   return null
 }
@@ -56,21 +53,9 @@ export const getComponent = (type: number) => {
 }
 
 // 添加组件
-export const addAndEditComponent = (id: number, type: number, isAdd: boolean) => {
-  const fileSuffix = fileMap.value[type] || null
-  const template = getTemplate(type, isAdd)
-  if (template) {
-    const returnData = {
-      path: `/content/pages/edit/Editor${fileSuffix}`,
-      query: {
-        id,
-      },
-    }
-    if (isAdd) {
-      componentList.push(template)
-    }
-    return returnData
-  }
+export const addComponent = (type: number) => {
+  const template = getTemplate(type)
+  componentList.push(template)
 }
 
 const componentTemplate = [
@@ -99,7 +84,7 @@ const componentTemplate = [
 
 export const componentList = reactive([componentTemplate[0]])
 export const imageMap = ref<Record<string, string>>({})
-const fileMap = ref<Record<number, string>>({})
+export const fileMap = ref<Record<number, string>>({})
 
 // 组件分类结构
 export const availableComponents = ref([

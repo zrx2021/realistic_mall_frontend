@@ -129,12 +129,14 @@ import {
 } from '@ant-design/icons-vue'
 import {
   availableComponents,
-  addAndEditComponent,
+  addComponent,
   getComponent,
   componentList,
   initMap,
   initImageMap,
   imageMap,
+  getTemplate,
+  fileMap,
 } from '@/types/content'
 
 const router = useRouter()
@@ -156,9 +158,22 @@ const headerStyle: CSSProperties = {
 }
 
 const handleClick = (id: number, type: number) => {
-  const returnData = addAndEditComponent(id, type, false)
-  if (returnData) {
-    router.push(returnData)
+  const data = ref({})
+  const isFounded = ref(false)
+  componentList.forEach((item) => {
+    if (item.id === id) {
+      data.value = item.data
+      isFounded.value = true
+    }
+  })
+  if (isFounded.value) {
+    const fileSuffix = fileMap.value[type] || null
+    router.push({
+      name: `${fileSuffix}Setting`,
+      params: {
+        objData: JSON.stringify(data.value),
+      },
+    })
   }
 }
 
@@ -166,11 +181,9 @@ const handlePreview = () => {
   console.log('预览', componentList)
 }
 
-const addComponent = (id: number) => {
-  const returnData = addAndEditComponent(-1, id, true)
-  if (returnData) {
-    router.push(returnData)
-  }
+const addComponent = (type: number) => {
+  const template = getTemplate(type)
+  componentList.push(template)
 }
 
 // 鼠标事件处理
