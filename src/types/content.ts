@@ -4,7 +4,6 @@ import { getUniqueId } from '@/utils/uniqueId'
 
 import Title from '@/components/content/Title.vue'
 import Elevator from '@/components/content/Elevator.vue'
-import { deepClone } from '@/utils/deepCopy'
 
 export interface Target {
   label?: string
@@ -34,15 +33,13 @@ const getTemplate = (id: number, isAdd: boolean) => {
   const template = componentTemplate.find((item) => item.type === id) || null
   if (template) {
     if (isAdd) {
-      const newTemplate = deepClone(template)
-      newTemplate.id = getUniqueId()
-      return newTemplate
-    } else {
-      return template
+      const newTemplate = ref(JSON.parse(JSON.stringify(template)))
+      newTemplate.value.id = getUniqueId()
+      return newTemplate.value
     }
-  } else {
-    return null
+    return template
   }
+  return null
 }
 
 export const getComponent = (type: number) => {
@@ -59,10 +56,9 @@ export const getComponent = (type: number) => {
 }
 
 // 添加组件
-export const addAndEditComponent = (id: number, isAdd: boolean) => {
-  const fileSuffix = fileMap.value[id] || null
-
-  const template = getTemplate(id, isAdd)
+export const addAndEditComponent = (id: number, type: number, isAdd: boolean) => {
+  const fileSuffix = fileMap.value[type] || null
+  const template = getTemplate(type, isAdd)
   if (template) {
     const returnData = {
       path: `/content/pages/edit/Editor${fileSuffix}`,
@@ -88,7 +84,7 @@ const componentTemplate = [
     id: getUniqueId(),
     name: '电梯导航',
     type: 2,
-    data: reactive({
+    data: {
       id: getUniqueId(),
       type: 1,
       target: [
@@ -97,7 +93,7 @@ const componentTemplate = [
         { label: '导航3', jumpUrl: '' },
         { label: '导航4', jumpUrl: '' },
       ],
-    }),
+    },
   },
 ]
 

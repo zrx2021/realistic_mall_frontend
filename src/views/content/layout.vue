@@ -81,7 +81,7 @@
               <component
                 :is="getComponent(item.type)"
                 :objData="item.data"
-                @click="handleClick(item.id)"
+                @click="handleClick(item.id, item.type)"
               />
             </div>
           </div>
@@ -129,7 +129,7 @@ import {
 } from '@ant-design/icons-vue'
 import {
   availableComponents,
-  addAndEditComponent as addOrEditComponent,
+  addAndEditComponent,
   getComponent,
   componentList,
   initMap,
@@ -155,9 +155,8 @@ const headerStyle: CSSProperties = {
   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
 }
 
-const handleClick = (id: number) => {
-  console.log('点击', id)
-  const returnData = addOrEditComponent(id, false)
+const handleClick = (id: number, type: number) => {
+  const returnData = addAndEditComponent(id, type, false)
   if (returnData) {
     router.push(returnData)
   }
@@ -168,7 +167,7 @@ const handlePreview = () => {
 }
 
 const addComponent = (id: number) => {
-  const returnData = addOrEditComponent(id, true)
+  const returnData = addAndEditComponent(-1, id, true)
   if (returnData) {
     router.push(returnData)
   }
