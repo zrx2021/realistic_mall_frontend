@@ -80,8 +80,8 @@
             <div v-for="(element, index) in componentList" :key="element">
               <component
                 :is="getComponent(element.type)"
-                :objData="JSON.stringify(element.data)"
-                @click="handleClick(element as TabList, index)"
+                :objData="indexData[index]"
+                @click="handleClick(element.id)"
               />
             </div>
           </div>
@@ -101,9 +101,8 @@
             <div class="settings-component" v-if="componentList.length">
               <component
                 :is="getSettingsComponent(settingType)"
-                :objData="JSON.stringify(componentList[settingIndex])"
-                @updateData="handleUpdateData"
-                :key="updateArray[settingIndex]"
+                :key="refreshKeysArray[settingIndex]"
+                v-model:objData="settingData"
               />
             </div>
             <div class="setting-tabs" v-if="componentList.length">
@@ -122,7 +121,7 @@
 
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ArrowLeftOutlined,
@@ -142,16 +141,19 @@ import {
   getSettingsComponent,
 } from '@/types/content'
 
-import type { TabList } from '@/types/content'
+import type { Wrapper, Elevator, Goods } from '@/types/content'
+
 import { getUniqueId } from '@/utils/uniqueId'
 
 const router = useRouter()
 const settingType = ref(-1)
 const settingIndex = ref(-1)
 const activeTab = ref('基础组件')
-const componentList = ref<TabList[]>([])
+const componentList = ref<Wrapper[]>([])
 const indexArray = ref<boolean[]>([])
-const updateArray = ref<number[]>([])
+const refreshKeysArray = ref<number[]>([])
+const indexData = ref<(string | Elevator | Goods)[]>([])
+const settingData = ref<string | Elevator | Goods>('')
 
 const rightTabs = ref([
   { name: '组件设置', icon: '组件设置' },
@@ -167,14 +169,20 @@ const headerStyle: CSSProperties = {
   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
 }
 
-const handleUpdateData = (data: string, id: number) => {
-  componentList.value[id] = JSON.parse(data)
+const initIndexData = () => {
+  componentList.value.forEach((element) => {
+    indexData.value.push(element.objData)
+  })
 }
 
-const handleClick = (item: TabList, index: number) => {
-  settingType.value = item.type
-  settingIndex.value = index
-  updateArray.value[index] = getUniqueId()
+const handleClick = (id: number) => {
+  componentList.value.forEach((element, index) => {
+    if (element.id === id) {
+      settingType.value = element.type
+      settingIndex.value = index
+      settingData.value = element.objData
+    }
+  })
 }
 
 const handlePreview = () => {
@@ -184,9 +192,12 @@ const handlePreview = () => {
 }
 
 const addComponent = (type: number) => {
-  const template = getTemplate(type)
-  const newComponent = ref(JSON.parse(JSON.stringify(template)))
-  componentList.value.push(newComponent.value)
+  const template = ref(getTemplate(type))
+  console.log('newComponent new Template', template.value)
+  if (template.value) {
+    template.value.id = getUniqueId()
+    componentList.value.push(template.value)
+  }
 }
 
 // 鼠标事件处理
@@ -205,11 +216,19 @@ const goBack = () => {
   })
 }
 
+watch(settingData, (newVal) => {
+  console.log('检测到更新', newVal)
+  indexData.value[settingIndex.value] = newVal
+  componentList.value[settingIndex.value].objData = newVal
+  refreshKeysArray.value[settingIndex.value] = getUniqueId()
+})
+
 onMounted(() => {
   initMap()
   initImageMap()
   addComponent(1)
-  addComponent(2)
+  // addComponent(2)
+  initIndexData()
   indexArray.value = Array(availableComponents.value.length).fill(false)
 })
 </script>

@@ -16,7 +16,7 @@
       class="setting-item"
     >
       <div class="close-btn"></div>
-      <a-input v-model:value="item.label" placeholder="请输入标签" @change="handleChange" />
+      <a-input v-model:value="item.label" placeholder="请输入标签" />
       <a-select placeholder="请选择目标链接" @change="handleChange" v-model:value="item.jumpUrl">
         <a-select-option v-for="option in options" :key="option.value" :value="option.value">
           {{ option.label }}
@@ -39,7 +39,12 @@ const props = defineProps<{
 const data = ref<Elevator>({
   id: -1,
   type: -1,
-  elevatorTabsData: [],
+  elevatorTabsData: [
+    { label: '导航1', jumpUrl: 'www.baidu.com' },
+    { label: '导航2', jumpUrl: 'www.jingdong.com' },
+    { label: '导航3', jumpUrl: 'www.taobao.com' },
+    { label: '导航4', jumpUrl: 'www.sina.com' },
+  ],
 })
 
 const emits = defineEmits(['updateData'])
@@ -53,23 +58,22 @@ const options = ref([
 ])
 
 const handleChange = () => {
-  emits('updateData', JSON.stringify(data.value), data.value.id)
+  // emits('updateData', JSON.stringify(data.value), data.value.id)
 }
 
 onMounted(() => {
-  const obj = JSON.parse(props.objData)
-  data.value = obj.data as Elevator
-  data.value.id = getUniqueId()
+  data.value = JSON.parse(props.objData).data as Elevator
+  console.log('onMounted', data.value)
 })
 
-watch(
-  () => props.objData, // 监听传入数据变化
-  (newVal) => {
-    data.value = JSON.parse(newVal) as Elevator
-    data.value.id = getUniqueId()
-    console.log('setting data', data.value)
-  },
-)
+// watch(
+//   () => props.objData, // 监听传入数据变化
+//   (newVal) => {
+//     data.value = JSON.parse(newVal) as Elevator
+//     data.value.id = getUniqueId()
+//     console.log('setting data', data.value)
+//   },
+// )
 </script>
 
 <style scoped>

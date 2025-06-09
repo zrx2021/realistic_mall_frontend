@@ -8,19 +8,37 @@ import TitleSetting from '@/views/content/TitleSetting.vue'
 import ElevatorSetting from '@/views/content/ElevatorSetting.vue'
 
 export interface ElevatorTabs {
+  tabId: number
   label?: string
   image?: string
   jumpUrl: string
 }
 
+export interface GoodsGroup {
+  groupId: number
+  groupName: string
+  displayCount: number
+}
+
 export interface Elevator {
-  id: number
-  type: number
-  elevatorTabsData: ElevatorTabs[]
+  elevatorId: number
+  templateStyle: string
+  tabData: ElevatorTabs[]
+}
+
+export interface Goods {
+  goodsId: number
+  templateStyle: string
+  goodsList: string[]
+  groupData: GoodsGroup[]
+  displayStyle: string
 }
 
 export interface Wrapper {
-  objData: Elevator | string
+  id: number
+  type: number
+  name: string
+  objData: Elevator | Goods | string
 }
 
 export const initMap = () => {
@@ -34,9 +52,9 @@ export const initMap = () => {
 export const getTemplate = (type: number) => {
   const template = componentTemplate.find((item) => item.type === type) || null
   if (template) {
-    const newTemplate = JSON.parse(JSON.stringify(template))
-    newTemplate.id = getUniqueId()
-    return newTemplate
+    const newTemplate = ref(JSON.parse(JSON.stringify(template)))
+    newTemplate.value.id = getUniqueId()
+    return newTemplate.value
   }
   return null
 }
@@ -72,20 +90,20 @@ const componentTemplate = [
     id: getUniqueId(),
     name: '标题',
     type: 1,
-    data: '请输入标题',
+    objData: '请输入标题',
   },
   {
     id: getUniqueId(),
     name: '电梯导航',
     type: 2,
-    data: {
-      id: getUniqueId(),
-      type: 1,
-      elevatorTabsData: [
-        { label: '导航1', jumpUrl: '' },
-        { label: '导航2', jumpUrl: '' },
-        { label: '导航3', jumpUrl: '' },
-        { label: '导航4', jumpUrl: '' },
+    objData: {
+      elevatorId: getUniqueId(),
+      templateStyle: 1,
+      tabData: [
+        { tabId: getUniqueId(), label: '导航1', jumpUrl: '' },
+        { tabId: getUniqueId(), label: '导航2', jumpUrl: '' },
+        { tabId: getUniqueId(), label: '导航3', jumpUrl: '' },
+        { tabId: getUniqueId(), label: '导航4', jumpUrl: '' },
       ],
     },
   },

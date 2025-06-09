@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{
   objData: string
@@ -12,8 +12,17 @@ const props = defineProps<{
 const showData = ref('无法加载')
 
 onMounted(() => {
-  showData.value = JSON.parse(props.objData)
+  console.log('Title onMounted', props.objData)
+  showData.value = props.objData
+  console.log('Title onMounted showData', showData.value)
 })
+
+watch(
+  () => props.objData,
+  (newVal) => {
+    showData.value = newVal
+  },
+)
 </script>
 
 <style scoped>
