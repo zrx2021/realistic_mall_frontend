@@ -1,11 +1,22 @@
 <template class="title-container">
-  <h3 v-text="props.objData"></h3>
+  <h3 v-text="showData"></h3>
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
+
 const props = defineProps<{
   objData: string
 }>()
+
+const showData = ref('无法加载')
+
+onMounted(() => {
+  console.log('编辑区', props.objData)
+  // TODO 绑定数据
+  showData.value = JSON.parse(props.objData)
+  console.log('data', showData.value)
+})
 </script>
 
 <style scoped>

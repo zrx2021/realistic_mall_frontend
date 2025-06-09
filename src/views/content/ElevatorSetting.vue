@@ -10,10 +10,10 @@
     标签字数建议在5个字以内，图片建议尺寸100*100像素
   </h5>
   <a-flex class="setting-list">
-    <div v-for="item in data" :key="item" class="setting-item">
+    <div v-for="item in data.target" :key="item" class="setting-item">
       <div class="close-btn"></div>
-      <a-input v-model:value="item.label" placeholder="请输入标签" />
-      <a-select placeholder="请选择目标链接">
+      <a-input v-model:value="item.label" placeholder="请输入标签" @change="handleChange" />
+      <a-select placeholder="请选择目标链接" @change="handleChange" v-model:value="item.jumpUrl">
         <a-select-option v-for="option in options" :key="option.value" :value="option.value">
           {{ option.label }}
         </a-select-option>
@@ -24,20 +24,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
-const props = defineProps({
-  objData: String,
-})
+const props = defineProps<{
+  objData: string
+}>()
 
+const data = ref({})
+const emits = defineEmits(['updateData'])
 const displayType = ref('words')
-
-const data = ref([
-  { label: '导航1', jumpUrl: '1' },
-  { label: '导航2', jumpUrl: '2' },
-  { label: '导航3', jumpUrl: '3' },
-  { label: '导航4', jumpUrl: '4' },
-])
 
 const options = ref([
   { value: '1', label: '1' },
@@ -45,6 +40,15 @@ const options = ref([
   { value: '3', label: '3' },
   { value: '4', label: '4' },
 ])
+
+const handleChange = () => {
+  emits('updateData', JSON.stringify(data.value))
+}
+
+onMounted(() => {
+  console.log(props.objData)
+  data.value = JSON.parse(props.objData)
+})
 </script>
 
 <style scoped>

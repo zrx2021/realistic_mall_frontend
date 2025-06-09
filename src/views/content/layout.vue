@@ -37,25 +37,25 @@
               <div class="components-grid">
                 <div
                   class="component-item"
-                  v-for="item in category.components"
-                  :key="item.id"
-                  @click="addComponent(item.id)"
-                  @mouseenter="handleMouseEnter(item.id)"
-                  @mouseleave="handleMouseLeave(item.id)"
+                  v-for="element in category.components"
+                  :key="element.id"
+                  @click="addComponent(element.id)"
+                  @mouseenter="handleMouseEnter(element.id)"
+                  @mouseleave="handleMouseLeave(element.id)"
                 >
                   <div class="component-icon">
                     <img
-                      :src="imageMap[item.name + '-hover']"
-                      :alt="item.name"
-                      v-show="indexArray[item.id]"
+                      :src="imageMap[element.name + '-hover']"
+                      :alt="element.name"
+                      v-show="indexArray[element.id]"
                     />
                     <img
-                      :src="imageMap[item.name]"
-                      :alt="item.name"
-                      v-show="!indexArray[item.id]"
+                      :src="imageMap[element.name]"
+                      :alt="element.name"
+                      v-show="!indexArray[element.id]"
                     />
                   </div>
-                  <span class="component-name">{{ item.name }}</span>
+                  <span class="component-name">{{ element.name }}</span>
                 </div>
               </div>
             </a-tab-pane>
@@ -77,11 +77,11 @@
               <h3>内容编辑区</h3>
               <p>从左侧拖拽或点击组件添加到此处</p>
             </div>
-            <div v-for="item in componentList" :key="item.id">
+            <div v-for="element in componentList" :key="element.id">
               <component
-                :is="getComponent(item.type)"
-                :objData="item.data"
-                @click="handleClick(item.id, item.type)"
+                :is="getComponent(element.type)"
+                :objData="JSON.stringify(element.data)"
+                @click="handleClick(element.id, element.type)"
               />
             </div>
           </div>
@@ -99,7 +99,11 @@
               <p>选择组件后，此处显示配置选项</p>
             </div>
             <div class="settings-component" v-if="componentList.length">
-              <router-view />
+              <!-- <component
+                :is="getSettingsComponent(settingType)"
+                :objData="componentList[settingIndex]"
+                @updateData="handleUpdateData"
+              /> -->
             </div>
             <div class="setting-tabs" v-if="componentList.length">
               <div class="right-panel-tabs">
@@ -129,24 +133,28 @@ import {
 } from '@ant-design/icons-vue'
 import {
   availableComponents,
-  addComponent,
   getComponent,
-  componentList,
   initMap,
   initImageMap,
   imageMap,
   getTemplate,
+  getSettingsComponent,
   fileMap,
 } from '@/types/content'
 
+import type { TabList } from '@/types/content'
+
 const router = useRouter()
+const settingType = ref(-1)
+const settingIndex = ref(-1)
 const activeTab = ref('基础组件')
+const componentList = ref<TabList[]>([])
+const indexArray = ref<boolean[]>([])
+
 const rightTabs = ref([
   { name: '组件设置', icon: '组件设置' },
   { name: '组件排序', icon: '组件排序' },
 ])
-
-const indexArray = ref<boolean[]>([])
 
 // 样式定义
 const headerStyle: CSSProperties = {
@@ -157,33 +165,33 @@ const headerStyle: CSSProperties = {
   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
 }
 
+const handleUpdateData = (data: string) => {
+  console.log(data)
+  // componentList.value[settingIndex.value] = JSON.parse(data)
+}
+
 const handleClick = (id: number, type: number) => {
-  const data = ref({})
-  const isFounded = ref(false)
-  componentList.forEach((item) => {
-    if (item.id === id) {
-      data.value = item.data
-      isFounded.value = true
+  componentList.value.forEach((item, index) => {
+    const itemId = item.id
+    if (itemId === id) {
+      settingType.value = type
+      settingIndex.value = index
+      return
     }
   })
-  if (isFounded.value) {
-    const fileSuffix = fileMap.value[type] || null
-    router.push({
-      name: `${fileSuffix}Setting`,
-      params: {
-        objData: JSON.stringify(data.value),
-      },
-    })
-  }
 }
 
 const handlePreview = () => {
-  console.log('预览', componentList)
+  componentList.value.forEach((item) => {
+    console.log('预览', item)
+  })
 }
 
 const addComponent = (type: number) => {
   const template = getTemplate(type)
-  componentList.push(template)
+  console.log('添加组件', template)
+  const newComponent = JSON.parse(JSON.stringify(template))
+  componentList.value.push(newComponent)
 }
 
 // 鼠标事件处理
@@ -205,6 +213,8 @@ const goBack = () => {
 onMounted(() => {
   initMap()
   initImageMap()
+  addComponent(1)
+  addComponent(2)
   indexArray.value = Array(availableComponents.value.length).fill(false)
 })
 </script>

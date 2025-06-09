@@ -1,24 +1,26 @@
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 import { getImageUrl } from '@/utils/image'
 import { getUniqueId } from '@/utils/uniqueId'
 
 import Title from '@/components/content/Title.vue'
 import Elevator from '@/components/content/Elevator.vue'
+import TitleSetting from '@/views/content/TitleSetting.vue'
+import ElevatorSetting from '@/views/content/ElevatorSetting.vue'
 
-export interface Target {
+export interface ElevatorTabs {
   label?: string
   image?: string
   jumpUrl: string
 }
 
-export interface TabList {
+export interface Elevator {
   id: number
   type: number
-  target: Target[]
+  elevatorTabsData: ElevatorTabs[]
 }
 
-export interface objData {
-  objData: TabList
+export interface Wrapper {
+  objData: Elevator | string
 }
 
 export const initMap = () => {
@@ -32,9 +34,10 @@ export const initMap = () => {
 export const getTemplate = (type: number) => {
   const template = componentTemplate.find((item) => item.type === type) || null
   if (template) {
-    const newTemplate = ref(JSON.parse(JSON.stringify(template)))
-    newTemplate.value.id = getUniqueId()
-    return newTemplate.value
+    const newTemplate = JSON.parse(JSON.stringify(template))
+    newTemplate.id = getUniqueId()
+    console.log('getTemplate', newTemplate)
+    return newTemplate
   }
   return null
 }
@@ -52,10 +55,17 @@ export const getComponent = (type: number) => {
   }
 }
 
-// 添加组件
-export const addComponent = (type: number) => {
-  const template = getTemplate(type)
-  componentList.push(template)
+export const getSettingsComponent = (type: number) => {
+  initMap()
+  const fileName = fileMap.value[type] || null
+  switch (fileName) {
+    case 'Title':
+      return TitleSetting
+    case 'Elevator':
+      return ElevatorSetting
+    default:
+      return null
+  }
 }
 
 const componentTemplate = [
@@ -72,7 +82,7 @@ const componentTemplate = [
     data: {
       id: getUniqueId(),
       type: 1,
-      target: [
+      elevatorTabsData: [
         { label: '导航1', jumpUrl: '' },
         { label: '导航2', jumpUrl: '' },
         { label: '导航3', jumpUrl: '' },
@@ -82,7 +92,6 @@ const componentTemplate = [
   },
 ]
 
-export const componentList = reactive([componentTemplate[0]])
 export const imageMap = ref<Record<string, string>>({})
 export const fileMap = ref<Record<number, string>>({})
 
