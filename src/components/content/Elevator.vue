@@ -24,10 +24,7 @@ const props = defineProps<{
 }>()
 
 onMounted(() => {
-  console.log('编辑区', props.objData)
-  // TODO 绑定数据
   showData.value = JSON.parse(props.objData)
-  console.log('data', showData.value)
 })
 </script>
 

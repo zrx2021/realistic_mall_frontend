@@ -36,7 +36,6 @@ export const getTemplate = (type: number) => {
   if (template) {
     const newTemplate = JSON.parse(JSON.stringify(template))
     newTemplate.id = getUniqueId()
-    console.log('getTemplate', newTemplate)
     return newTemplate
   }
   return null

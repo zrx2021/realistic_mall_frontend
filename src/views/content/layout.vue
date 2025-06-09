@@ -77,11 +77,11 @@
               <h3>内容编辑区</h3>
               <p>从左侧拖拽或点击组件添加到此处</p>
             </div>
-            <div v-for="element in componentList" :key="element.id">
+            <div v-for="(element, index) in componentList" :key="element">
               <component
                 :is="getComponent(element.type)"
                 :objData="JSON.stringify(element.data)"
-                @click="handleClick(element.id, element.type)"
+                @click="handleClick(element as TabList, index)"
               />
             </div>
           </div>
@@ -99,11 +99,12 @@
               <p>选择组件后，此处显示配置选项</p>
             </div>
             <div class="settings-component" v-if="componentList.length">
-              <!-- <component
+              <component
                 :is="getSettingsComponent(settingType)"
-                :objData="componentList[settingIndex]"
+                :objData="JSON.stringify(componentList[settingIndex])"
                 @updateData="handleUpdateData"
-              /> -->
+                :key="settingIndex"
+              />
             </div>
             <div class="setting-tabs" v-if="componentList.length">
               <div class="right-panel-tabs">
@@ -143,6 +144,7 @@ import {
 } from '@/types/content'
 
 import type { TabList } from '@/types/content'
+import { getUniqueId } from '@/utils/uniqueId'
 
 const router = useRouter()
 const settingType = ref(-1)
@@ -165,20 +167,14 @@ const headerStyle: CSSProperties = {
   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
 }
 
-const handleUpdateData = (data: string) => {
-  console.log(data)
-  // componentList.value[settingIndex.value] = JSON.parse(data)
+const handleUpdateData = (data: string, id: number) => {
+  componentList.value[id] = JSON.parse(data)
 }
 
-const handleClick = (id: number, type: number) => {
-  componentList.value.forEach((item, index) => {
-    const itemId = item.id
-    if (itemId === id) {
-      settingType.value = type
-      settingIndex.value = index
-      return
-    }
-  })
+const handleClick = (item: TabList, index: number) => {
+  settingType.value = item.type
+  settingIndex.value = index
+  return
 }
 
 const handlePreview = () => {
@@ -189,7 +185,6 @@ const handlePreview = () => {
 
 const addComponent = (type: number) => {
   const template = getTemplate(type)
-  console.log('添加组件', template)
   const newComponent = JSON.parse(JSON.stringify(template))
   componentList.value.push(newComponent)
 }

@@ -10,7 +10,11 @@
     标签字数建议在5个字以内，图片建议尺寸100*100像素
   </h5>
   <a-flex class="setting-list">
-    <div v-for="item in data.target" :key="item" class="setting-item">
+    <div
+      v-for="item in data.elevatorTabsData"
+      :key="item.jumpUrl + getUniqueId()"
+      class="setting-item"
+    >
       <div class="close-btn"></div>
       <a-input v-model:value="item.label" placeholder="请输入标签" @change="handleChange" />
       <a-select placeholder="请选择目标链接" @change="handleChange" v-model:value="item.jumpUrl">
@@ -24,13 +28,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
+import type { Elevator } from '@/types/content'
+import { getUniqueId } from '@/utils/uniqueId'
 
 const props = defineProps<{
   objData: string
 }>()
 
-const data = ref({})
+const data = ref<Elevator>({
+  id: -1,
+  type: -1,
+  elevatorTabsData: [],
+})
+
 const emits = defineEmits(['updateData'])
 const displayType = ref('words')
 
@@ -42,13 +53,15 @@ const options = ref([
 ])
 
 const handleChange = () => {
-  emits('updateData', JSON.stringify(data.value))
+  emits('updateData', JSON.stringify(data.value), data.value.id)
 }
 
-onMounted(() => {
-  console.log(props.objData)
-  data.value = JSON.parse(props.objData)
-})
+watch(
+  () => props.objData, // 监听传入数据变化
+  (newVal) => {
+    data.value = JSON.parse(newVal) as Elevator
+  },
+)
 </script>
 
 <style scoped>
