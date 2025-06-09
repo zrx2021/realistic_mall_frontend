@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import type { Elevator } from '@/types/content'
 import { getUniqueId } from '@/utils/uniqueId'
 
@@ -56,10 +56,18 @@ const handleChange = () => {
   emits('updateData', JSON.stringify(data.value), data.value.id)
 }
 
+onMounted(() => {
+  const obj = JSON.parse(props.objData)
+  data.value = obj.data as Elevator
+  data.value.id = getUniqueId()
+})
+
 watch(
   () => props.objData, // 监听传入数据变化
   (newVal) => {
     data.value = JSON.parse(newVal) as Elevator
+    data.value.id = getUniqueId()
+    console.log('setting data', data.value)
   },
 )
 </script>

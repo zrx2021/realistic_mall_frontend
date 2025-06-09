@@ -103,7 +103,7 @@
                 :is="getSettingsComponent(settingType)"
                 :objData="JSON.stringify(componentList[settingIndex])"
                 @updateData="handleUpdateData"
-                :key="settingIndex"
+                :key="updateArray[settingIndex]"
               />
             </div>
             <div class="setting-tabs" v-if="componentList.length">
@@ -140,7 +140,6 @@ import {
   imageMap,
   getTemplate,
   getSettingsComponent,
-  fileMap,
 } from '@/types/content'
 
 import type { TabList } from '@/types/content'
@@ -152,6 +151,7 @@ const settingIndex = ref(-1)
 const activeTab = ref('基础组件')
 const componentList = ref<TabList[]>([])
 const indexArray = ref<boolean[]>([])
+const updateArray = ref<number[]>([])
 
 const rightTabs = ref([
   { name: '组件设置', icon: '组件设置' },
@@ -174,7 +174,7 @@ const handleUpdateData = (data: string, id: number) => {
 const handleClick = (item: TabList, index: number) => {
   settingType.value = item.type
   settingIndex.value = index
-  return
+  updateArray.value[index] = getUniqueId()
 }
 
 const handlePreview = () => {
@@ -185,8 +185,8 @@ const handlePreview = () => {
 
 const addComponent = (type: number) => {
   const template = getTemplate(type)
-  const newComponent = JSON.parse(JSON.stringify(template))
-  componentList.value.push(newComponent)
+  const newComponent = ref(JSON.parse(JSON.stringify(template)))
+  componentList.value.push(newComponent.value)
 }
 
 // 鼠标事件处理
