@@ -77,7 +77,7 @@
               <h3>内容编辑区</h3>
               <p>从左侧拖拽或点击组件添加到此处</p>
             </div>
-            <div v-for="(element, index) in componentList" :key="element">
+            <div v-for="(element, index) in componentList" :key="element.id">
               <component
                 :is="getComponent(element.type)"
                 :objData="indexData[index]"
@@ -170,13 +170,10 @@ const headerStyle: CSSProperties = {
   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
 }
 
-const initIndexData = () => {
-  componentList.value.forEach((element) => {
-    indexData.value.push(element.objData)
-  })
-}
+const refreshIndexData = () => {}
 
 const handleClick = (id: number) => {
+  console.log('handleClick', id)
   componentList.value.forEach((element, index) => {
     if (element.id === id) {
       settingType.value = element.type
@@ -190,13 +187,15 @@ const handlePreview = () => {
   componentList.value.forEach((item) => {
     console.log('预览', item)
   })
+  indexData.value.forEach((item) => {
+    console.log('预览indexData', item)
+  })
 }
 
 const addComponent = (type: number) => {
   const template = ref(getTemplate(type))
   console.log('newComponent new Template', template.value)
   if (template.value) {
-    template.value.id = getUniqueId()
     componentList.value.push(template.value)
     indexData.value.push(template.value.objData)
   }
@@ -230,7 +229,7 @@ onMounted(() => {
   initImageMap()
   addComponent(1)
   // addComponent(2)
-  initIndexData()
+  refreshIndexData()
   indexArray.value = Array(availableComponents.value.length).fill(false)
 })
 </script>

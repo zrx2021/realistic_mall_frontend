@@ -1,30 +1,26 @@
 <template class="title-container">
-  <a-tabs v-if="showData.type === 1" class="tabs-container" centered>
-    <a-tab-pane
-      v-for="item in showData.elevatorTabsData"
-      :key="getUniqueId() + item.jumpUrl"
-      :tab="item.label"
-    ></a-tab-pane>
+  <a-tabs v-if="showData.templateStyle === 'words'" class="tabs-container" centered>
+    <a-tab-pane v-for="item in showData.tabData" :key="item.tabId" :tab="item.label"></a-tab-pane>
   </a-tabs>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { getUniqueId } from '@/utils/uniqueId'
 import type { Elevator } from '@/types/content'
 
 const showData = ref<Elevator>({
-  id: -1,
-  type: -1,
-  elevatorTabsData: [],
+  elevatorId: -1,
+  templateStyle: '',
+  tabData: [],
 })
 
 const props = defineProps<{
-  objData: string
+  objData: Elevator
 }>()
 
 onMounted(() => {
-  showData.value = JSON.parse(props.objData)
+  showData.value = props.objData as Elevator
+  console.log('showData', showData.value)
 })
 </script>
 

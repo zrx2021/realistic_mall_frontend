@@ -98,7 +98,7 @@ const componentTemplate = [
     type: 2,
     objData: {
       elevatorId: getUniqueId(),
-      templateStyle: 1,
+      templateStyle: 'words',
       tabData: [
         { tabId: getUniqueId(), label: '导航1', jumpUrl: '' },
         { tabId: getUniqueId(), label: '导航2', jumpUrl: '' },

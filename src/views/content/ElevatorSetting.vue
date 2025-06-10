@@ -10,14 +10,10 @@
     标签字数建议在5个字以内，图片建议尺寸100*100像素
   </h5>
   <a-flex class="setting-list">
-    <div
-      v-for="item in data.elevatorTabsData"
-      :key="item.jumpUrl + getUniqueId()"
-      class="setting-item"
-    >
+    <div v-for="item in data.tabData" :key="item.tabId" class="setting-item">
       <div class="close-btn"></div>
-      <a-input v-model:value="item.label" placeholder="请输入标签" />
-      <a-select placeholder="请选择目标链接" @change="handleChange" v-model:value="item.jumpUrl">
+      <a-input v-model:value="item.label" placeholder="请输入标签" @blur="handleChange" />
+      <a-select placeholder="请选择目标链接" @blur="handleChange" v-model:value="item.jumpUrl">
         <a-select-option v-for="option in options" :key="option.value" :value="option.value">
           {{ option.label }}
         </a-select-option>
@@ -28,26 +24,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import type { Elevator } from '@/types/content'
 import { getUniqueId } from '@/utils/uniqueId'
 
 const props = defineProps<{
-  objData: string
+  objData: Elevator
 }>()
 
 const data = ref<Elevator>({
-  id: -1,
-  type: -1,
-  elevatorTabsData: [
-    { label: '导航1', jumpUrl: 'www.baidu.com' },
-    { label: '导航2', jumpUrl: 'www.jingdong.com' },
-    { label: '导航3', jumpUrl: 'www.taobao.com' },
-    { label: '导航4', jumpUrl: 'www.sina.com' },
+  elevatorId: -1,
+  templateStyle: '',
+  tabData: [
+    { tabId: getUniqueId(), label: '导航1', jumpUrl: 'www.baidu.com' },
+    { tabId: getUniqueId(), label: '导航2', jumpUrl: 'www.jingdong.com' },
+    { tabId: getUniqueId(), label: '导航3', jumpUrl: 'www.taobao.com' },
+    { tabId: getUniqueId(), label: '导航4', jumpUrl: 'www.sina.com' },
   ],
 })
 
-const emits = defineEmits(['updateData'])
+const emits = defineEmits(['update:objData'])
 const displayType = ref('words')
 
 const options = ref([
@@ -58,22 +54,13 @@ const options = ref([
 ])
 
 const handleChange = () => {
-  // emits('updateData', JSON.stringify(data.value), data.value.id)
+  emits('update:objData', data.value)
 }
 
 onMounted(() => {
-  data.value = JSON.parse(props.objData).data as Elevator
+  data.value = props.objData as Elevator
   console.log('onMounted', data.value)
 })
-
-// watch(
-//   () => props.objData, // 监听传入数据变化
-//   (newVal) => {
-//     data.value = JSON.parse(newVal) as Elevator
-//     data.value.id = getUniqueId()
-//     console.log('setting data', data.value)
-//   },
-// )
 </script>
 
 <style scoped>
