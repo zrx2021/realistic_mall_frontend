@@ -82,6 +82,7 @@
                 :is="getComponent(element.type)"
                 :objData="indexData[index]"
                 @click="handleClick(element.id)"
+                :class="{ isSelected: index === settingIndex }"
               />
             </div>
           </div>
@@ -153,7 +154,7 @@ const componentList = ref<Wrapper[]>([])
 const indexArray = ref<boolean[]>([])
 const refreshKeysArray = ref<number[]>([])
 const indexData = ref<(string | Elevator | Goods)[]>([])
-const settingData = ref<string | Elevator | Goods>('')
+const settingData = ref<string | Elevator | Goods>({} as string | Elevator | Goods)
 
 const rightTabs = ref([
   { name: '组件设置', icon: '组件设置' },
@@ -197,6 +198,7 @@ const addComponent = (type: number) => {
   if (template.value) {
     template.value.id = getUniqueId()
     componentList.value.push(template.value)
+    indexData.value.push(template.value.objData)
   }
 }
 
@@ -344,6 +346,10 @@ onMounted(() => {
   float: left;
   width: calc(100% - 65px);
   overflow-y: auto;
+}
+
+.isSelected {
+  border: 1px solid #1890ff;
 }
 
 .right-panel-tabs {
