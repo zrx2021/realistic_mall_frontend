@@ -12,9 +12,7 @@ const props = defineProps<{
 const showData = ref('无法加载')
 
 onMounted(() => {
-  console.log('Title onMounted', props.objData)
   showData.value = props.objData
-  console.log('Title onMounted showData', showData.value)
 })
 
 watch(

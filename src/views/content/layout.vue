@@ -173,7 +173,6 @@ const headerStyle: CSSProperties = {
 const refreshIndexData = () => {}
 
 const handleClick = (id: number) => {
-  console.log('handleClick', id)
   componentList.value.forEach((element, index) => {
     if (element.id === id) {
       settingType.value = element.type
@@ -218,7 +217,6 @@ const goBack = () => {
 }
 
 watch(settingData, (newVal) => {
-  console.log('检测到更新', newVal)
   indexData.value[settingIndex.value] = newVal
   componentList.value[settingIndex.value].objData = newVal
   refreshKeysArray.value[settingIndex.value] = getUniqueId()

@@ -1,5 +1,5 @@
 <template>
-  <a-radio-group v-model:value="displayType" button-style="solid" class="display-type-radio">
+  <a-radio-group v-model:value="data.templateStyle" button-style="solid" class="display-type-radio">
     <a-radio-button value="words">文字型</a-radio-button>
     <a-radio-button value="fixed">图文型</a-radio-button>
     <a-radio-button value="image">图片型</a-radio-button>
@@ -11,22 +11,36 @@
   </h5>
   <a-flex class="setting-list">
     <div v-for="item in data.tabData" :key="item.tabId" class="setting-item">
-      <div class="close-btn"></div>
-      <a-input v-model:value="item.label" placeholder="请输入标签" @blur="handleChange" />
-      <a-select placeholder="请选择目标链接" @blur="handleChange" v-model:value="item.jumpUrl">
-        <a-select-option v-for="option in options" :key="option.value" :value="option.value">
-          {{ option.label }}
-        </a-select-option>
-      </a-select>
+      <div class="close-btn" @click="deleteTab(item.tabId)"></div>
+      <div class="tab-image" v-if="!(data.templateStyle === 'words')">
+        <img src="@/assets/logo.svg" alt="logo" />
+        <span>点击</span>
+        <span>上传</span>
+      </div>
+      <div class="input-container">
+        <a-input
+          v-model:value="item.label"
+          placeholder="请输入标签"
+          @blur="handleChange"
+          v-if="data.templateStyle !== 'image'"
+        />
+        <a-select placeholder="请选择目标链接" @blur="handleChange" v-model:value="item.jumpUrl">
+          <a-select-option v-for="option in options" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </a-select-option>
+        </a-select>
+      </div>
     </div>
-    <a-button type="primary" class="add-tag-btn">添加标签</a-button>
+    <a-button type="primary" class="add-tag-btn" @click="addTab">添加标签</a-button>
   </a-flex>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { Elevator } from '@/types/content'
+import type { Elevator, ElevatorTabs } from '@/types/content'
+import { elevatorTabsTemplate } from '@/types/content'
 import { getUniqueId } from '@/utils/uniqueId'
+import { message } from 'ant-design-vue'
 
 const props = defineProps<{
   objData: Elevator
@@ -35,16 +49,10 @@ const props = defineProps<{
 const data = ref<Elevator>({
   elevatorId: -1,
   templateStyle: '',
-  tabData: [
-    { tabId: getUniqueId(), label: '导航1', jumpUrl: 'www.baidu.com' },
-    { tabId: getUniqueId(), label: '导航2', jumpUrl: 'www.jingdong.com' },
-    { tabId: getUniqueId(), label: '导航3', jumpUrl: 'www.taobao.com' },
-    { tabId: getUniqueId(), label: '导航4', jumpUrl: 'www.sina.com' },
-  ],
+  tabData: [],
 })
 
 const emits = defineEmits(['update:objData'])
-const displayType = ref('words')
 
 const options = ref([
   { value: '1', label: '1' },
@@ -57,9 +65,40 @@ const handleChange = () => {
   emits('update:objData', data.value)
 }
 
+const deleteTab = (tabId: number) => {
+  if (data.value.tabData.length < 2) {
+    message.error('至少保留两个标签')
+    return
+  }
+  data.value.tabData = data.value.tabData.filter((item) => item.tabId !== tabId)
+  handleChange()
+}
+
+const addTab = () => {
+  const newTab = ref<ElevatorTabs>({
+    tabId: -1,
+    label: '新建模板标签',
+    jumpUrl: '/',
+    image: '../../assets/logo.svg',
+  })
+  switch (data.value.templateStyle) {
+    case 'words':
+      newTab.value = JSON.parse(JSON.stringify(elevatorTabsTemplate[0]))
+      break
+    case 'fixed':
+      newTab.value = JSON.parse(JSON.stringify(elevatorTabsTemplate[1]))
+      break
+    case 'image':
+      newTab.value = JSON.parse(JSON.stringify(elevatorTabsTemplate[2]))
+      break
+  }
+  newTab.value.tabId = getUniqueId()
+  data.value.tabData.push(newTab.value)
+  handleChange()
+}
+
 onMounted(() => {
   data.value = props.objData as Elevator
-  console.log('onMounted', data.value)
 })
 </script>
 
@@ -69,6 +108,29 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   margin: 16px 0;
+}
+
+.tab-image {
+  display: flex;
+  font-size: 12px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tab-image img {
+  width: 32px;
+  height: 32px;
+}
+
+.input-container {
+  gap: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .divider {
@@ -88,12 +150,12 @@ onMounted(() => {
 .setting-item {
   display: flex;
   width: 100%;
-  justify-content: center;
+  justify-content: space-around;
+  align-items: center;
   position: relative;
   padding: 10px;
   height: 100px;
   background-color: #fefefe;
-  flex-direction: column;
   gap: 5px;
 }
 

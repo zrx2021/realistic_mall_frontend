@@ -85,6 +85,12 @@ export const getSettingsComponent = (type: number) => {
   }
 }
 
+export const elevatorTabsTemplate = [
+  { tabId: getUniqueId(), label: '文字型', jumpUrl: '' },
+  { tabId: getUniqueId(), label: '混合型', jumpUrl: '', image: '' },
+  { tabId: getUniqueId(), jumpUrl: '', image: '' },
+]
+
 const componentTemplate = [
   {
     id: getUniqueId(),
@@ -99,12 +105,7 @@ const componentTemplate = [
     objData: {
       elevatorId: getUniqueId(),
       templateStyle: 'words',
-      tabData: [
-        { tabId: getUniqueId(), label: '导航1', jumpUrl: '' },
-        { tabId: getUniqueId(), label: '导航2', jumpUrl: '' },
-        { tabId: getUniqueId(), label: '导航3', jumpUrl: '' },
-        { tabId: getUniqueId(), label: '导航4', jumpUrl: '' },
-      ],
+      tabData: [elevatorTabsTemplate[0]],
     },
   },
 ]
