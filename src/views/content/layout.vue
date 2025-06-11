@@ -104,7 +104,7 @@
                 :is="getSettingsComponent(settingType)"
                 :key="refreshKeysArray[settingIndex]"
                 v-model:objData="settingData"
-                @getNewPageData="handleGetNewPageData"
+                v-model:pageData="pageData"
               />
             </div>
             <div class="setting-tabs" v-if="componentList.length">
@@ -234,10 +234,6 @@ const goBack = () => {
   router.push({
     path: '/contents/pages',
   })
-}
-
-const handleGetNewPageData = (newVal: Page) => {
-  pageData.value = newVal
 }
 
 watch(settingData, (newVal) => {

@@ -18,6 +18,7 @@ import type { Page } from '@/types/content'
 
 const props = defineProps<{
   objData: Page
+  pageData: Page
 }>()
 
 const data = ref<Page>({
@@ -25,10 +26,10 @@ const data = ref<Page>({
   pageDescription: '出现错误',
 })
 
-const emits = defineEmits(['getNewPageData'])
+const emits = defineEmits(['update:pageData'])
 
 const handleChange = () => {
-  emits('getNewPageData', data.value)
+  emits('update:pageData', data.value)
 }
 
 onMounted(() => {
