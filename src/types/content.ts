@@ -30,6 +30,14 @@ export interface Elevator {
   elevatorId: number
   templateStyle: string
   tabData: ElevatorTabs[]
+  styleConfig?: {
+    textPosition: string
+    tabStyle: string
+    defaultTextColor: string
+    activeTextColor: string
+    activeBackgroundColor: string
+    backgroundColor: string
+  }
 }
 
 export interface Goods {
@@ -132,6 +140,14 @@ const componentTemplate = [
           image: '@/assets/logo.svg',
         },
       ],
+      styleConfig: {
+        textPosition: 'dropdown',
+        tabStyle: 'background',
+        defaultTextColor: '#333333',
+        activeTextColor: '#333333',
+        activeBackgroundColor: '#FFC0CB',
+        backgroundColor: '#FFFFFF',
+      },
     },
   },
 ]
