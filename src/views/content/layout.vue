@@ -104,11 +104,17 @@
                 :is="getSettingsComponent(settingType)"
                 :key="refreshKeysArray[settingIndex]"
                 v-model:objData="settingData"
+                @getNewPageData="handleGetNewPageData"
               />
             </div>
             <div class="setting-tabs" v-if="componentList.length">
               <div class="right-panel-tabs">
-                <div v-for="tab in rightTabs" :key="tab.name" class="tab-item">
+                <div
+                  v-for="tab in rightTabs"
+                  :key="tab.name"
+                  class="tab-item"
+                  @click="handleTabClick(tab.name)"
+                >
                   <img :src="imageMap[tab.name]" :alt="tab.name" width="32px" />
                 </div>
               </div>
@@ -142,7 +148,7 @@ import {
   getSettingsComponent,
 } from '@/types/content'
 
-import type { Wrapper, Elevator, Goods } from '@/types/content'
+import type { Wrapper, Elevator, Goods, Page } from '@/types/content'
 
 import { getUniqueId } from '@/utils/uniqueId'
 
@@ -150,11 +156,15 @@ const router = useRouter()
 const settingType = ref(-1)
 const settingIndex = ref(-1)
 const activeTab = ref('基础组件')
+const pageData = ref<Page>({
+  pageName: '请输入页面名称',
+  pageDescription: '请输入页面描述',
+})
 const componentList = ref<Wrapper[]>([])
 const indexArray = ref<boolean[]>([])
 const refreshKeysArray = ref<number[]>([])
-const indexData = ref<(string | Elevator | Goods)[]>([])
-const settingData = ref<string | Elevator | Goods>({} as string | Elevator | Goods)
+const indexData = ref<(string | Elevator | Goods | Page)[]>([])
+const settingData = ref<string | Elevator | Goods | Page>({} as string | Elevator | Goods | Page)
 
 const rightTabs = ref([
   { name: '组件设置', icon: '组件设置' },
@@ -171,6 +181,16 @@ const headerStyle: CSSProperties = {
 }
 
 const refreshIndexData = () => {}
+
+const handleTabClick = (name: string) => {
+  console.log('handleTabClick', name)
+  if (name === '组件设置') {
+    settingType.value = 999
+  } else if (name === '组件排序') {
+    settingType.value = 998
+  }
+  settingData.value = pageData.value
+}
 
 const handleClick = (id: number) => {
   componentList.value.forEach((element, index) => {
@@ -216,9 +236,19 @@ const goBack = () => {
   })
 }
 
+const handleGetNewPageData = (newVal: Page) => {
+  pageData.value = newVal
+}
+
 watch(settingData, (newVal) => {
-  indexData.value[settingIndex.value] = newVal
-  componentList.value[settingIndex.value].objData = newVal
+  if (settingType.value < 998) {
+    indexData.value[settingIndex.value] = newVal
+    componentList.value[settingIndex.value].objData = newVal
+  }
+  if (settingType.value >= 998) {
+    console.log('settingType.value >= 998', newVal)
+    pageData.value = newVal as Page
+  }
   refreshKeysArray.value[settingIndex.value] = getUniqueId()
 })
 

@@ -1,44 +1,49 @@
 <template>
-  <a-radio-group v-model:value="data.templateStyle" button-style="solid" class="display-type-radio">
-    <a-radio-button value="words">文字型</a-radio-button>
-    <a-radio-button value="fixed">图文型</a-radio-button>
-    <a-radio-button value="image">图片型</a-radio-button>
-  </a-radio-group>
-  <a-divider class="divider" />
-  <h3 style="color: #1f1f1f; padding: 5px; margin: 0">添加标签</h3>
-  <h5 style="color: #9a9a9a; padding: 5px; margin: 0">
-    标签字数建议在5个字以内，图片建议尺寸100*100像素
-  </h5>
-  <a-flex class="setting-list">
-    <div v-for="item in data.tabData" :key="item.tabId" class="setting-item">
-      <div class="close-btn" @click="deleteTab(item.tabId)"></div>
-      <div class="tab-image" v-if="!(data.templateStyle === 'words')">
-        <img src="@/assets/logo.svg" alt="logo" />
-        <span>点击</span>
-        <span>上传</span>
+  <div>
+    <a-radio-group
+      v-model:value="data.templateStyle"
+      button-style="solid"
+      class="display-type-radio"
+    >
+      <a-radio-button value="words">文字型</a-radio-button>
+      <a-radio-button value="fixed">图文型</a-radio-button>
+      <a-radio-button value="image">图片型</a-radio-button>
+    </a-radio-group>
+    <a-divider class="divider" />
+    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">添加标签</h3>
+    <h5 style="color: #9a9a9a; padding: 5px; margin: 0">
+      标签字数建议在5个字以内，图片建议尺寸100*100像素
+    </h5>
+    <a-flex class="setting-list">
+      <div v-for="item in data.tabData" :key="item.tabId" class="setting-item">
+        <div class="close-btn" @click="deleteTab(item.tabId)"></div>
+        <div class="tab-image" v-if="!(data.templateStyle === 'words')">
+          <img src="@/assets/logo.svg" alt="logo" />
+          <span>点击</span>
+          <span>上传</span>
+        </div>
+        <div class="input-container">
+          <a-input
+            v-model:value="item.label"
+            placeholder="请输入标签"
+            @blur="handleChange"
+            v-if="data.templateStyle !== 'image'"
+          />
+          <a-select placeholder="请选择目标链接" @blur="handleChange" v-model:value="item.jumpUrl">
+            <a-select-option v-for="option in options" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </a-select-option>
+          </a-select>
+        </div>
       </div>
-      <div class="input-container">
-        <a-input
-          v-model:value="item.label"
-          placeholder="请输入标签"
-          @blur="handleChange"
-          v-if="data.templateStyle !== 'image'"
-        />
-        <a-select placeholder="请选择目标链接" @blur="handleChange" v-model:value="item.jumpUrl">
-          <a-select-option v-for="option in options" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </a-select-option>
-        </a-select>
-      </div>
-    </div>
-    <a-button type="primary" class="add-tag-btn" @click="addTab">添加标签</a-button>
-  </a-flex>
+      <a-button type="primary" class="add-tag-btn" @click="addTab">添加标签</a-button>
+    </a-flex>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import type { Elevator, ElevatorTabs } from '@/types/content'
-import { elevatorTabsTemplate } from '@/types/content'
 import { getUniqueId } from '@/utils/uniqueId'
 import { message } from 'ant-design-vue'
 
@@ -77,21 +82,10 @@ const deleteTab = (tabId: number) => {
 const addTab = () => {
   const newTab = ref<ElevatorTabs>({
     tabId: -1,
-    label: '新建模板标签',
-    jumpUrl: '/',
-    image: '../../assets/logo.svg',
+    label: '新建标签',
+    jumpUrl: 'www.baidu.com',
+    image: '@/assets/logo.svg',
   })
-  switch (data.value.templateStyle) {
-    case 'words':
-      newTab.value = JSON.parse(JSON.stringify(elevatorTabsTemplate[0]))
-      break
-    case 'fixed':
-      newTab.value = JSON.parse(JSON.stringify(elevatorTabsTemplate[1]))
-      break
-    case 'image':
-      newTab.value = JSON.parse(JSON.stringify(elevatorTabsTemplate[2]))
-      break
-  }
   newTab.value.tabId = getUniqueId()
   data.value.tabData.push(newTab.value)
   handleChange()

@@ -6,6 +6,12 @@ import Title from '@/components/content/Title.vue'
 import Elevator from '@/components/content/Elevator.vue'
 import TitleSetting from '@/views/content/TitleSetting.vue'
 import ElevatorSetting from '@/views/content/ElevatorSetting.vue'
+import PageSetting from '@/views/content/PageSetting.vue'
+
+export interface Page {
+  pageName: string
+  pageDescription: string
+}
 
 export interface ElevatorTabs {
   tabId: number
@@ -38,7 +44,7 @@ export interface Wrapper {
   id: number
   type: number
   name: string
-  objData: Elevator | Goods | string
+  objData: Elevator | Goods | string | Page
 }
 
 export const initMap = () => {
@@ -47,6 +53,8 @@ export const initMap = () => {
       fileMap.value[item.id] = item.file
     })
   })
+  fileMap.value[999] = 'Page'
+  fileMap.value[998] = 'Sort'
 }
 
 export const getTemplate = (type: number) => {
@@ -80,18 +88,23 @@ export const getSettingsComponent = (type: number) => {
       return TitleSetting
     case 'Elevator':
       return ElevatorSetting
+    case 'Page':
+      return PageSetting
     default:
       return null
   }
 }
 
-export const elevatorTabsTemplate = [
-  { tabId: getUniqueId(), label: '文字型', jumpUrl: '' },
-  { tabId: getUniqueId(), label: '混合型', jumpUrl: '', image: '' },
-  { tabId: getUniqueId(), jumpUrl: '', image: '' },
-]
-
 const componentTemplate = [
+  {
+    id: getUniqueId(),
+    name: '页面',
+    type: 999,
+    objData: {
+      pageName: '',
+      pageDescription: '',
+    },
+  },
   {
     id: getUniqueId(),
     name: '标题',
@@ -105,7 +118,20 @@ const componentTemplate = [
     objData: {
       elevatorId: getUniqueId(),
       templateStyle: 'words',
-      tabData: [elevatorTabsTemplate[0]],
+      tabData: [
+        {
+          tabId: getUniqueId(),
+          label: '新建标签',
+          jumpUrl: 'www.baidu.com',
+          image: '@/assets/logo.svg',
+        },
+        {
+          tabId: getUniqueId(),
+          label: '新建标签',
+          jumpUrl: 'www.google.com',
+          image: '@/assets/logo.svg',
+        },
+      ],
     },
   },
 ]
