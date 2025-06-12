@@ -57,7 +57,12 @@
 
     <div class="style-setting-item">
       <span class="setting-item-label">填充方式</span>
-      <a-select placeholder="请选择填充方式" @blur="handleChange" v-model:value="data.fillType">
+      <a-select
+        placeholder="请选择填充方式"
+        @blur="handleChange"
+        v-model:value="data.fillType"
+        class="setting-select"
+      >
         <a-select-option v-for="item in fillTypeOptions" :key="item.value" :value="item.value">
           {{ item.label }}
         </a-select-option>
@@ -66,7 +71,12 @@
 
     <div class="style-setting-item">
       <span class="setting-item-label">填充形状</span>
-      <a-select placeholder="请选择填充形状" @blur="handleChange" v-model:value="data.fillShape">
+      <a-select
+        placeholder="请选择填充形状"
+        @blur="handleChange"
+        v-model:value="data.fillShape"
+        class="setting-select"
+      >
         <a-select-option v-for="item in fillShapeOptions" :key="item.value" :value="item.value">
           {{ item.label }}
         </a-select-option>
@@ -74,10 +84,10 @@
     </div>
 
     <div class="style-setting-item" v-for="item in data.colorSetting" :key="item.name">
-      <span :v-text="item.label" class="setting-item-label"></span>
+      <span class="setting-item-label">{{ item.label }}</span>
       <div class="color-picker-control">
         <a-button class="color-reset-btn">重置</a-button>
-        <div id="color-picker">
+        <div class="color-picker">
           <input type="color" v-model="item.value" />
           <div class="color-preview" :style="{ backgroundColor: item.value }"></div>
         </div>
@@ -270,6 +280,63 @@ onMounted(() => {
 
 .add-tag-btn {
   width: 100%;
+}
+
+.style-setting-item {
+  display: flex;
+  padding: 12px 16px;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.setting-item-label {
+  width: 80px;
+  color: #666;
+  font-size: 14px;
+}
+
+.setting-select {
+  width: 150px;
+}
+
+.color-picker-control {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  align-items: center;
+}
+
+.color-reset-btn {
+  font-size: 14px;
+  color: #1890ff;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.color-picker {
+  position: relative;
+  width: 70px;
+  height: 30px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.color-picker input[type='color'] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.color-preview {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
 }
 </style>
 

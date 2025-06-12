@@ -83,6 +83,15 @@ onMounted(() => {
   justify-content: space-around;
 }
 
+:deep(.ant-tabs-nav-wrap:not(.ant-tabs-nav-wrap-ping-right) .ant-tabs-nav-list) {
+  width: 375px;
+  justify-content: space-around !important;
+}
+
+:deep(.navtab-tabs .ant-tabs-nav-wrap.ant-tabs-nav-wrap-ping-right) {
+  padding-left: 10px !important;
+}
+
 .navtab-tabs[tab-position='left'] {
   overflow-x: scroll;
 }
