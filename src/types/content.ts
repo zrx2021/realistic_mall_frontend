@@ -30,6 +30,9 @@ export interface Elevator {
   elevatorId: number
   templateStyle: string
   tabData: ElevatorTabs[]
+  styleConfig?: {
+    tabsPosition?: 'top' | 'left' | 'right' | 'bottom'
+  }
 }
 
 export interface Goods {
@@ -132,6 +135,9 @@ const componentTemplate = [
           image: '@/assets/logo.svg',
         },
       ],
+      styleConfig: {
+        tabsPosition: 'top',
+      },
     },
   },
 ]

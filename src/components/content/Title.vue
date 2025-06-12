@@ -37,7 +37,7 @@ h3 {
   margin: 0;
   height: 30px;
   width: 373px;
-  padding-left: 15px;
+  padding-left: 10px;
   font-size: 16px;
   line-height: 30px;
   color: #333;

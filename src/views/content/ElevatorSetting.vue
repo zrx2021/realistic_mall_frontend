@@ -10,6 +10,19 @@
       <a-radio-button value="image">图片型</a-radio-button>
     </a-radio-group>
     <a-divider class="divider" />
+    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">标签位置</h3>
+    <a-radio-group
+      v-model:value="tabsPosition"
+      button-style="solid"
+      class="display-type-radio"
+      @change="handlePositionChange"
+    >
+      <a-radio-button value="top">顶部</a-radio-button>
+      <a-radio-button value="left">左侧</a-radio-button>
+      <a-radio-button value="right">右侧</a-radio-button>
+      <a-radio-button value="bottom">底部</a-radio-button>
+    </a-radio-group>
+    <a-divider class="divider" />
     <h3 style="color: #1f1f1f; padding: 5px; margin: 0">添加标签</h3>
     <h5 style="color: #9a9a9a; padding: 5px; margin: 0">
       标签字数建议在5个字以内，图片建议尺寸100*100像素
@@ -55,7 +68,12 @@ const data = ref<Elevator>({
   elevatorId: -1,
   templateStyle: '',
   tabData: [],
+  styleConfig: {
+    tabsPosition: 'top',
+  },
 })
+
+const tabsPosition = ref('top')
 
 const emits = defineEmits(['update:objData'])
 
@@ -68,6 +86,14 @@ const options = ref([
 
 const handleChange = () => {
   emits('update:objData', data.value)
+}
+
+const handlePositionChange = (value: string) => {
+  if (!data.value.styleConfig) {
+    data.value.styleConfig = {}
+  }
+  data.value.styleConfig.tabsPosition = value as 'top' | 'left' | 'right' | 'bottom'
+  handleChange()
 }
 
 const deleteTab = (tabId: number) => {
@@ -93,6 +119,12 @@ const addTab = () => {
 
 onMounted(() => {
   data.value = props.objData as Elevator
+  if (!data.value.styleConfig) {
+    data.value.styleConfig = {
+      tabsPosition: 'top',
+    }
+  }
+  tabsPosition.value = data.value.styleConfig.tabsPosition || 'top'
 })
 </script>
 
