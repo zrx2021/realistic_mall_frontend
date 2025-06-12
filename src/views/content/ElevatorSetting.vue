@@ -51,6 +51,38 @@
       </div>
       <a-button type="primary" class="add-tag-btn" @click="addTab">添加标签</a-button>
     </a-flex>
+
+    <a-divider class="divider" />
+    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">标签颜色设置</h3>
+
+    <div class="style-setting-item">
+      <span class="setting-item-label">填充方式</span>
+      <a-select placeholder="请选择填充方式" @blur="handleChange" v-model:value="data.fillType">
+        <a-select-option v-for="item in fillTypeOptions" :key="item.value" :value="item.value">
+          {{ item.label }}
+        </a-select-option>
+      </a-select>
+    </div>
+
+    <div class="style-setting-item">
+      <span class="setting-item-label">填充形状</span>
+      <a-select placeholder="请选择填充形状" @blur="handleChange" v-model:value="data.fillShape">
+        <a-select-option v-for="item in fillShapeOptions" :key="item.value" :value="item.value">
+          {{ item.label }}
+        </a-select-option>
+      </a-select>
+    </div>
+
+    <div class="style-setting-item" v-for="item in data.colorSetting" :key="item.name">
+      <span :v-text="item.label" class="setting-item-label"></span>
+      <div class="color-picker-control">
+        <a-button class="color-reset-btn">重置</a-button>
+        <div id="color-picker">
+          <input type="color" v-model="item.value" />
+          <div class="color-preview" :style="{ backgroundColor: item.value }"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -68,14 +100,27 @@ const data = ref<Elevator>({
   elevatorId: -1,
   templateStyle: '',
   tabData: [],
-  styleConfig: {
-    tabsPosition: 'top',
-  },
+  tabsPosition: 'top',
+  colorSetting: [],
+  fillType: 'none',
+  fillShape: 'underline',
 })
 
 const tabsPosition = ref('top')
-
 const emits = defineEmits(['update:objData'])
+
+const fillTypeOptions = ref([
+  { value: 'none', label: '无' },
+  { value: 'background', label: '背景' },
+  { value: 'border', label: '边框' },
+])
+const fillShapeOptions = ref([
+  { value: 'none', label: '无' },
+  { value: 'circle', label: '圆形' },
+  { value: 'square', label: '方形' },
+  { value: 'underline', label: '下划线' },
+  { value: 'circle-square', label: '圆角方形' },
+])
 
 const options = ref([
   { value: '1', label: '1' },
@@ -89,10 +134,6 @@ const handleChange = () => {
 }
 
 const handlePositionChange = (value: string) => {
-  if (!data.value.styleConfig) {
-    data.value.styleConfig = {}
-  }
-  data.value.styleConfig.tabsPosition = value as 'top' | 'left' | 'right' | 'bottom'
   handleChange()
 }
 
@@ -119,12 +160,6 @@ const addTab = () => {
 
 onMounted(() => {
   data.value = props.objData as Elevator
-  if (!data.value.styleConfig) {
-    data.value.styleConfig = {
-      tabsPosition: 'top',
-    }
-  }
-  tabsPosition.value = data.value.styleConfig.tabsPosition || 'top'
 })
 </script>
 

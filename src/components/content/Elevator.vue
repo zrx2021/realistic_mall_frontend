@@ -3,7 +3,7 @@
     <a-tabs
       v-if="showData.templateStyle === 'words'"
       class="navtab-tabs"
-      :tab-position="showData.styleConfig?.tabsPosition"
+      :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
     >
@@ -13,7 +13,7 @@
       v-if="showData.templateStyle === 'fixed'"
       type="card"
       class="navtab-tabs"
-      :tab-position="showData.styleConfig?.tabsPosition"
+      :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
     >
@@ -28,7 +28,7 @@
       v-if="showData.templateStyle === 'image'"
       type="card"
       class="navtab-tabs"
-      :tab-position="showData.styleConfig?.tabsPosition"
+      :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
     >
@@ -49,9 +49,10 @@ const showData = ref<Elevator>({
   elevatorId: -1,
   templateStyle: '',
   tabData: [],
-  styleConfig: {
-    tabsPosition: 'top',
-  },
+  tabsPosition: 'top',
+  colorSetting: [],
+  fillType: '',
+  fillShape: '',
 })
 
 const activeKey = ref(-1)

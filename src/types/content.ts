@@ -30,9 +30,17 @@ export interface Elevator {
   elevatorId: number
   templateStyle: string
   tabData: ElevatorTabs[]
-  styleConfig?: {
-    tabsPosition?: 'top' | 'left' | 'right' | 'bottom'
-  }
+  tabsPosition: 'top' | 'left'
+  colorSetting: ColorSetting[]
+  fillType: string
+  fillShape: string
+}
+
+export interface ColorSetting {
+  name: string
+  label: string
+  value: string
+  type: string
 }
 
 export interface Goods {
@@ -135,9 +143,35 @@ const componentTemplate = [
           image: '@/assets/logo.svg',
         },
       ],
-      styleConfig: {
-        tabsPosition: 'top',
-      },
+      tabsPosition: 'top',
+      fillType: 'none',
+      fillShape: 'underline',
+      colorSetting: [
+        {
+          name: 'activeTextColor',
+          label: '已选文字',
+          value: '#000',
+          type: '无',
+        },
+        {
+          name: 'activeBgColor',
+          label: '已选背景',
+          value: '#fff',
+          type: '无',
+        },
+        {
+          name: 'inactiveTextColor',
+          label: '未选文字',
+          value: '#000',
+          type: '无',
+        },
+        {
+          name: 'inactiveBgColor',
+          label: '未选背景',
+          value: '#fff',
+          type: '无',
+        },
+      ],
     },
   },
 ]
