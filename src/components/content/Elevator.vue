@@ -6,6 +6,11 @@
       :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
+      :class="[
+        `fill-type-${showData.fillType}`,
+        `fill-shape-${showData.fillShape}`,
+        { 'justify-around': showData.tabData.length <= 4 },
+      ]"
     >
       <a-tab-pane v-for="item in showData.tabData" :key="item.tabId" :tab="item.label"></a-tab-pane>
     </a-tabs>
@@ -16,6 +21,11 @@
       :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
+      :class="[
+        `fill-type-${showData.fillType}`,
+        `fill-shape-${showData.fillShape}`,
+        { 'justify-around': showData.tabData.length <= 4 },
+      ]"
     >
       <a-tab-pane v-for="item in showData.tabData" :key="item.tabId">
         <template #tab>
@@ -31,6 +41,11 @@
       :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
+      :class="[
+        `fill-type-${showData.fillType}`,
+        `fill-shape-${showData.fillShape}`,
+        { 'justify-around': showData.tabData.length <= 4 },
+      ]"
     >
       <a-tab-pane v-for="item in showData.tabData" :key="item.tabId">
         <template #tab>
@@ -42,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import type { Elevator } from '@/types/content'
 
 const showData = ref<Elevator>({
@@ -59,6 +74,28 @@ const activeKey = ref(-1)
 const props = defineProps<{
   objData: Elevator
 }>()
+
+const activeTextColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'activeTextColor')
+  return colorSetting?.value || '#000000'
+})
+
+const activeBgColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'activeBgColor')
+  return colorSetting?.value || '#ffffff'
+})
+
+const inactiveTextColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find(
+    (item) => item.name === 'inactiveTextColor',
+  )
+  return colorSetting?.value || '#666666'
+})
+
+const inactiveBgColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'inactiveBgColor')
+  return colorSetting?.value || '#ffffff'
+})
 
 onMounted(() => {
   showData.value = props.objData as Elevator
@@ -79,25 +116,103 @@ onMounted(() => {
   border: 1px dashed #1890ff;
 }
 
-:deep(.ant-tabs-nav-wrap) {
-  justify-content: space-around;
+:deep(.ant-tabs-nav) {
+  margin-bottom: 0 !important;
 }
 
-:deep(.ant-tabs-nav-wrap:not(.ant-tabs-nav-wrap-ping-right) .ant-tabs-nav-list) {
-  width: 375px;
+:deep(.ant-tabs-tab) {
+  border: 0 !important;
+}
+
+.navtab-tabs.justify-around :deep(.ant-tabs-nav-list) {
+  width: 375px !important;
   justify-content: space-around !important;
 }
 
-:deep(.navtab-tabs .ant-tabs-nav-wrap.ant-tabs-nav-wrap-ping-right) {
-  padding-left: 10px !important;
+/* 填充类型样式 */
+.navtab-tabs.fill-type-none :deep(.ant-tabs-tab) {
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
 }
 
-.navtab-tabs[tab-position='left'] {
-  overflow-x: scroll;
+.navtab-tabs.fill-type-background :deep(.ant-tabs-tab-active) {
+  background-color: v-bind(activeBgColor) !important;
+  border: 1px solid transparent !important;
 }
 
-:deep(.ant-tabs-nav) {
-  margin-bottom: 0 !important;
+.navtab-tabs.fill-type-border :deep(.ant-tabs-tab-active) {
+  border: 1px solid v-bind(activeBgColor) !important;
+  background-color: transparent !important;
+}
+
+.navtab-tabs.fill-type-underline :deep(.ant-tabs-tab:not(.ant-tabs-tab-active)) {
+  border: 1px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.navtab-tabs.fill-type-background :deep(.ant-tabs-tab:not(.ant-tabs-tab-active)) {
+  background-color: v-bind(inactiveBgColor) !important;
+  border: 1px solid transparent !important;
+}
+
+.navtab-tabs.fill-type-border :deep(.ant-tabs-tab:not(.ant-tabs-tab-active)) {
+  border: 1px solid v-bind(inactiveBgColor) !important;
+  background-color: transparent !important;
+}
+
+.navtab-tabs.fill-type-underline :deep(.ant-tabs-tab-active) {
+  border: 1px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.navtab-tabs:not(.fill-type-underline) :deep(.ant-tabs-ink-bar) {
+  visibility: hidden !important;
+}
+
+/* 填充形状样式 */
+.navtab-tabs.fill-shape-none :deep(.ant-tabs-tab) {
+  border-radius: 0 !important;
+  background-color: transparent !important;
+}
+
+.navtab-tabs.fill-shape-circle :deep(.ant-tabs-tab) {
+  border-radius: 50% !important;
+  padding: 0 !important;
+  height: 40px !important;
+  width: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.navtab-tabs.fill-shape-square :deep(.ant-tabs-tab) {
+  border-radius: 0 !important;
+}
+
+.navtab-tabs.fill-shape-underline :deep(.ant-tabs-tab-active) {
+  border-bottom: 2px solid v-bind(activeTextColor) !important;
+}
+
+.navtab-tabs.fill-shape-circle-square :deep(.ant-tabs-tab) {
+  border-radius: 8px !important;
+}
+
+/* 文字颜色 */
+.navtab-tabs :deep(.ant-tabs-tab) {
+  color: v-bind(inactiveTextColor) !important;
+}
+
+.navtab-tabs :deep(.ant-tabs-tab-active) {
+  color: v-bind(activeTextColor) !important;
+}
+
+/* 背景颜色 */
+.navtab-tabs :deep(.ant-tabs-tab) {
+  background-color: v-bind(inactiveBgColor) !important;
+}
+
+.navtab-tabs.fill-type-background :deep(.ant-tabs-tab-active) {
+  background-color: v-bind(activeBgColor) !important;
 }
 
 .tab-icon {

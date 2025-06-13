@@ -63,7 +63,15 @@
         v-model:value="data.fillType"
         class="setting-select"
       >
-        <a-select-option v-for="item in fillTypeOptions" :key="item.value" :value="item.value">
+        <a-select-option
+          v-for="item in fillTypeOptions"
+          :key="item.value"
+          :value="item.value"
+          :disabled="
+            (data.templateStyle === 'fixed' || data.templateStyle === 'image') &&
+            item.value === 'underline'
+          "
+        >
           {{ item.label }}
         </a-select-option>
       </a-select>
@@ -76,8 +84,14 @@
         @blur="handleChange"
         v-model:value="data.fillShape"
         class="setting-select"
+        :disabled="data.fillType === 'none' || data.fillType === 'underline'"
       >
-        <a-select-option v-for="item in fillShapeOptions" :key="item.value" :value="item.value">
+        <a-select-option
+          v-for="item in fillShapeOptions"
+          :key="item.value"
+          :value="item.value"
+          :disabled="data.fillType !== 'none' && item.value === 'none'"
+        >
           {{ item.label }}
         </a-select-option>
       </a-select>
@@ -97,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import type { Elevator, ElevatorTabs } from '@/types/content'
 import { getUniqueId } from '@/utils/uniqueId'
 import { message } from 'ant-design-vue'
@@ -108,12 +122,12 @@ const props = defineProps<{
 
 const data = ref<Elevator>({
   elevatorId: -1,
-  templateStyle: '',
+  templateStyle: 'words',
   tabData: [],
   tabsPosition: 'top',
   colorSetting: [],
-  fillType: 'none',
-  fillShape: 'underline',
+  fillType: 'underline',
+  fillShape: 'none',
 })
 
 const tabsPosition = ref('top')
@@ -122,13 +136,13 @@ const emits = defineEmits(['update:objData'])
 const fillTypeOptions = ref([
   { value: 'none', label: '无' },
   { value: 'background', label: '背景' },
+  { value: 'underline', label: '下划线' },
   { value: 'border', label: '边框' },
 ])
 const fillShapeOptions = ref([
   { value: 'none', label: '无' },
   { value: 'circle', label: '圆形' },
   { value: 'square', label: '方形' },
-  { value: 'underline', label: '下划线' },
   { value: 'circle-square', label: '圆角方形' },
 ])
 
@@ -171,6 +185,31 @@ const addTab = () => {
 onMounted(() => {
   data.value = props.objData as Elevator
 })
+
+watch(
+  () => data.value.templateStyle,
+  (newVal) => {
+    data.value.fillType = 'none'
+    data.value.fillShape = 'none'
+    handleChange()
+  },
+)
+
+watch(
+  () => data.value.fillType,
+  (newVal) => {
+    if (newVal === 'underline') {
+      data.value.fillShape = 'none'
+      handleChange()
+    }
+    if (newVal !== 'none') {
+      data.value.fillShape = 'square'
+    }
+    if (newVal === 'none') {
+      data.value.fillShape = 'none'
+    }
+  },
+)
 </script>
 
 <style scoped>

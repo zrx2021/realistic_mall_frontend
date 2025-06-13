@@ -105,6 +105,31 @@ export const getSettingsComponent = (type: number) => {
   }
 }
 
+const defaultColorSetting = [
+  [
+    {
+      name: 'activeTextColor',
+      label: '已选文字',
+      value: '#1890FF',
+    },
+    {
+      name: 'activeBgColor',
+      label: '已选填充色',
+      value: '#E6F7FF',
+    },
+    {
+      name: 'inactiveTextColor',
+      label: '未选文字',
+      value: '#595959',
+    },
+    {
+      name: 'inactiveBgColor',
+      label: '未选填充色',
+      value: '#FFFFFF',
+    },
+  ],
+]
+
 const componentTemplate = [
   {
     id: getUniqueId(),
@@ -143,30 +168,9 @@ const componentTemplate = [
         },
       ],
       tabsPosition: 'top',
-      fillType: 'none',
-      fillShape: 'underline',
-      colorSetting: [
-        {
-          name: 'activeTextColor',
-          label: '已选文字',
-          value: '#000',
-        },
-        {
-          name: 'activeBgColor',
-          label: '已选背景',
-          value: '#fff',
-        },
-        {
-          name: 'inactiveTextColor',
-          label: '未选文字',
-          value: '#000',
-        },
-        {
-          name: 'inactiveBgColor',
-          label: '未选背景',
-          value: '#fff',
-        },
-      ],
+      fillType: 'underline',
+      fillShape: 'none',
+      colorSetting: defaultColorSetting[0],
     },
   },
 ]
