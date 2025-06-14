@@ -52,9 +52,6 @@
       <a-button type="primary" class="add-tag-btn" @click="addTab">添加标签</a-button>
     </a-flex>
 
-    <a-divider class="divider" />
-    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">标签颜色设置</h3>
-
     <div class="style-setting-item">
       <span class="setting-item-label">填充方式</span>
       <a-select
@@ -108,37 +105,6 @@
           @change="handleChange"
         />
         <span class="radius-value">{{ data.borderRadius }}px</span>
-      </div>
-    </div>
-
-    <a-divider class="divider" />
-    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">标签尺寸</h3>
-
-    <div class="style-setting-item">
-      <span class="setting-item-label">标签宽度</span>
-      <div class="size-input">
-        <a-input-number
-          v-model:value="data.tabWidth"
-          :min="50"
-          :max="200"
-          :step="1"
-          @change="handleChange"
-        />
-        <span class="unit">px</span>
-      </div>
-    </div>
-
-    <div class="style-setting-item">
-      <span class="setting-item-label">标签高度</span>
-      <div class="size-input">
-        <a-input-number
-          v-model:value="data.tabHeight"
-          :min="30"
-          :max="100"
-          :step="1"
-          @change="handleChange"
-        />
-        <span class="unit">px</span>
       </div>
     </div>
 
@@ -201,6 +167,8 @@
       </div>
     </div>
 
+    <a-divider class="divider" />
+    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">标签颜色设置</h3>
     <div class="style-setting-item" v-for="item in data.colorSetting" :key="item.name">
       <span class="setting-item-label">{{ item.label }}</span>
       <div class="color-picker-control">

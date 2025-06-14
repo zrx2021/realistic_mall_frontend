@@ -57,8 +57,6 @@ const showData = ref<Elevator>({
   fillType: '',
   fillShape: '',
   borderRadius: 0,
-  tabWidth: 0,
-  tabHeight: 0,
   paddingVertical: 0,
   paddingHorizontal: 0,
   marginVertical: 0,
@@ -210,8 +208,6 @@ onMounted(() => {
 .navtab-tabs :deep(.ant-tabs-tab) {
   color: v-bind(inactiveTextColor) !important;
   background-color: v-bind(inactiveBgColor) !important;
-  width: v-bind('showData.tabWidth + "px"') !important;
-  height: v-bind('showData.tabHeight + "px"') !important;
   padding: v-bind(
     'showData.paddingVertical + "px " + showData.paddingHorizontal + "px"'
   ) !important;
