@@ -273,6 +273,15 @@ const addTab = () => {
 
 onMounted(() => {
   data.value = props.objData as Elevator
+  if (!data.value.colorSetting || data.value.colorSetting.length === 0) {
+    data.value.colorSetting = [
+      { name: 'activeColor', label: '选中文字颜色', value: '#1890ff' },
+      { name: 'inactiveColor', label: '未选中文字颜色', value: '#666666' },
+      { name: 'activeBgColor', label: '选中背景颜色', value: '#ffffff' },
+      { name: 'inactiveBgColor', label: '未选中背景颜色', value: '#ffffff' },
+      { name: 'navBgColor', label: '导航背景颜色', value: '#ffffff' },
+    ]
+  }
 })
 
 watch(

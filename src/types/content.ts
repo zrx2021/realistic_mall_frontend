@@ -133,6 +133,11 @@ const defaultColorSetting = [
       label: '未选填充色',
       value: '#FFFFFF',
     },
+    {
+      name: 'navBgColor',
+      label: '导航背景色',
+      value: '#FFFFFF',
+    },
   ],
 ]
 

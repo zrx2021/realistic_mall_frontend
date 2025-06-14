@@ -106,6 +106,11 @@ const inactiveBgColor = computed(() => {
   return colorSetting?.value || '#ffffff'
 })
 
+const navBgColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'navBgColor')
+  return colorSetting?.value || '#ffffff'
+})
+
 onMounted(() => {
   showData.value = props.objData as Elevator
   activeKey.value = showData.value.tabData[0].tabId
@@ -127,6 +132,7 @@ onMounted(() => {
 
 :deep(.ant-tabs-nav) {
   margin-bottom: 0 !important;
+  background-color: v-bind(navBgColor) !important;
 }
 
 :deep(.ant-tabs-tab) {
@@ -209,10 +215,6 @@ onMounted(() => {
 
 .navtab-tabs.fill-shape-circle :deep(.ant-tabs-tab) {
   border-radius: 50% !important;
-}
-
-.navtab-tabs.fill-shape-circle :deep(.ant-tabs-nav-list) {
-  /* gap: 20px !important; */
 }
 
 .navtab-tabs.fill-shape-square :deep(.ant-tabs-tab) {
