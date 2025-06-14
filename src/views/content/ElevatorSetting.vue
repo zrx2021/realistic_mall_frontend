@@ -219,10 +219,6 @@ watch(
   (newVal) => {
     if (newVal === 'underline') {
       data.value.fillShape = 'none'
-      const activeBgColor = data.value.colorSetting.find((item) => item.name === 'inactiveBgColor')
-      if (activeBgColor) {
-        activeBgColor.value = '#ffffff'
-      }
     } else if (newVal === 'none') {
       data.value.fillShape = 'none'
     } else {
