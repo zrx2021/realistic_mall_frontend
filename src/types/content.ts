@@ -35,6 +35,12 @@ export interface Elevator {
   fillType: string
   fillShape: string
   borderRadius: number
+  tabWidth: number
+  tabHeight: number
+  paddingVertical: number
+  paddingHorizontal: number
+  marginVertical: number
+  marginHorizontal: number
 }
 
 export interface ColorSetting {
@@ -173,6 +179,12 @@ const componentTemplate = [
       fillShape: 'none',
       colorSetting: defaultColorSetting[0],
       borderRadius: 8,
+      tabWidth: 100,
+      tabHeight: 40,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      marginVertical: 0,
+      marginHorizontal: 8,
     },
   },
 ]

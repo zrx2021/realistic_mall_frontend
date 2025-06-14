@@ -111,6 +111,96 @@
       </div>
     </div>
 
+    <a-divider class="divider" />
+    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">标签尺寸</h3>
+
+    <div class="style-setting-item">
+      <span class="setting-item-label">标签宽度</span>
+      <div class="size-input">
+        <a-input-number
+          v-model:value="data.tabWidth"
+          :min="50"
+          :max="200"
+          :step="1"
+          @change="handleChange"
+        />
+        <span class="unit">px</span>
+      </div>
+    </div>
+
+    <div class="style-setting-item">
+      <span class="setting-item-label">标签高度</span>
+      <div class="size-input">
+        <a-input-number
+          v-model:value="data.tabHeight"
+          :min="30"
+          :max="100"
+          :step="1"
+          @change="handleChange"
+        />
+        <span class="unit">px</span>
+      </div>
+    </div>
+
+    <a-divider class="divider" />
+    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">边距设置</h3>
+
+    <div class="style-setting-item">
+      <span class="setting-item-label">上下内边距</span>
+      <div class="size-input">
+        <a-input-number
+          v-model:value="data.paddingVertical"
+          :min="0"
+          :max="50"
+          :step="1"
+          @change="handleChange"
+        />
+        <span class="unit">px</span>
+      </div>
+    </div>
+
+    <div class="style-setting-item">
+      <span class="setting-item-label">左右内边距</span>
+      <div class="size-input">
+        <a-input-number
+          v-model:value="data.paddingHorizontal"
+          :min="0"
+          :max="50"
+          :step="1"
+          @change="handleChange"
+        />
+        <span class="unit">px</span>
+      </div>
+    </div>
+
+    <div class="style-setting-item">
+      <span class="setting-item-label">上下外边距</span>
+      <div class="size-input">
+        <a-input-number
+          v-model:value="data.marginVertical"
+          :min="0"
+          :max="50"
+          :step="1"
+          @change="handleChange"
+        />
+        <span class="unit">px</span>
+      </div>
+    </div>
+
+    <div class="style-setting-item">
+      <span class="setting-item-label">左右外边距</span>
+      <div class="size-input">
+        <a-input-number
+          v-model:value="data.marginHorizontal"
+          :min="0"
+          :max="50"
+          :step="1"
+          @change="handleChange"
+        />
+        <span class="unit">px</span>
+      </div>
+    </div>
+
     <div class="style-setting-item" v-for="item in data.colorSetting" :key="item.name">
       <span class="setting-item-label">{{ item.label }}</span>
       <div class="color-picker-control">
@@ -147,6 +237,12 @@ const data = ref<Elevator>({
   fillType: 'underline',
   fillShape: 'none',
   borderRadius: 8,
+  tabWidth: 100,
+  tabHeight: 40,
+  paddingVertical: 8,
+  paddingHorizontal: 16,
+  marginVertical: 0,
+  marginHorizontal: 8,
 })
 
 const tabsPosition = ref('top')
@@ -420,6 +516,22 @@ watch(
 
 :deep(.ant-slider-horizontal) {
   width: 100%;
+}
+
+.size-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unit {
+  color: #666;
+  font-size: 14px;
+}
+
+:deep(.ant-input-number) {
+  width: 100px;
 }
 </style>
 

@@ -6,11 +6,7 @@
       :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
-      :class="[
-        `fill-type-${showData.fillType}`,
-        `fill-shape-${showData.fillShape}`,
-        { 'justify-around': showData.tabData.length <= 4 },
-      ]"
+      :class="[`fill-type-${showData.fillType}`, `fill-shape-${showData.fillShape}`]"
     >
       <a-tab-pane v-for="item in showData.tabData" :key="item.tabId" :tab="item.label"></a-tab-pane>
     </a-tabs>
@@ -21,11 +17,7 @@
       :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
-      :class="[
-        `fill-type-${showData.fillType}`,
-        `fill-shape-${showData.fillShape}`,
-        { 'justify-around': showData.tabData.length <= 4 },
-      ]"
+      :class="[`fill-type-${showData.fillType}`, `fill-shape-${showData.fillShape}`]"
     >
       <a-tab-pane v-for="item in showData.tabData" :key="item.tabId">
         <template #tab>
@@ -41,11 +33,7 @@
       :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
-      :class="[
-        `fill-type-${showData.fillType}`,
-        `fill-shape-${showData.fillShape}`,
-        { 'justify-around': showData.tabData.length <= 4 },
-      ]"
+      :class="[`fill-type-${showData.fillType}`, `fill-shape-${showData.fillShape}`]"
     >
       <a-tab-pane v-for="item in showData.tabData" :key="item.tabId">
         <template #tab>
@@ -69,6 +57,12 @@ const showData = ref<Elevator>({
   fillType: '',
   fillShape: '',
   borderRadius: 0,
+  tabWidth: 0,
+  tabHeight: 0,
+  paddingVertical: 0,
+  paddingHorizontal: 0,
+  marginVertical: 0,
+  marginHorizontal: 0,
 })
 
 const activeKey = ref(-1)
@@ -181,13 +175,6 @@ onMounted(() => {
 
 .navtab-tabs.fill-shape-circle :deep(.ant-tabs-tab) {
   border-radius: 50% !important;
-  padding: 0 !important;
-  height: 50px !important;
-  width: 50px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 0 10px !important;
 }
 
 .navtab-tabs.fill-shape-circle :deep(.ant-tabs-nav-list) {
@@ -218,6 +205,20 @@ onMounted(() => {
 /* 背景颜色 */
 .navtab-tabs :deep(.ant-tabs-tab) {
   background-color: v-bind(inactiveBgColor) !important;
+}
+
+.navtab-tabs :deep(.ant-tabs-tab) {
+  color: v-bind(inactiveTextColor) !important;
+  background-color: v-bind(inactiveBgColor) !important;
+  width: v-bind('showData.tabWidth + "px"') !important;
+  height: v-bind('showData.tabHeight + "px"') !important;
+  padding: v-bind(
+    'showData.paddingVertical + "px " + showData.paddingHorizontal + "px"'
+  ) !important;
+  margin: v-bind('showData.marginVertical + "px " + showData.marginHorizontal + "px"') !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .navtab-tabs.fill-type-background :deep(.ant-tabs-tab-active) {
