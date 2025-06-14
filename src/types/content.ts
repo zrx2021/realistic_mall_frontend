@@ -34,6 +34,7 @@ export interface Elevator {
   colorSetting: ColorSetting[]
   fillType: string
   fillShape: string
+  borderRadius: number
 }
 
 export interface ColorSetting {
@@ -171,6 +172,7 @@ const componentTemplate = [
       fillType: 'underline',
       fillShape: 'none',
       colorSetting: defaultColorSetting[0],
+      borderRadius: 8,
     },
   },
 ]

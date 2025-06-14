@@ -97,6 +97,20 @@
       </a-select>
     </div>
 
+    <div class="style-setting-item" v-if="data.fillShape === 'circle-square'">
+      <span class="setting-item-label">圆角大小</span>
+      <div class="radius-slider">
+        <a-slider
+          v-model:value="data.borderRadius"
+          :min="0"
+          :max="20"
+          :step="1"
+          @change="handleChange"
+        />
+        <span class="radius-value">{{ data.borderRadius }}px</span>
+      </div>
+    </div>
+
     <div class="style-setting-item" v-for="item in data.colorSetting" :key="item.name">
       <span class="setting-item-label">{{ item.label }}</span>
       <div class="color-picker-control">
@@ -128,6 +142,7 @@ const data = ref<Elevator>({
   colorSetting: [],
   fillType: 'underline',
   fillShape: 'none',
+  borderRadius: 8,
 })
 
 const tabsPosition = ref('top')
@@ -200,6 +215,10 @@ watch(
   (newVal) => {
     if (newVal === 'underline') {
       data.value.fillShape = 'none'
+      const activeBgColor = data.value.colorSetting.find((item) => item.name === 'activeBgColor')
+      if (activeBgColor) {
+        activeBgColor.value = '#1890ff'
+      }
       handleChange()
     }
     if (newVal !== 'none') {
@@ -376,6 +395,23 @@ watch(
   height: 100%;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
+}
+
+.radius-slider {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.radius-value {
+  min-width: 50px;
+  color: #666;
+  font-size: 14px;
+}
+
+:deep(.ant-slider-horizontal) {
+  width: 100%;
 }
 </style>
 

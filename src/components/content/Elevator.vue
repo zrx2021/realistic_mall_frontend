@@ -68,6 +68,7 @@ const showData = ref<Elevator>({
   colorSetting: [],
   fillType: '',
   fillShape: '',
+  borderRadius: 0,
 })
 
 const activeKey = ref(-1)
@@ -129,7 +130,6 @@ onMounted(() => {
   justify-content: space-around !important;
 }
 
-/* 填充类型样式 */
 .navtab-tabs.fill-type-none :deep(.ant-tabs-tab) {
   background-color: transparent !important;
   border: 1px solid transparent !important;
@@ -169,6 +169,10 @@ onMounted(() => {
   visibility: hidden !important;
 }
 
+:deep(.ant-tabs-ink-bar) {
+  background-color: v-bind(activeBgColor) !important;
+}
+
 /* 填充形状样式 */
 .navtab-tabs.fill-shape-none :deep(.ant-tabs-tab) {
   border-radius: 0 !important;
@@ -178,11 +182,16 @@ onMounted(() => {
 .navtab-tabs.fill-shape-circle :deep(.ant-tabs-tab) {
   border-radius: 50% !important;
   padding: 0 !important;
-  height: 40px !important;
-  width: 40px !important;
+  height: 50px !important;
+  width: 50px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  margin: 0 10px !important;
+}
+
+.navtab-tabs.fill-shape-circle :deep(.ant-tabs-nav-list) {
+  gap: 20px !important;
 }
 
 .navtab-tabs.fill-shape-square :deep(.ant-tabs-tab) {
@@ -194,7 +203,7 @@ onMounted(() => {
 }
 
 .navtab-tabs.fill-shape-circle-square :deep(.ant-tabs-tab) {
-  border-radius: 8px !important;
+  border-radius: v-bind('showData.borderRadius + "px"') !important;
 }
 
 /* 文字颜色 */
@@ -202,7 +211,7 @@ onMounted(() => {
   color: v-bind(inactiveTextColor) !important;
 }
 
-.navtab-tabs :deep(.ant-tabs-tab-active) {
+.navtab-tabs :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
   color: v-bind(activeTextColor) !important;
 }
 
