@@ -72,6 +72,7 @@ const showData = ref<Elevator>({
   fillType: '',
   fillShape: '',
   borderRadius: 0,
+  borderSize: 1,
   customStyle: false,
   paddingVertical: 0,
   paddingHorizontal: 0,
@@ -175,7 +176,7 @@ onMounted(() => {
 }
 
 .navtab-tabs.fill-type-border :deep(.ant-tabs-tab-active) {
-  border: 1px solid v-bind(activeBgColor) !important;
+  border: v-bind('showData.borderSize + "px solid " + activeBgColor') !important;
   background-color: transparent !important;
 }
 
@@ -190,7 +191,7 @@ onMounted(() => {
 }
 
 .navtab-tabs.fill-type-border :deep(.ant-tabs-tab:not(.ant-tabs-tab-active)) {
-  border: 1px solid v-bind(inactiveBgColor) !important;
+  border: v-bind('showData.borderSize + "px solid " + inactiveBgColor') !important;
   background-color: transparent !important;
 }
 

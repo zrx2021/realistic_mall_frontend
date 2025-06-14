@@ -35,6 +35,7 @@ export interface Elevator {
   fillType: string
   fillShape: string
   borderRadius: number
+  borderSize: number
   customStyle: boolean
   paddingVertical: number
   paddingHorizontal: number
@@ -186,6 +187,7 @@ const componentTemplate = [
       customStyle: false,
       paddingVertical: 8,
       paddingHorizontal: 16,
+      borderSize: 1,
       marginVertical: 0,
       marginHorizontal: 8,
     },

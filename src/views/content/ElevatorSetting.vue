@@ -108,6 +108,20 @@
       </div>
     </div>
 
+    <div class="style-setting-item" v-if="data.fillType === 'border'">
+      <span class="setting-item-label">边框大小</span>
+      <div class="size-input">
+        <a-input-number
+          v-model:value="data.borderSize"
+          :min="1"
+          :max="10"
+          :step="1"
+          @change="handleChange"
+        />
+        <span class="unit">px</span>
+      </div>
+    </div>
+
     <a-divider class="divider" />
     <h3 style="color: #1f1f1f; padding: 5px; margin: 0">边距设置</h3>
 
@@ -212,6 +226,7 @@ const data = ref<Elevator>({
   fillType: 'underline',
   fillShape: 'none',
   borderRadius: 8,
+  borderSize: 1,
   customStyle: false,
   paddingVertical: 8,
   paddingHorizontal: 16,
