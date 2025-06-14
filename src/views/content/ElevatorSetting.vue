@@ -116,7 +116,11 @@
       <div class="color-picker-control">
         <a-button class="color-reset-btn">重置</a-button>
         <div class="color-picker">
-          <input type="color" v-model="item.value" />
+          <input
+            type="color"
+            v-model="item.value"
+            :disabled="item.name === 'inactiveBgColor' && data.fillType === 'underline'"
+          />
           <div class="color-preview" :style="{ backgroundColor: item.value }"></div>
         </div>
       </div>
@@ -215,18 +219,26 @@ watch(
   (newVal) => {
     if (newVal === 'underline') {
       data.value.fillShape = 'none'
-      const activeBgColor = data.value.colorSetting.find((item) => item.name === 'activeBgColor')
+      const activeBgColor = data.value.colorSetting.find((item) => item.name === 'inactiveBgColor')
       if (activeBgColor) {
-        activeBgColor.value = '#1890ff'
+        activeBgColor.value = '#ffffff'
       }
-      handleChange()
-    }
-    if (newVal !== 'none') {
+    } else if (newVal === 'none') {
+      data.value.fillShape = 'none'
+    } else {
       data.value.fillShape = 'square'
     }
-    if (newVal === 'none') {
-      data.value.fillShape = 'none'
+    handleChange()
+  },
+)
+
+watch(
+  () => data.value.fillShape,
+  (newVal) => {
+    if (newVal === 'circle-square') {
+      data.value.borderRadius = 8
     }
+    handleChange()
   },
 )
 </script>
