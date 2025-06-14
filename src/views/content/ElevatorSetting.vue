@@ -204,6 +204,26 @@
         </div>
       </div>
     </div>
+
+    <a-divider class="divider" />
+    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">主题预设</h3>
+    <div class="theme-presets">
+      <div
+        v-for="theme in themePresets"
+        :key="theme.name"
+        class="theme-item"
+        :class="{ active: currentTheme === theme.name }"
+        @click="applyTheme(theme)"
+      >
+        <div class="theme-preview" :style="getThemePreviewStyle(theme)">
+          <div class="preview-tab active">标签1</div>
+          <div class="preview-tab">标签2</div>
+        </div>
+        <span class="theme-name">{{ theme.label }}</span>
+      </div>
+    </div>
+
+    <a-divider class="divider" />
   </div>
 </template>
 
@@ -257,6 +277,151 @@ const options = ref([
   { value: '4', label: '4' },
 ])
 
+const currentTheme = ref('')
+
+const themePresets = [
+  {
+    name: 'default',
+    label: '经典简约',
+    fillType: 'none',
+    fillShape: 'none',
+    borderSize: 0,
+    borderRadius: 8,
+    customStyle: true,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginVertical: 0,
+    marginHorizontal: 8,
+    colorSetting: [
+      { name: 'activeColor', label: '选中文字颜色', value: '#1890ff' },
+      { name: 'inactiveColor', label: '未选中文字颜色', value: '#666666' },
+      { name: 'activeBgColor', label: '选中背景颜色', value: '#ffffff' },
+      { name: 'inactiveBgColor', label: '未选中背景颜色', value: '#ffffff' },
+      { name: 'navBgColor', label: '导航背景颜色', value: '#ffffff' },
+    ],
+  },
+  {
+    name: 'techBlue',
+    label: '科技蓝',
+    fillType: 'background',
+    fillShape: 'circle-square',
+    borderSize: 0,
+    borderRadius: 20,
+    customStyle: true,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    marginVertical: 5,
+    marginHorizontal: 5,
+    colorSetting: [
+      { name: 'activeColor', label: '选中文字颜色', value: '#ffffff' },
+      { name: 'inactiveColor', label: '未选中文字颜色', value: '#333333' },
+      { name: 'activeBgColor', label: '选中背景颜色', value: '#1890ff' },
+      { name: 'inactiveBgColor', label: '未选中背景颜色', value: '#e6f7ff' },
+      { name: 'navBgColor', label: '导航背景颜色', value: '#f0f5ff' },
+    ],
+  },
+  {
+    name: 'elegantPurple',
+    label: '优雅紫',
+    fillType: 'background',
+    fillShape: 'circle-square',
+    borderSize: 0,
+    borderRadius: 20,
+    customStyle: true,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    marginVertical: 5,
+    marginHorizontal: 5,
+    colorSetting: [
+      { name: 'activeColor', label: '选中文字颜色', value: '#722ed1' },
+      { name: 'inactiveColor', label: '未选中文字颜色', value: '#666666' },
+      { name: 'activeBgColor', label: '选中背景颜色', value: '#f9f0ff' },
+      { name: 'inactiveBgColor', label: '未选中背景颜色', value: '#f9f0ff' },
+      { name: 'navBgColor', label: '导航背景颜色', value: '#ffffff' },
+    ],
+  },
+  {
+    name: 'natureGreen',
+    label: '自然绿',
+    fillType: 'background',
+    fillShape: 'circle-square',
+    borderSize: 0,
+    borderRadius: 20,
+    customStyle: true,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    marginVertical: 5,
+    marginHorizontal: 5,
+    colorSetting: [
+      { name: 'activeColor', label: '选中文字颜色', value: '#ffffff' },
+      { name: 'inactiveColor', label: '未选中文字颜色', value: '#52c41a' },
+      { name: 'activeBgColor', label: '选中背景颜色', value: '#52c41a' },
+      { name: 'inactiveBgColor', label: '未选中背景颜色', value: '#f6ffed' },
+      { name: 'navBgColor', label: '导航背景颜色', value: '#ffffff' },
+    ],
+  },
+  {
+    name: 'vibrantOrange',
+    label: '活力橙',
+    fillType: 'background',
+    fillShape: 'none',
+    borderSize: 0,
+    borderRadius: 0,
+    customStyle: true,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    marginVertical: 5,
+    marginHorizontal: 5,
+    colorSetting: [
+      { name: 'activeColor', label: '选中文字颜色', value: '#fa8c16' },
+      { name: 'inactiveColor', label: '未选中文字颜色', value: '#666666' },
+      { name: 'activeBgColor', label: '选中背景颜色', value: '#ffffff' },
+      { name: 'inactiveBgColor', label: '未选中背景颜色', value: '#ffffff' },
+      { name: 'navBgColor', label: '导航背景颜色', value: '#fff7e6' },
+    ],
+  },
+  {
+    name: 'darkMode',
+    label: '暗夜模式',
+    fillType: 'background',
+    fillShape: 'circle-square',
+    borderSize: 0,
+    borderRadius: 20,
+    customStyle: true,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    marginVertical: 5,
+    marginHorizontal: 5,
+    colorSetting: [
+      { name: 'activeColor', label: '选中文字颜色', value: '#ffffff' },
+      { name: 'inactiveColor', label: '未选中文字颜色', value: '#aaaaaa' },
+      { name: 'activeBgColor', label: '选中背景颜色', value: '#333333' },
+      { name: 'inactiveBgColor', label: '未选中背景颜色', value: '#1f1f1f' },
+      { name: 'navBgColor', label: '导航背景颜色', value: '#141414' },
+    ],
+  },
+  {
+    name: 'minimalist',
+    label: '极简主义',
+    fillType: 'none',
+    fillShape: 'none',
+    borderSize: 0,
+    borderRadius: 0,
+    customStyle: true,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    marginVertical: 5,
+    marginHorizontal: 5,
+    colorSetting: [
+      { name: 'activeColor', label: '选中文字颜色', value: '#000000' },
+      { name: 'inactiveColor', label: '未选中文字颜色', value: '#888888' },
+      { name: 'activeBgColor', label: '选中背景颜色', value: 'transparent' },
+      { name: 'inactiveBgColor', label: '未选中背景颜色', value: 'transparent' },
+      { name: 'navBgColor', label: '导航背景颜色', value: '#ffffff' },
+    ],
+  },
+]
+
 const handleChange = () => {
   emits('update:objData', data.value)
 }
@@ -286,17 +451,47 @@ const addTab = () => {
   handleChange()
 }
 
+const isThemeChanging = ref(false)
+
+const applyTheme = (theme: (typeof themePresets)[0]) => {
+  isThemeChanging.value = true
+  data.value.fillShape = theme.fillShape
+  data.value.fillType = theme.fillType
+  data.value.borderSize = theme.borderSize
+  data.value.borderRadius = theme.borderRadius
+  data.value.colorSetting = JSON.parse(JSON.stringify(theme.colorSetting))
+  data.value.customStyle = theme.customStyle
+  data.value.paddingVertical = theme.paddingVertical
+  data.value.paddingHorizontal = theme.paddingHorizontal
+  data.value.marginVertical = theme.marginVertical
+  data.value.marginHorizontal = theme.marginHorizontal
+  currentTheme.value = theme.name
+  handleChange()
+  setTimeout(() => {
+    isThemeChanging.value = false
+  }, 0)
+}
+
+const getThemePreviewStyle = (theme: (typeof themePresets)[0]) => {
+  const activeColor = theme.colorSetting.find((item) => item.name === 'activeColor')?.value
+  const inactiveColor = theme.colorSetting.find((item) => item.name === 'inactiveColor')?.value
+  const activeBgColor = theme.colorSetting.find((item) => item.name === 'activeBgColor')?.value
+  const inactiveBgColor = theme.colorSetting.find((item) => item.name === 'inactiveBgColor')?.value
+  const navBgColor = theme.colorSetting.find((item) => item.name === 'navBgColor')?.value
+
+  return {
+    '--active-color': activeColor,
+    '--inactive-color': inactiveColor,
+    '--active-bg-color': activeBgColor,
+    '--inactive-bg-color': inactiveBgColor,
+    '--nav-bg-color': navBgColor,
+    '--border-radius': `${theme.borderRadius}px`,
+    '--border-size': `${theme.borderSize}px`,
+  }
+}
+
 onMounted(() => {
   data.value = props.objData as Elevator
-  if (!data.value.colorSetting || data.value.colorSetting.length === 0) {
-    data.value.colorSetting = [
-      { name: 'activeColor', label: '选中文字颜色', value: '#1890ff' },
-      { name: 'inactiveColor', label: '未选中文字颜色', value: '#666666' },
-      { name: 'activeBgColor', label: '选中背景颜色', value: '#ffffff' },
-      { name: 'inactiveBgColor', label: '未选中背景颜色', value: '#ffffff' },
-      { name: 'navBgColor', label: '导航背景颜色', value: '#ffffff' },
-    ]
-  }
 })
 
 watch(
@@ -315,8 +510,6 @@ watch(
       data.value.fillShape = 'none'
     } else if (newVal === 'none') {
       data.value.fillShape = 'none'
-    } else {
-      data.value.fillShape = 'square'
     }
     handleChange()
   },
@@ -325,7 +518,7 @@ watch(
 watch(
   () => data.value.fillShape,
   (newVal) => {
-    if (newVal === 'circle-square') {
+    if (newVal === 'circle-square' && !isThemeChanging.value) {
       data.value.borderRadius = 8
     }
     handleChange()
@@ -530,6 +723,100 @@ watch(
 
 :deep(.ant-input-number) {
   width: 100px;
+}
+
+/* 更新后的主题预设样式 */
+.theme-presets {
+  display: flex;
+  gap: 8px; /* 减小间隙 */
+  padding: 12px 0; /* 调整内边距 */
+  flex-wrap: wrap;
+  justify-content: space-between; /* 两端对齐 */
+}
+
+.theme-item {
+  cursor: pointer;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  padding: 8px;
+  transition: all 0.3s;
+  width: calc(50% - 4px); /* 每行显示2个 */
+  box-sizing: border-box;
+  position: relative;
+}
+
+.theme-item:hover {
+  border-color: #1890ff;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.theme-item.active {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.theme-item.active::after {
+  content: '✓';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  background: #1890ff;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  z-index: 1;
+}
+
+.theme-preview {
+  width: 100%;
+  height: 50px; /* 降低高度 */
+  background-color: var(--nav-bg-color);
+  border-radius: 6px;
+  padding: 6px;
+  display: flex;
+  gap: 4px; /* 减小标签间隙 */
+  margin-bottom: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-tab {
+  padding: 3px 6px; /* 减小内边距 */
+  border-radius: var(--border-radius);
+  font-size: 10px; /* 减小字体大小 */
+  color: var(--inactive-color);
+  background-color: var(--inactive-bg-color);
+  border: var(--border-size) solid transparent;
+  white-space: nowrap;
+  transition: all 0.2s;
+  flex-shrink: 1; /* 允许缩小 */
+  min-width: 30px; /* 最小宽度 */
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-tab.active {
+  color: var(--active-color);
+  background-color: var(--active-bg-color);
+  border: var(--border-size) solid var(--active-bg-color);
+  transform: scale(1.05);
+}
+
+.theme-name {
+  display: block;
+  text-align: center;
+  font-size: 11px; /* 减小字体大小 */
+  color: #333;
+  font-weight: 500;
+  line-height: 1.3;
 }
 </style>
 

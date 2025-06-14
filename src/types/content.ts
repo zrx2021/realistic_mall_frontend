@@ -115,7 +115,7 @@ export const getSettingsComponent = (type: number) => {
 const defaultColorSetting = [
   [
     {
-      name: 'activeTextColor',
+      name: 'activeColor',
       label: '已选文字',
       value: '#1890FF',
     },
@@ -125,7 +125,7 @@ const defaultColorSetting = [
       value: '#E6F7FF',
     },
     {
-      name: 'inactiveTextColor',
+      name: 'inactiveColor',
       label: '未选文字',
       value: '#595959',
     },

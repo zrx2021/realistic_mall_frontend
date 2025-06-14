@@ -85,8 +85,8 @@ const props = defineProps<{
   objData: Elevator
 }>()
 
-const activeTextColor = computed(() => {
-  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'activeTextColor')
+const activeColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'activeColor')
   return colorSetting?.value || '#000000'
 })
 
@@ -95,10 +95,8 @@ const activeBgColor = computed(() => {
   return colorSetting?.value || '#ffffff'
 })
 
-const inactiveTextColor = computed(() => {
-  const colorSetting = showData.value.colorSetting?.find(
-    (item) => item.name === 'inactiveTextColor',
-  )
+const inactiveColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'inactiveColor')
   return colorSetting?.value || '#666666'
 })
 
@@ -142,7 +140,7 @@ onMounted(() => {
 
 /* 基础样式 */
 .navtab-tabs :deep(.ant-tabs-tab) {
-  color: v-bind(inactiveTextColor) !important;
+  color: v-bind(inactiveColor) !important;
   background-color: v-bind(inactiveBgColor) !important;
   border: 0 !important;
   display: flex !important;
@@ -223,7 +221,7 @@ onMounted(() => {
 }
 
 .navtab-tabs.fill-shape-underline :deep(.ant-tabs-tab-active) {
-  border-bottom: 2px solid v-bind(activeTextColor) !important;
+  border-bottom: 2px solid v-bind(activeColor) !important;
 }
 
 .navtab-tabs.fill-shape-circle-square :deep(.ant-tabs-tab) {
@@ -232,7 +230,7 @@ onMounted(() => {
 
 /* 文字颜色 */
 .navtab-tabs :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
-  color: v-bind(activeTextColor) !important;
+  color: v-bind(activeColor) !important;
 }
 
 /* 背景颜色 */
