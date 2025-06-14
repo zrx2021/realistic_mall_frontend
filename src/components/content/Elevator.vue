@@ -3,10 +3,15 @@
     <a-tabs
       v-if="showData.templateStyle === 'words'"
       class="navtab-tabs"
+      :class="[
+        `fill-type-${showData.fillType}`,
+        `fill-shape-${showData.fillShape}`,
+        { 'justify-around': showData.tabData.length <= 4 },
+        { 'custom-style': showData.customStyle },
+      ]"
       :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
-      :class="[`fill-type-${showData.fillType}`, `fill-shape-${showData.fillShape}`]"
     >
       <a-tab-pane v-for="item in showData.tabData" :key="item.tabId" :tab="item.label"></a-tab-pane>
     </a-tabs>
@@ -14,10 +19,15 @@
       v-if="showData.templateStyle === 'fixed'"
       type="card"
       class="navtab-tabs"
+      :class="[
+        `fill-type-${showData.fillType}`,
+        `fill-shape-${showData.fillShape}`,
+        { 'justify-around': showData.tabData.length <= 4 },
+        { 'custom-style': showData.customStyle },
+      ]"
       :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
-      :class="[`fill-type-${showData.fillType}`, `fill-shape-${showData.fillShape}`]"
     >
       <a-tab-pane v-for="item in showData.tabData" :key="item.tabId">
         <template #tab>
@@ -30,10 +40,15 @@
       v-if="showData.templateStyle === 'image'"
       type="card"
       class="navtab-tabs"
+      :class="[
+        `fill-type-${showData.fillType}`,
+        `fill-shape-${showData.fillShape}`,
+        { 'justify-around': showData.tabData.length <= 4 },
+        { 'custom-style': showData.customStyle },
+      ]"
       :tab-position="showData.tabsPosition"
       :items="showData.tabData"
       v-model:activeKey="activeKey"
-      :class="[`fill-type-${showData.fillType}`, `fill-shape-${showData.fillShape}`]"
     >
       <a-tab-pane v-for="item in showData.tabData" :key="item.tabId">
         <template #tab>
@@ -57,6 +72,7 @@ const showData = ref<Elevator>({
   fillType: '',
   fillShape: '',
   borderRadius: 0,
+  customStyle: false,
   paddingVertical: 0,
   paddingHorizontal: 0,
   marginVertical: 0,
@@ -117,11 +133,31 @@ onMounted(() => {
   border: 0 !important;
 }
 
+/* 基础样式 */
+.navtab-tabs :deep(.ant-tabs-tab) {
+  color: v-bind(inactiveTextColor) !important;
+  background-color: v-bind(inactiveBgColor) !important;
+  border: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 自定义样式 */
+.navtab-tabs.custom-style :deep(.ant-tabs-tab) {
+  padding: v-bind(
+    'showData.paddingVertical + "px " + showData.paddingHorizontal + "px"'
+  ) !important;
+  margin: v-bind('showData.marginVertical + "px " + showData.marginHorizontal + "px"') !important;
+}
+
+/* 布局样式 */
 .navtab-tabs.justify-around :deep(.ant-tabs-nav-list) {
   width: 375px !important;
   justify-content: space-around !important;
 }
 
+/* 填充类型样式 */
 .navtab-tabs.fill-type-none :deep(.ant-tabs-tab) {
   background-color: transparent !important;
   border: 1px solid transparent !important;
@@ -176,7 +212,7 @@ onMounted(() => {
 }
 
 .navtab-tabs.fill-shape-circle :deep(.ant-tabs-nav-list) {
-  gap: 20px !important;
+  /* gap: 20px !important; */
 }
 
 .navtab-tabs.fill-shape-square :deep(.ant-tabs-tab) {
@@ -192,31 +228,11 @@ onMounted(() => {
 }
 
 /* 文字颜色 */
-.navtab-tabs :deep(.ant-tabs-tab) {
-  color: v-bind(inactiveTextColor) !important;
-}
-
 .navtab-tabs :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
   color: v-bind(activeTextColor) !important;
 }
 
 /* 背景颜色 */
-.navtab-tabs :deep(.ant-tabs-tab) {
-  background-color: v-bind(inactiveBgColor) !important;
-}
-
-.navtab-tabs :deep(.ant-tabs-tab) {
-  color: v-bind(inactiveTextColor) !important;
-  background-color: v-bind(inactiveBgColor) !important;
-  padding: v-bind(
-    'showData.paddingVertical + "px " + showData.paddingHorizontal + "px"'
-  ) !important;
-  margin: v-bind('showData.marginVertical + "px " + showData.marginHorizontal + "px"') !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
 .navtab-tabs.fill-type-background :deep(.ant-tabs-tab-active) {
   background-color: v-bind(activeBgColor) !important;
 }

@@ -112,60 +112,67 @@
     <h3 style="color: #1f1f1f; padding: 5px; margin: 0">边距设置</h3>
 
     <div class="style-setting-item">
-      <span class="setting-item-label">上下内边距</span>
-      <div class="size-input">
-        <a-input-number
-          v-model:value="data.paddingVertical"
-          :min="0"
-          :max="50"
-          :step="1"
-          @change="handleChange"
-        />
-        <span class="unit">px</span>
-      </div>
+      <span class="setting-item-label">自定义样式</span>
+      <a-switch v-model:checked="data.customStyle" @change="handleChange" />
     </div>
 
-    <div class="style-setting-item">
-      <span class="setting-item-label">左右内边距</span>
-      <div class="size-input">
-        <a-input-number
-          v-model:value="data.paddingHorizontal"
-          :min="0"
-          :max="50"
-          :step="1"
-          @change="handleChange"
-        />
-        <span class="unit">px</span>
+    <template v-if="data.customStyle">
+      <div class="style-setting-item">
+        <span class="setting-item-label">上下内边距</span>
+        <div class="size-input">
+          <a-input-number
+            v-model:value="data.paddingVertical"
+            :min="0"
+            :max="50"
+            :step="1"
+            @change="handleChange"
+          />
+          <span class="unit">px</span>
+        </div>
       </div>
-    </div>
 
-    <div class="style-setting-item">
-      <span class="setting-item-label">上下外边距</span>
-      <div class="size-input">
-        <a-input-number
-          v-model:value="data.marginVertical"
-          :min="0"
-          :max="50"
-          :step="1"
-          @change="handleChange"
-        />
-        <span class="unit">px</span>
+      <div class="style-setting-item">
+        <span class="setting-item-label">左右内边距</span>
+        <div class="size-input">
+          <a-input-number
+            v-model:value="data.paddingHorizontal"
+            :min="0"
+            :max="50"
+            :step="1"
+            @change="handleChange"
+          />
+          <span class="unit">px</span>
+        </div>
       </div>
-    </div>
 
-    <div class="style-setting-item">
-      <span class="setting-item-label">左右外边距</span>
-      <div class="size-input">
-        <a-input-number
-          v-model:value="data.marginHorizontal"
-          :min="0"
-          :max="50"
-          :step="1"
-          @change="handleChange"
-        />
-        <span class="unit">px</span>
+      <div class="style-setting-item">
+        <span class="setting-item-label">上下外边距</span>
+        <div class="size-input">
+          <a-input-number
+            v-model:value="data.marginVertical"
+            :min="0"
+            :max="50"
+            :step="1"
+            @change="handleChange"
+          />
+          <span class="unit">px</span>
+        </div>
       </div>
-    </div>
+
+      <div class="style-setting-item">
+        <span class="setting-item-label">左右外边距</span>
+        <div class="size-input">
+          <a-input-number
+            v-model:value="data.marginHorizontal"
+            :min="0"
+            :max="50"
+            :step="1"
+            @change="handleChange"
+          />
+          <span class="unit">px</span>
+        </div>
+      </div>
+    </template>
 
     <a-divider class="divider" />
     <h3 style="color: #1f1f1f; padding: 5px; margin: 0">标签颜色设置</h3>
@@ -205,8 +212,7 @@ const data = ref<Elevator>({
   fillType: 'underline',
   fillShape: 'none',
   borderRadius: 8,
-  tabWidth: 100,
-  tabHeight: 40,
+  customStyle: false,
   paddingVertical: 8,
   paddingHorizontal: 16,
   marginVertical: 0,
