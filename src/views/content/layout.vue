@@ -203,12 +203,8 @@ const handleClick = (id: number) => {
 }
 
 const handlePreview = () => {
-  componentList.value.forEach((item) => {
-    console.log('预览', item)
-  })
-  indexData.value.forEach((item) => {
-    console.log('预览indexData', item)
-  })
+  console.log('预览', componentList.value)
+  console.log('预览indexData', indexData.value)
 }
 
 const addComponent = (type: number) => {

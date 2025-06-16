@@ -431,7 +431,7 @@ const handlePositionChange = (value: string) => {
 }
 
 const deleteTab = (tabId: number) => {
-  if (data.value.tabData.length < 2) {
+  if (data.value.tabData.length < 3) {
     message.error('至少保留两个标签')
     return
   }

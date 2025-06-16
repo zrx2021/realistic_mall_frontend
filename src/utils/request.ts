@@ -2,6 +2,7 @@ import axios from 'axios'
 import type { AxiosInstance, AxiosResponse } from 'axios'
 import { message } from 'ant-design-vue'
 import { getToken } from './auth'
+import router from '@/router'
 
 // 创建 axios 实例
 const service: AxiosInstance = axios.create({
@@ -47,7 +48,8 @@ service.interceptors.response.use(
       switch (response.status) {
         case 401:
           message.error('未授权，请重新登录')
-          // 可以在这里处理登出逻辑
+          localStorage.removeItem('token')
+          router.push('/login')
           break
         case 403:
           message.error('拒绝访问')
