@@ -12,7 +12,7 @@
             <template #icon><eye-outlined /></template>
             预览
           </a-button>
-          <a-button type="primary" class="action-btn">
+          <a-button type="primary" class="action-btn" @click="handleSave">
             <template #icon><save-outlined /></template>
             保存
           </a-button>
@@ -201,6 +201,8 @@ const handleClick = (id: number) => {
     }
   })
 }
+
+const handleSave = () => {}
 
 const handlePreview = () => {
   console.log('预览', componentList.value)

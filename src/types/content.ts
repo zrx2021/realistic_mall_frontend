@@ -4,9 +4,9 @@ import { getUniqueId } from '@/utils/uniqueId'
 
 import Title from '@/components/content/Title.vue'
 import Elevator from '@/components/content/Elevator.vue'
-import TitleSetting from '@/views/content/TitleSetting.vue'
-import ElevatorSetting from '@/views/content/ElevatorSetting.vue'
-import PageSetting from '@/views/content/PageSetting.vue'
+import TitleSetting from '@/views/content/pages/TitleSetting.vue'
+import ElevatorSetting from '@/views/content/pages/ElevatorSetting.vue'
+import PageSetting from '@/views/content/pages/PageSetting.vue'
 
 export interface Page {
   pageName: string
