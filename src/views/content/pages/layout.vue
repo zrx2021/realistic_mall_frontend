@@ -157,8 +157,12 @@ const settingType = ref(-1)
 const settingIndex = ref(-1)
 const activeTab = ref('基础组件')
 const pageData = ref<Article>({
-  pageName: '请输入页面名称',
-  pageDescription: '请输入页面描述',
+  id: getUniqueId(),
+  status: 0,
+  name: '',
+  description: '',
+  backgroundColor: '#fff',
+  templateId: 0,
 })
 const componentList = ref<Wrapper[]>([])
 const indexArray = ref<boolean[]>([])
@@ -207,8 +211,8 @@ const handleClick = (id: number) => {
 const handleSave = () => {}
 
 const handlePreview = () => {
+  console.log('预览页面数据', pageData.value)
   console.log('预览', componentList.value)
-  console.log('预览indexData', indexData.value)
 }
 
 const addComponent = (type: number) => {
@@ -241,9 +245,9 @@ watch(settingData, (newVal) => {
     indexData.value[settingIndex.value] = newVal
     componentList.value[settingIndex.value].objData = newVal
   }
-  if (settingType.value >= 998) {
-    console.log('settingType.value >= 998', newVal)
-    pageData.value = newVal as Page
+  if (settingType.value === 999) {
+    console.log('settingType.value === 999', newVal)
+    pageData.value = newVal as Article
   }
   refreshKeysArray.value[settingIndex.value] = getUniqueId()
 })

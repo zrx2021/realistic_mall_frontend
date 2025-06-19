@@ -9,8 +9,12 @@ import ElevatorSetting from '@/views/content/pages/ElevatorSetting.vue'
 import PageSetting from '@/views/content/pages/PageSetting.vue'
 
 export interface Article {
-  pageName: string
-  pageDescription: string
+  id: number
+  name: string
+  status: number
+  description: string
+  backgroundColor: string
+  templateId: number
 }
 
 export interface ElevatorTabs {
