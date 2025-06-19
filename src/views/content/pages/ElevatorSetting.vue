@@ -519,7 +519,9 @@ watch(
   () => data.value.fillShape,
   (newVal) => {
     if (newVal === 'circle-square' && !isThemeChanging.value) {
-      data.value.borderRadius = 8
+      if (!data.value.borderRadius) {
+        data.value.borderRadius = 8
+      }
     }
     handleChange()
   },
