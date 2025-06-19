@@ -510,6 +510,10 @@ watch(
       data.value.fillShape = 'none'
     } else if (newVal === 'none') {
       data.value.fillShape = 'none'
+    } else if (newVal === 'border' || newVal === 'background') {
+      if (data.value.fillShape === 'none') {
+        data.value.fillShape = 'square'
+      }
     }
     handleChange()
   },
