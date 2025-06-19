@@ -8,7 +8,7 @@ import TitleSetting from '@/views/content/pages/TitleSetting.vue'
 import ElevatorSetting from '@/views/content/pages/ElevatorSetting.vue'
 import PageSetting from '@/views/content/pages/PageSetting.vue'
 
-export interface Page {
+export interface Article {
   pageName: string
   pageDescription: string
 }
@@ -61,7 +61,7 @@ export interface Wrapper {
   id: number
   type: number
   name: string
-  objData: Elevator | Goods | string | Page
+  objData: Elevator | Goods | string | Article
 }
 
 export const initMap = () => {

@@ -148,7 +148,7 @@ import {
   getSettingsComponent,
 } from '@/types/content'
 
-import type { Wrapper, Elevator, Goods, Page } from '@/types/content'
+import type { Wrapper, Elevator, Goods, Article } from '@/types/content'
 
 import { getUniqueId } from '@/utils/uniqueId'
 
@@ -156,15 +156,17 @@ const router = useRouter()
 const settingType = ref(-1)
 const settingIndex = ref(-1)
 const activeTab = ref('基础组件')
-const pageData = ref<Page>({
+const pageData = ref<Article>({
   pageName: '请输入页面名称',
   pageDescription: '请输入页面描述',
 })
 const componentList = ref<Wrapper[]>([])
 const indexArray = ref<boolean[]>([])
 const refreshKeysArray = ref<number[]>([])
-const indexData = ref<(string | Elevator | Goods | Page)[]>([])
-const settingData = ref<string | Elevator | Goods | Page>({} as string | Elevator | Goods | Page)
+const indexData = ref<(string | Elevator | Goods | Article)[]>([])
+const settingData = ref<string | Elevator | Goods | Article>(
+  {} as string | Elevator | Goods | Article,
+)
 
 const rightTabs = ref([
   { name: '组件设置', icon: '组件设置' },
