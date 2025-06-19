@@ -63,7 +63,7 @@
                     <span>设置</span>
                   </a-menu-item>
                   <a-menu-divider />
-                  <a-menu-item key="logout">
+                  <a-menu-item key="logout" @click="handleLogout">
                     <LogoutOutlined />
                     <span>退出登录</span>
                   </a-menu-item>
@@ -416,6 +416,11 @@ const onSearch = (value: string) => {
 const handleMenuClick = (path: string) => {
   console.log('菜单点击:', path)
   router.push(path || '/')
+}
+
+const handleLogout = () => {
+  localStorage.removeItem('token')
+  router.push('/login')
 }
 
 // 组件样式

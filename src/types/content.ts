@@ -8,6 +8,15 @@ import TitleSetting from '@/views/content/pages/TitleSetting.vue'
 import ElevatorSetting from '@/views/content/pages/ElevatorSetting.vue'
 import PageSetting from '@/views/content/pages/PageSetting.vue'
 
+export interface saveRequestDTO {
+  id: number
+  name: string
+  description: string
+  backgroundColor: string
+  templateId: number
+  components: Wrapper[]
+}
+
 export interface Article {
   id: number
   name: string
