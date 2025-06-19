@@ -44,12 +44,12 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
-        path: '/content/pages/edit/EditorTitle/:objData',
+        path: 'EditorTitle/:objData',
         name: 'TitleSetting',
         component: () => import('@/views/content/pages/TitleSetting.vue'),
       },
       {
-        path: '/content/pages/edit/EditorElevator/:objData',
+        path: 'EditorElevator/:objData',
         name: 'ElevatorSetting',
         component: () => import('@/views/content/pages/ElevatorSetting.vue'),
       },

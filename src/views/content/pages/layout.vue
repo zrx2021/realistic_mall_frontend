@@ -129,7 +129,7 @@
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
 import { ref, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import {
   ArrowLeftOutlined,
   EyeOutlined,
@@ -154,6 +154,7 @@ import { getUniqueId } from '@/utils/uniqueId'
 import { savePage } from '@/api/content/page'
 
 const router = useRouter()
+const route = useRoute()
 const settingType = ref(-1)
 const settingIndex = ref(-1)
 const activeTab = ref('基础组件')
@@ -172,10 +173,6 @@ const indexData = ref<(string | Elevator | Goods | Article)[]>([])
 const settingData = ref<string | Elevator | Goods | Article>(
   {} as string | Elevator | Goods | Article,
 )
-
-const props = defineProps<{
-  templateId: number
-}>()
 
 const rightTabs = ref([
   { name: '组件设置', icon: '组件设置' },
@@ -219,7 +216,7 @@ const handleSave = () => {
     name: pageData.value.name,
     description: pageData.value.description,
     backgroundColor: pageData.value.backgroundColor,
-    templateId: props.templateId,
+    templateId: Number(route.query.templateId) || 0,
     components: componentList.value,
   })
 }
@@ -272,7 +269,7 @@ onMounted(() => {
   addComponent(1)
   // addComponent(2)
   refreshIndexData()
-  pageData.value.templateId = props.templateId
+  pageData.value.templateId = Number(route.query.templateId) || 0
   indexArray.value = Array(availableComponents.value.length).fill(false)
 })
 </script>

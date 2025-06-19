@@ -50,9 +50,9 @@ const closeTemplateDialog = () => {
   isTemplateDialogVisible.value = false
 }
 
-const handleSelect = (templateId: string) => {
+const handleSelect = (templateId: number) => {
   console.log('选择的模板ID:', templateId)
-  // 这里可以根据模板ID进行相应的处理
+  // 使用query参数跳转到编辑页面
   router.push({
     path: '/content/pages/edit',
     query: { templateId },
