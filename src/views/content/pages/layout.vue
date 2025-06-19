@@ -151,6 +151,7 @@ import {
 import type { Wrapper, Elevator, Goods, Article } from '@/types/content'
 
 import { getUniqueId } from '@/utils/uniqueId'
+import { savePage } from '@/api/content/page'
 
 const router = useRouter()
 const settingType = ref(-1)
@@ -171,6 +172,10 @@ const indexData = ref<(string | Elevator | Goods | Article)[]>([])
 const settingData = ref<string | Elevator | Goods | Article>(
   {} as string | Elevator | Goods | Article,
 )
+
+const props = defineProps<{
+  templateId: number
+}>()
 
 const rightTabs = ref([
   { name: '组件设置', icon: '组件设置' },
@@ -208,7 +213,16 @@ const handleClick = (id: number) => {
   })
 }
 
-const handleSave = () => {}
+const handleSave = () => {
+  savePage({
+    id: pageData.value.id,
+    name: pageData.value.name,
+    description: pageData.value.description,
+    backgroundColor: pageData.value.backgroundColor,
+    templateId: props.templateId,
+    components: componentList.value,
+  })
+}
 
 const handlePreview = () => {
   console.log('预览页面数据', pageData.value)
@@ -258,6 +272,7 @@ onMounted(() => {
   addComponent(1)
   // addComponent(2)
   refreshIndexData()
+  pageData.value.templateId = props.templateId
   indexArray.value = Array(availableComponents.value.length).fill(false)
 })
 </script>

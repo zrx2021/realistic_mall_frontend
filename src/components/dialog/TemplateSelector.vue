@@ -30,7 +30,7 @@
 
     <div class="templates-grid">
       <!-- 空白模板 -->
-      <div class="template-card empty-template" @click="selectTemplate('empty')">
+      <div class="template-card empty-template" @click="selectTemplate(-1)">
         <div class="template-icon">
           <plus-outlined />
         </div>
@@ -85,13 +85,13 @@ const selectedTag = ref('all')
 // 模板数据
 const templates = [
   {
-    id: '1',
+    id: 1,
     name: '电商首页模板',
     image: '/templates/ecommerce-home.jpg',
     type: 'ecommerce',
   },
   {
-    id: '2',
+    id: 2,
     name: '产品详情模板',
     image: '/templates/product-detail.jpg',
     type: 'ecommerce',
@@ -131,7 +131,7 @@ const handleCancel = () => {
 }
 
 // 处理模板选择
-const selectTemplate = (templateId: string) => {
+const selectTemplate = (templateId: number) => {
   emit('getSelectedId', templateId)
   handleCancel()
 }

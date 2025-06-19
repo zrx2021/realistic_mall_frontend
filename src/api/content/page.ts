@@ -1,7 +1,6 @@
 import { post } from '@/utils/request'
-import type { Article } from '@/types/content'
 
 // 账号密码登录
-export const savePage = (data: Article) => {
+export const savePage = (data: object) => {
   return post<string>('/content/article/save', data)
 }
