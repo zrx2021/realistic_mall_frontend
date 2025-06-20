@@ -1,3 +1,3 @@
 export const getUniqueId = () => {
-  return (Math.random() * 1000000).toString().split('.')[0] + Date.now()
+  return Date.now().toString().substring(0, 13) + Math.floor(Math.random() * 1000000)
 }
