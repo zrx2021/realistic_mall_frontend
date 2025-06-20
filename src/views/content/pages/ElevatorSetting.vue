@@ -28,8 +28,8 @@
       标签字数建议在5个字以内，图片建议尺寸100*100像素
     </h5>
     <a-flex class="setting-list">
-      <div v-for="item in data.tabData" :key="item.tabId" class="setting-item">
-        <div class="close-btn" @click="deleteTab(item.tabId)"></div>
+      <div v-for="item in data.labels" :key="item.id" class="setting-item">
+        <div class="close-btn" @click="deleteTab(item.id)"></div>
         <div class="tab-image" v-if="!(data.templateStyle === 'words')">
           <img src="@/assets/logo.svg" alt="logo" />
           <span>点击</span>
@@ -37,7 +37,7 @@
         </div>
         <div class="input-container">
           <a-input
-            v-model:value="item.label"
+            v-model:value="item.name"
             placeholder="请输入标签"
             @blur="handleChange"
             v-if="data.templateStyle !== 'image'"
@@ -238,10 +238,10 @@ const props = defineProps<{
 }>()
 
 const data = ref<Elevator>({
-  elevatorId: -1,
+  id: -1,
   templateStyle: 'words',
-  tabData: [],
-  tabsPosition: 'top',
+  labels: [],
+  position: 'top',
   colorSetting: [],
   fillType: 'underline',
   fillShape: 'none',
@@ -431,23 +431,23 @@ const handlePositionChange = (value: string) => {
 }
 
 const deleteTab = (tabId: number) => {
-  if (data.value.tabData.length < 3) {
+  if (data.value.labels.length < 3) {
     message.error('至少保留两个标签')
     return
   }
-  data.value.tabData = data.value.tabData.filter((item) => item.tabId !== tabId)
+  data.value.labels = data.value.labels.filter((item) => item.id !== tabId)
   handleChange()
 }
 
 const addTab = () => {
   const newTab = ref<ElevatorTabs>({
-    tabId: -1,
-    label: '新建标签',
+    id: -1,
+    name: '新建标签',
     jumpUrl: 'www.baidu.com',
-    image: '@/assets/logo.svg',
+    imageUrl: '@/assets/logo.svg',
   })
-  newTab.value.tabId = getUniqueId()
-  data.value.tabData.push(newTab.value)
+  newTab.value.id = getUniqueId()
+  data.value.labels.push(newTab.value)
   handleChange()
 }
 

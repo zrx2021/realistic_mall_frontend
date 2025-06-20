@@ -6,14 +6,14 @@
       :class="[
         `fill-type-${showData.fillType}`,
         `fill-shape-${showData.fillShape}`,
-        { 'justify-around': showData.tabData.length <= 4 },
+        { 'justify-around': showData.labels.length <= 4 },
         { 'custom-style': showData.customStyle },
       ]"
-      :tab-position="showData.tabsPosition"
-      :items="showData.tabData"
+      :tab-position="showData.position"
+      :items="showData.labels"
       v-model:activeKey="activeKey"
     >
-      <a-tab-pane v-for="item in showData.tabData" :key="item.tabId" :tab="item.label"></a-tab-pane>
+      <a-tab-pane v-for="item in showData.labels" :key="item.id" :tab="item.name"></a-tab-pane>
     </a-tabs>
     <a-tabs
       v-if="showData.templateStyle === 'fixed'"
@@ -22,17 +22,17 @@
       :class="[
         `fill-type-${showData.fillType}`,
         `fill-shape-${showData.fillShape}`,
-        { 'justify-around': showData.tabData.length <= 4 },
+        { 'justify-around': showData.labels.length <= 4 },
         { 'custom-style': showData.customStyle },
       ]"
-      :tab-position="showData.tabsPosition"
-      :items="showData.tabData"
+      :tab-position="showData.position"
+      :items="showData.labels"
       v-model:activeKey="activeKey"
     >
-      <a-tab-pane v-for="item in showData.tabData" :key="item.tabId">
+      <a-tab-pane v-for="item in showData.labels" :key="item.id">
         <template #tab>
           <img src="@/assets/logo.svg" alt="logo" class="tab-icon" />
-          <span>{{ item.label }}</span>
+          <span>{{ item.name }}</span>
         </template>
       </a-tab-pane>
     </a-tabs>
@@ -43,14 +43,14 @@
       :class="[
         `fill-type-${showData.fillType}`,
         `fill-shape-${showData.fillShape}`,
-        { 'justify-around': showData.tabData.length <= 4 },
+        { 'justify-around': showData.labels.length <= 4 },
         { 'custom-style': showData.customStyle },
       ]"
-      :tab-position="showData.tabsPosition"
-      :items="showData.tabData"
+      :tab-position="showData.position"
+      :items="showData.labels"
       v-model:activeKey="activeKey"
     >
-      <a-tab-pane v-for="item in showData.tabData" :key="item.tabId">
+      <a-tab-pane v-for="item in showData.labels" :key="item.id">
         <template #tab>
           <img src="@/assets/logo.svg" alt="logo" class="tab-icon" />
         </template>
@@ -64,10 +64,10 @@ import { onMounted, ref, computed } from 'vue'
 import type { Elevator } from '@/types/content'
 
 const showData = ref<Elevator>({
-  elevatorId: -1,
+  id: -1,
   templateStyle: '',
-  tabData: [],
-  tabsPosition: 'top',
+  labels: [],
+  position: 'top',
   colorSetting: [],
   fillType: '',
   fillShape: '',
@@ -112,7 +112,7 @@ const navBgColor = computed(() => {
 
 onMounted(() => {
   showData.value = props.objData as Elevator
-  activeKey.value = showData.value.tabData[0].tabId
+  activeKey.value = showData.value.labels[0].id
 })
 </script>
 

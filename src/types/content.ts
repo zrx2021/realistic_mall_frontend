@@ -27,9 +27,9 @@ export interface Article {
 }
 
 export interface ElevatorTabs {
-  tabId: number
-  label?: string
-  image?: string
+  id: number
+  name?: string
+  imageUrl?: string
   jumpUrl: string
 }
 
@@ -40,10 +40,10 @@ export interface GoodsGroup {
 }
 
 export interface Elevator {
-  elevatorId: number
+  id: number
   templateStyle: string
-  tabData: ElevatorTabs[]
-  tabsPosition: 'top' | 'left'
+  labels: ElevatorTabs[]
+  position: 'top' | 'left'
   colorSetting: ColorSetting[]
   fillType: string
   fillShape: string
@@ -176,23 +176,23 @@ const componentTemplate = [
     name: '电梯导航',
     type: 2,
     objData: {
-      elevatorId: getUniqueId(),
+      id: getUniqueId(),
       templateStyle: 'words',
-      tabData: [
+      labels: [
         {
-          tabId: getUniqueId(),
-          label: '新建标签',
+          id: getUniqueId(),
+          name: '新建标签',
           jumpUrl: 'www.baidu.com',
-          image: '@/assets/logo.svg',
+          imageUrl: '@/assets/logo.svg',
         },
         {
-          tabId: getUniqueId(),
-          label: '新建标签',
+          id: getUniqueId(),
+          name: '新建标签',
           jumpUrl: 'www.google.com',
-          image: '@/assets/logo.svg',
+          imageUrl: '@/assets/logo.svg',
         },
       ],
-      tabsPosition: 'top',
+      position: 'top',
       fillType: 'underline',
       fillShape: 'none',
       colorSetting: defaultColorSetting[0],
