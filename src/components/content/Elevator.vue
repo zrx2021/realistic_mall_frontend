@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
-import type { Elevator } from '@/types/content'
+import type { Elevator } from '@/types/content/content'
 
 const showData = ref<Elevator>({
   id: -1,
@@ -73,7 +73,7 @@ const showData = ref<Elevator>({
   fillShape: '',
   borderRadius: 0,
   borderSize: 1,
-  customStyle: false,
+  customStyle: 0,
   paddingVertical: 0,
   paddingHorizontal: 0,
   marginVertical: 0,

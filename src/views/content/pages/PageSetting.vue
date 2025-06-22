@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { Article } from '@/types/content'
+import type { Article } from '@/types/content/content'
 
 const props = defineProps<{
   objData: Article

@@ -229,7 +229,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import type { Elevator, ElevatorTabs } from '@/types/content'
+import type { Elevator, ElevatorTabs } from '@/types/content/content'
 import { getUniqueId } from '@/utils/uniqueId'
 import { message } from 'ant-design-vue'
 
@@ -247,7 +247,7 @@ const data = ref<Elevator>({
   fillShape: 'none',
   borderRadius: 8,
   borderSize: 1,
-  customStyle: false,
+  customStyle: 0,
   paddingVertical: 8,
   paddingHorizontal: 16,
   marginVertical: 0,
@@ -287,7 +287,7 @@ const themePresets = [
     fillShape: 'none',
     borderSize: 0,
     borderRadius: 8,
-    customStyle: true,
+    customStyle: 0,
     paddingVertical: 8,
     paddingHorizontal: 16,
     marginVertical: 0,
@@ -307,7 +307,7 @@ const themePresets = [
     fillShape: 'circle-square',
     borderSize: 0,
     borderRadius: 20,
-    customStyle: true,
+    customStyle: 0,
     paddingVertical: 5,
     paddingHorizontal: 5,
     marginVertical: 5,
@@ -327,7 +327,7 @@ const themePresets = [
     fillShape: 'circle-square',
     borderSize: 0,
     borderRadius: 20,
-    customStyle: true,
+    customStyle: 0,
     paddingVertical: 5,
     paddingHorizontal: 5,
     marginVertical: 5,
@@ -347,7 +347,7 @@ const themePresets = [
     fillShape: 'circle-square',
     borderSize: 0,
     borderRadius: 20,
-    customStyle: true,
+    customStyle: 0,
     paddingVertical: 5,
     paddingHorizontal: 5,
     marginVertical: 5,
@@ -367,7 +367,7 @@ const themePresets = [
     fillShape: 'none',
     borderSize: 0,
     borderRadius: 0,
-    customStyle: true,
+    customStyle: 0,
     paddingVertical: 5,
     paddingHorizontal: 5,
     marginVertical: 5,
@@ -387,7 +387,7 @@ const themePresets = [
     fillShape: 'circle-square',
     borderSize: 0,
     borderRadius: 20,
-    customStyle: true,
+    customStyle: 0,
     paddingVertical: 5,
     paddingHorizontal: 5,
     marginVertical: 5,
@@ -407,7 +407,7 @@ const themePresets = [
     fillShape: 'none',
     borderSize: 0,
     borderRadius: 0,
-    customStyle: true,
+    customStyle: 0,
     paddingVertical: 5,
     paddingHorizontal: 5,
     marginVertical: 5,
@@ -460,7 +460,7 @@ const applyTheme = (theme: (typeof themePresets)[0]) => {
   data.value.borderSize = theme.borderSize
   data.value.borderRadius = theme.borderRadius
   data.value.colorSetting = JSON.parse(JSON.stringify(theme.colorSetting))
-  data.value.customStyle = theme.customStyle
+  data.value.customStyle = theme.customStyle ? 1 : 0
   data.value.paddingVertical = theme.paddingVertical
   data.value.paddingHorizontal = theme.paddingHorizontal
   data.value.marginVertical = theme.marginVertical
@@ -528,6 +528,13 @@ watch(
       }
     }
     handleChange()
+  },
+)
+
+watch(
+  () => data.value.customStyle,
+  (newVal) => {
+    data.value.customStyle = data.value.customStyle ? 1 : 0
   },
 )
 </script>

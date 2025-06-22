@@ -8,15 +8,6 @@ import TitleSetting from '@/views/content/pages/TitleSetting.vue'
 import ElevatorSetting from '@/views/content/pages/ElevatorSetting.vue'
 import PageSetting from '@/views/content/pages/PageSetting.vue'
 
-export interface saveRequestDTO {
-  id: number
-  name: string
-  description: string
-  backgroundColor: string
-  templateId: number
-  components: Wrapper[]
-}
-
 export interface Article {
   id: number
   name: string
@@ -49,7 +40,7 @@ export interface Elevator {
   fillShape: string
   borderRadius: number
   borderSize: number
-  customStyle: boolean
+  customStyle: number
   paddingVertical: number
   paddingHorizontal: number
   marginVertical: number
@@ -197,7 +188,7 @@ const componentTemplate = [
       fillShape: 'none',
       colorSetting: defaultColorSetting[0],
       borderRadius: 8,
-      customStyle: false,
+      customStyle: 0,
       paddingVertical: 8,
       paddingHorizontal: 16,
       borderSize: 1,

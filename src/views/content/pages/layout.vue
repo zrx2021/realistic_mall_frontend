@@ -146,9 +146,9 @@ import {
   imageMap,
   getTemplate,
   getSettingsComponent,
-} from '@/types/content'
+} from '@/types/content/content'
 
-import type { Wrapper, Elevator, Goods, Article } from '@/types/content'
+import type { Wrapper, Elevator, Goods, Article } from '@/types/content/content'
 
 import { getUniqueId } from '@/utils/uniqueId'
 import { savePage } from '@/api/content/page'
@@ -210,15 +210,20 @@ const handleClick = (id: number) => {
   })
 }
 
-const handleSave = () => {
-  savePage({
+const handleSave = async () => {
+  const res = await savePage({
     id: pageData.value.id,
     name: pageData.value.name,
+    status: pageData.value.status,
     description: pageData.value.description,
     backgroundColor: pageData.value.backgroundColor,
-    templateId: Number(route.query.templateId) || 0,
+    templateId: Number(route.query.templateId) || -1,
     components: componentList.value,
   })
+  if (res) {
+    // 更新页面数据
+    console.log('res', res)
+  }
 }
 
 const handlePreview = () => {

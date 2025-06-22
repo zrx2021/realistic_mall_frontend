@@ -1,7 +1,7 @@
-import type { saveRequestDTO } from '@/types/content'
+import type { saveRequestDTO } from '@/types/content/pages/savePageDTO'
 import { post } from '@/utils/request'
 
 // 账号密码登录
 export const savePage = (data: saveRequestDTO) => {
-  return post<string>('/content/article/save', data)
+  return post<number>('/content/article/save', data)
 }
