@@ -116,7 +116,8 @@ export const getSettingsComponent = (type: number) => {
   }
 }
 
-const defaultColorSetting = [
+// 用于组件的默认颜色设置，可被其他部分引用
+export const defaultColorSetting = [
   [
     {
       name: 'activeColor',
@@ -158,7 +159,7 @@ const componentTemplate = [
   },
   {
     id: getUniqueId(),
-    name: '标题',
+    name: '标题文本',
     type: 1,
     objData: '请输入标题',
   },
@@ -168,32 +169,44 @@ const componentTemplate = [
     type: 2,
     objData: {
       id: getUniqueId(),
-      templateStyle: 'words',
-      labels: [
-        {
-          id: getUniqueId(),
-          name: '新建标签',
-          jumpUrl: 'www.baidu.com',
-          imageUrl: '@/assets/logo.svg',
-        },
-        {
-          id: getUniqueId(),
-          name: '新建标签',
-          jumpUrl: 'www.google.com',
-          imageUrl: '@/assets/logo.svg',
-        },
-      ],
+      type: 'words',
+      sortOrder: 1,
       position: 'top',
       fillType: 'underline',
       fillShape: 'none',
-      colorSetting: defaultColorSetting[0],
       borderRadius: 8,
-      customStyle: 0,
-      paddingVertical: 8,
-      paddingHorizontal: 16,
       borderSize: 1,
-      marginVertical: 0,
+      customStyle: 0,
       marginHorizontal: 8,
+      marginVertical: 0,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      activeColor: '#1890FF',
+      inactiveColor: '#595959',
+      activeBgColor: '#E6F7FF',
+      inactiveBgColor: '#FFFFFF',
+      navBgColor: '#FFFFFF',
+      deleted: 0,
+      labels: [
+        {
+          id: getUniqueId(),
+          navId: null,
+          sortOrder: 1,
+          name: '新建标签',
+          jumpUrl: 'www.baidu.com',
+          imageUrl: '@/assets/logo.svg',
+          deleted: 0,
+        },
+        {
+          id: getUniqueId(),
+          navId: null,
+          sortOrder: 2,
+          name: '新建标签',
+          jumpUrl: 'www.google.com',
+          imageUrl: '@/assets/logo.svg',
+          deleted: 0,
+        },
+      ],
     },
   },
 ]

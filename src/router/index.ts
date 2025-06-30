@@ -24,7 +24,7 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
-        path: '/contents/pages',
+        path: '/content/pages',
         name: 'ContentsManagement',
         component: () => import('@/views/content/pages/Content.vue'),
         meta: {
@@ -39,7 +39,7 @@ const routes: RouteRecordRaw[] = [
     name: 'ContentPageEdit',
     component: () => import('@/views/content/pages/layout.vue'),
     meta: {
-      title: '新增编辑页面',
+      title: '页面编辑',
       requiresAuth: true,
     },
     children: [

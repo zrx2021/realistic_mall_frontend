@@ -5,14 +5,19 @@
         <div class="header-left">
           <arrow-left-outlined class="back-icon" @click="goBack" />
           <span class="back-text" @click="goBack">返回页面管理</span>
-          <span class="page-title">页面编辑 - 首页</span>
+          <span class="page-title">页面编辑 - {{ pageData.name || '新页面' }}</span>
         </div>
         <a-space>
           <a-button variant="outlined" class="action-btn" @click="handlePreview">
             <template #icon><eye-outlined /></template>
             预览
           </a-button>
-          <a-button type="primary" class="action-btn" @click="handleSave">
+          <a-button
+            type="primary"
+            class="action-btn"
+            @click="handleSave"
+            :disabled="saveBtnDisabled"
+          >
             <template #icon><save-outlined /></template>
             保存
           </a-button>
@@ -92,7 +97,9 @@
         <div class="right-panel">
           <div class="settings-header">
             <h3>组件设置</h3>
-            <a-tag color="blue">未选择组件</a-tag>
+            <a-tag color="blue">{{
+              settingIndex >= 0 ? componentList[settingIndex]?.name || '组件设置' : '未选择组件'
+            }}</a-tag>
           </div>
           <div class="settings-content">
             <div class="settings-placeholder" v-if="componentList.length === 0">
@@ -149,14 +156,17 @@ import {
 } from '@/types/content/content'
 
 import type { Wrapper, Elevator, Goods, Article } from '@/types/content/content'
-
+import { getPageDetailById } from '@/api/content/page'
 import { getUniqueId } from '@/utils/uniqueId'
 import { savePage } from '@/api/content/page'
+import { message } from 'ant-design-vue'
+import { transformComponentData } from '@/utils/componentTransform'
 
 const router = useRouter()
 const route = useRoute()
 const settingType = ref(-1)
 const settingIndex = ref(-1)
+const saveBtnDisabled = ref(false)
 const activeTab = ref('基础组件')
 const pageData = ref<Article>({
   id: getUniqueId(),
@@ -188,8 +198,6 @@ const headerStyle: CSSProperties = {
   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
 }
 
-const refreshIndexData = () => {}
-
 const handleTabClick = (name: string) => {
   console.log('handleTabClick', name)
   if (name === '组件设置') {
@@ -210,7 +218,9 @@ const handleClick = (id: number) => {
   })
 }
 
+// 保存页面数据
 const handleSave = async () => {
+  // saveBtnDisabled.value = true
   const res = await savePage({
     id: pageData.value.id,
     name: pageData.value.name,
@@ -222,7 +232,7 @@ const handleSave = async () => {
   })
   if (res) {
     // 更新页面数据
-    console.log('res', res)
+    pageData.value.id = res
   }
 }
 
@@ -240,6 +250,58 @@ const addComponent = (type: number) => {
   }
 }
 
+// 获取页面详情数据
+const fetchPageDetail = async (id: number) => {
+  try {
+    const pageDetail = await getPageDetailById(id)
+
+    // 更新页面基本信息
+    pageData.value = {
+      id: pageDetail.id,
+      name: pageDetail.name,
+      status: pageDetail.status,
+      description: pageDetail.description,
+      backgroundColor: pageDetail.backgroundColor,
+      templateId: pageDetail.templateId || -1,
+    }
+
+    // 清空组件列表
+    componentList.value = []
+    indexData.value = []
+
+    // 按照order排序组件
+    const sortedComponents = [...pageDetail.components].sort((a, b) => a.order - b.order)
+
+    // 转换后端组件数据为前端需要的格式
+    sortedComponents.forEach((component) => {
+      const template = getTemplate(component.typeId)
+
+      if (template) {
+        // 创建组件
+        const newComponent: Wrapper = {
+          id: component.id,
+          type: component.typeId,
+          name: template.name,
+          objData: transformComponentData(component),
+        }
+
+        componentList.value.push(newComponent)
+        indexData.value.push(newComponent.objData)
+      }
+    })
+
+    // 如果有组件，默认选中第一个
+    if (componentList.value.length > 0) {
+      settingIndex.value = 0
+      settingType.value = componentList.value[0].type
+      settingData.value = componentList.value[0].objData
+    }
+  } catch (error) {
+    console.error('获取页面详情失败:', error)
+    message.error('获取页面详情失败')
+  }
+}
+
 // 鼠标事件处理
 const handleMouseEnter = (index: number) => {
   indexArray.value[index] = true
@@ -252,7 +314,7 @@ const handleMouseLeave = (index: number) => {
 // 返回上一页
 const goBack = () => {
   router.push({
-    path: '/contents/pages',
+    name: 'ContentsManagement',
   })
 }
 
@@ -271,11 +333,19 @@ watch(settingData, (newVal) => {
 onMounted(() => {
   initMap()
   initImageMap()
-  addComponent(1)
-  // addComponent(2)
-  refreshIndexData()
-  pageData.value.templateId = Number(route.query.templateId) || 0
   indexArray.value = Array(availableComponents.value.length).fill(false)
+
+  const pageId = route.query.id
+
+  if (pageId) {
+    // 如果有页面ID参数，获取页面详情
+    fetchPageDetail(Number(pageId))
+  } else {
+    // 没有页面ID，根据模板ID创建新页面
+    pageData.value.templateId = Number(route.query.templateId) || 0
+    // 添加默认组件
+    addComponent(1)
+  }
 })
 </script>
 
