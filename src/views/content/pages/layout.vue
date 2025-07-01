@@ -231,8 +231,7 @@ const handleSave = async () => {
     components: componentList.value,
   })
   if (res) {
-    // 更新页面数据
-    pageData.value.id = res
+    fetchPageDetail(res)
   }
 }
 
@@ -270,7 +269,7 @@ const fetchPageDetail = async (id: number) => {
     indexData.value = []
 
     // 按照order排序组件
-    const sortedComponents = [...pageDetail.components].sort((a, b) => a.order - b.order)
+    const sortedComponents = [...pageDetail.components].sort((a, b) => a.pageOrder - b.pageOrder)
 
     // 转换后端组件数据为前端需要的格式
     sortedComponents.forEach((component) => {

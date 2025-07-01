@@ -170,14 +170,14 @@ export const transformComponentListToBackend = (
   id: number
   name: string | null
   typeId: number
-  order: number
+  pageOrder: number
   objData: Record<string, unknown> | string
 }> => {
   return components.map((component, index) => ({
     id: component.id,
     name: component.name,
     typeId: component.type,
-    order: index + 1,
+    pageOrder: index + 1,
     objData: transformComponentToBackend(component.type, component.objData),
   }))
 }
@@ -199,7 +199,7 @@ export const transformComponentsForSave = (
     id: component.id,
     name: component.name,
     typeId: component.type,
-    order: index + 1,
+    pageOrder: index + 1,
     objData: transformComponentToBackend(component.type, component.objData),
   }))
 }

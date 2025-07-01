@@ -20,7 +20,7 @@ export interface ComponentVO {
   id: number
   name: string | null
   typeId: number
-  order: number
+  pageOrder: number
   objData: string | Record<string, unknown>
 }
 
