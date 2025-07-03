@@ -45,6 +45,7 @@ export interface Elevator {
   paddingHorizontal: number
   marginVertical: number
   marginHorizontal: number
+  deleted: number
 }
 
 export interface ColorSetting {

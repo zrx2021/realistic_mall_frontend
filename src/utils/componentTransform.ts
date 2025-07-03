@@ -9,7 +9,7 @@ import type { Elevator, Goods, Article } from '@/types/content/content'
 export const transformComponentData = (
   component: ComponentVO,
 ): string | Elevator | Goods | Article => {
-  const { typeId, objData } = component
+  const { id, typeId, objData } = component
 
   // 如果是文本组件
   if (typeId === 1) {
@@ -22,7 +22,7 @@ export const transformComponentData = (
 
     // 构造电梯导航组件数据
     const elevatorData: Elevator = {
-      id: component.id,
+      id,
       templateStyle: (data.type as string) || 'words',
       labels: ((data.labels as Array<Record<string, unknown>>) || []).map((label) => ({
         id: label.id as number,
@@ -67,6 +67,7 @@ export const transformComponentData = (
       paddingHorizontal: Number(data.paddingHorizontal) || 16,
       marginVertical: Number(data.marginVertical) || 0,
       marginHorizontal: Number(data.marginHorizontal) || 8,
+      deleted: Number(data.deleted) || 0,
     }
 
     return elevatorData

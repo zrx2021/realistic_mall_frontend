@@ -78,6 +78,7 @@ const showData = ref<Elevator>({
   paddingHorizontal: 0,
   marginVertical: 0,
   marginHorizontal: 0,
+  deleted: 0,
 })
 
 const activeKey = ref(-1)

@@ -127,10 +127,10 @@
 
     <div class="style-setting-item">
       <span class="setting-item-label">自定义样式</span>
-      <a-switch v-model:checked="data.customStyle" @change="handleChange" />
+      <a-switch v-model:checked="customBox" @change="handleChange" />
     </div>
 
-    <template v-if="data.customStyle">
+    <template v-if="customBox">
       <div class="style-setting-item">
         <span class="setting-item-label">上下内边距</span>
         <div class="size-input">
@@ -252,10 +252,12 @@ const data = ref<Elevator>({
   paddingHorizontal: 16,
   marginVertical: 0,
   marginHorizontal: 8,
+  deleted: 0,
 })
 
 const tabsPosition = ref('top')
 const emits = defineEmits(['update:objData'])
+const customBox = ref(false)
 
 const fillTypeOptions = ref([
   { value: 'none', label: '无' },
@@ -460,7 +462,8 @@ const applyTheme = (theme: (typeof themePresets)[0]) => {
   data.value.borderSize = theme.borderSize
   data.value.borderRadius = theme.borderRadius
   data.value.colorSetting = JSON.parse(JSON.stringify(theme.colorSetting))
-  data.value.customStyle = theme.customStyle ? 1 : 0
+  customBox.value = theme.customStyle ? true : false
+  data.value.customStyle = customBox.value ? 1 : 0
   data.value.paddingVertical = theme.paddingVertical
   data.value.paddingHorizontal = theme.paddingHorizontal
   data.value.marginVertical = theme.marginVertical
@@ -532,9 +535,9 @@ watch(
 )
 
 watch(
-  () => data.value.customStyle,
+  () => customBox.value,
   (newVal) => {
-    data.value.customStyle = data.value.customStyle ? 1 : 0
+    data.value.customStyle = newVal ? 1 : 0
   },
 )
 </script>
