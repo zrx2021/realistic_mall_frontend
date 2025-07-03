@@ -82,7 +82,10 @@
               <h3>内容编辑区</h3>
               <p>从左侧拖拽或点击组件添加到此处</p>
             </div>
-            <div v-for="(element, index) in componentList" :key="element.id">
+            <div
+              v-for="(element, index) in componentList"
+              :key="`${element.id}-${refreshKeysArray[index] || 0}`"
+            >
               <component
                 :is="getComponent(element.type)"
                 :objData="indexData[index]"
@@ -299,6 +302,7 @@ const fetchPageDetail = async (id: number) => {
     console.error('获取页面详情失败:', error)
     message.error('获取页面详情失败')
   }
+  refreshKeysArray.value = componentList.value.map(() => getUniqueId())
 }
 
 // 鼠标事件处理
