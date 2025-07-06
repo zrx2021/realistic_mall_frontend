@@ -84,12 +84,12 @@
             </div>
             <div
               v-for="(element, index) in componentList"
-              :key="`${element.id}-${refreshKeysArray[index] || 0}`"
+              :key="`${element.id}-${refreshKeysArray[index]}-${element.type}`"
             >
               <component
                 :is="getComponent(element.type)"
                 :objData="indexData[index]"
-                @click="handleClick(element.id)"
+                @click="handleClick(element.id, element.type)"
                 :class="{ isSelected: index === settingIndex }"
               />
             </div>
@@ -211,9 +211,9 @@ const handleTabClick = (name: string) => {
   settingData.value = pageData.value
 }
 
-const handleClick = (id: number) => {
+const handleClick = (id: number, type: number) => {
   componentList.value.forEach((element, index) => {
-    if (element.id === id) {
+    if (element.id === id && element.type === type) {
       settingType.value = element.type
       settingIndex.value = index
       settingData.value = element.objData
