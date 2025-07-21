@@ -1,5 +1,5 @@
 import type { ComponentVO } from '@/api/content/page'
-import type { Elevator, Goods, Article } from '@/types/content/content'
+import type { Elevator, Goods, Article, TextComponent } from '@/types/content/content'
 
 /**
  * 转换后端组件数据为前端使用的格式
@@ -8,24 +8,42 @@ import type { Elevator, Goods, Article } from '@/types/content/content'
  */
 export const transformComponentData = (
   component: ComponentVO,
-): string | Elevator | Goods | Article => {
-  const { id, typeId, objData } = component
+): TextComponent | Elevator | Goods | Article => {
+  const { typeId, objData } = component
 
   // 如果是文本组件
   if (typeId === 1) {
-    return objData as string
+    const data = objData as Record<string, unknown>
+    // 返回包含id和componentId的TextComponent对象
+    return {
+      titleContent: data.titleContent as string,
+      componentId: data.componentId as number,
+      id: data.id as number, // 添加id属性以保持id的一致性
+    } as TextComponent
   }
 
   // 如果是电梯导航组件
   if (typeId === 2) {
     const data = objData as Record<string, unknown>
 
+    // 获取colorSetting数组
+    const colorSettingArray =
+      (data.colorSetting as Array<{ name: string; label: string; value: string }>) || []
+
+    // 通过查找数组中的name来获取对应颜色值
+    const getColorValue = (name: string, defaultValue: string): string => {
+      const colorItem = colorSettingArray.find((item) => item.name === name)
+      return colorItem?.value || defaultValue
+    }
+
     // 构造电梯导航组件数据
     const elevatorData: Elevator = {
-      id,
-      templateStyle: (data.type as string) || 'words',
+      id: data.id as number, // 组件页面关联关系表的主键id
+      componentId: data.componentId as number, // 组件在自己表中的ID
+      templateStyle: (data.templateStyle as string) || 'words',
       labels: ((data.labels as Array<Record<string, unknown>>) || []).map((label) => ({
         id: label.id as number,
+        componentId: label.componentId as number, // 标签自己的组件ID
         name: label.name as string,
         jumpUrl: label.jumpUrl as string,
         imageUrl: label.imageUrl as string,
@@ -35,27 +53,27 @@ export const transformComponentData = (
         {
           name: 'activeColor',
           label: '选中文字颜色',
-          value: (data.activeColor as string) || '#1890FF',
+          value: getColorValue('activeColor', '#1890FF'),
         },
         {
           name: 'inactiveColor',
           label: '未选中文字颜色',
-          value: (data.inactiveColor as string) || '#595959',
+          value: getColorValue('inactiveColor', '#595959'),
         },
         {
           name: 'activeBgColor',
           label: '选中背景颜色',
-          value: (data.activeBgColor as string) || '#E6F7FF',
+          value: getColorValue('activeBgColor', '#E6F7FF'),
         },
         {
           name: 'inactiveBgColor',
           label: '未选中背景颜色',
-          value: (data.inactiveBgColor as string) || '#FFFFFF',
+          value: getColorValue('inactiveBgColor', '#FFFFFF'),
         },
         {
           name: 'navBgColor',
           label: '导航背景颜色',
-          value: (data.navBgColor as string) || '#FFFFFF',
+          value: getColorValue('navBgColor', '#FFFFFF'),
         },
       ],
       fillType: (data.fillType as string) || 'underline',
@@ -76,7 +94,100 @@ export const transformComponentData = (
   // 其他类型组件处理...
   // TODO: 添加其他类型组件的转换逻辑
 
-  return objData as string
+  // 对于未知类型，尝试安全地返回数据
+  if (typeof objData === 'string') {
+    return { titleContent: objData } as TextComponent
+  }
+
+  // 对于对象类型，直接返回
+  return objData as unknown as Article
+}
+
+/**
+ * 将文本组件数据转换为后端格式
+ * @param text 前端文本组件数据
+ * @param id 组件页面关联关系表的主键ID
+ * @param componentId 组件在自己表中的ID
+ * @returns 转换后的后端格式数据
+ * @deprecated 已被直接实现在transformComponentToBackend中
+ */
+export const transformTextToBackend = (
+  text: string,
+  id?: number,
+  componentId?: number,
+): Record<string, unknown> => {
+  return {
+    id,
+    componentId,
+    titleContent: text, // 使用后端期望的属性名
+  }
+}
+
+/**
+ * 将前端组件数据转换为后端格式
+ * @param componentType 组件类型ID
+ * @param componentData 前端组件数据
+ * @param id 组件页面关联关系表的主键ID
+ * @param componentId 组件在自己表中的ID
+ * @returns 转换后的后端格式数据
+ */
+export const transformComponentToBackend = (
+  componentType: number,
+  componentData: string | Elevator | Goods | Article | TextComponent,
+  id?: number,
+  componentId?: number,
+): Record<string, unknown> => {
+  // 文本组件
+  if (componentType === 1) {
+    // 检查componentData是否为字符串，如果是字符串则使用旧的方式处理
+    if (typeof componentData === 'string') {
+      return {
+        id: id, // 组件页面关联关系表的主键id
+        componentId, // 组件在自己表中的ID
+        titleContent: componentData,
+        deleted: 0, // 默认未删除
+        pageOrder: null,
+      }
+    } else {
+      // 如果是TextComponent对象，使用其中的数据
+      const textData = componentData as TextComponent
+      return {
+        id: id, // 组件页面关联关系表的主键id
+        componentId: textData.componentId || componentId, // 优先使用对象中的componentId
+        titleContent: textData.titleContent,
+        deleted: 0, // 默认未删除
+        pageOrder: null,
+      }
+    }
+  }
+
+  // 电梯导航组件
+  if (componentType === 2) {
+    return transformElevatorToBackend(componentData as Elevator)
+  }
+
+  // 其他类型组件处理...
+  // TODO: 添加其他类型组件的转换逻辑
+
+  // 确保返回的是对象格式
+  if (typeof componentData === 'string') {
+    return {
+      content: componentData,
+      id,
+      componentId,
+      deleted: 0,
+    }
+  }
+
+  // 将其他类型组件转换为Record<string, unknown>
+  const result = JSON.parse(JSON.stringify(componentData)) as Record<string, unknown>
+
+  // 确保每个组件都有deleted字段
+  if (result.deleted === undefined) {
+    result.deleted = 0
+  }
+
+  return result
 }
 
 /**
@@ -97,9 +208,9 @@ export const transformElevatorToBackend = (component: Elevator): Record<string, 
     component.colorSetting.find((item) => item.name === 'navBgColor')?.value || '#FFFFFF'
 
   return {
-    id: component.id,
-    type: component.templateStyle,
-    sortOrder: 1, // 默认排序顺序，可根据实际情况调整
+    id: component.id, // 组件页面关联关系表的主键ID
+    componentId: component.componentId, // 组件在自己表中的ID
+    templateStyle: component.templateStyle,
     position: component.position,
     fillType: component.fillType,
     fillShape: component.fillShape,
@@ -118,41 +229,15 @@ export const transformElevatorToBackend = (component: Elevator): Record<string, 
     deleted: 0,
     labels: component.labels.map((label, index) => ({
       id: label.id,
-      navId: null,
+      navId: component.id, // 父组件ID
+      componentId: label.componentId || -1, // 新标签使用-1
       sortOrder: index + 1,
       name: label.name,
       jumpUrl: label.jumpUrl,
       imageUrl: label.imageUrl,
-      deleted: 0,
+      deleted: label.deleted || 0, // 使用标签自己的删除状态
     })),
   }
-}
-
-/**
- * 将前端组件数据转换为后端格式
- * @param componentType 组件类型ID
- * @param componentData 前端组件数据
- * @returns 转换后的后端格式数据
- */
-export const transformComponentToBackend = (
-  componentType: number,
-  componentData: string | Elevator | Goods | Article,
-): Record<string, unknown> | string => {
-  // 文本组件直接返回字符串
-  if (componentType === 1) {
-    return componentData as string
-  }
-
-  // 电梯导航组件
-  if (componentType === 2) {
-    return transformElevatorToBackend(componentData as Elevator)
-  }
-
-  // 其他类型组件处理...
-  // TODO: 添加其他类型组件的转换逻辑
-
-  // 将其他类型组件转换为Record<string, unknown>
-  return JSON.parse(JSON.stringify(componentData)) as Record<string, unknown>
 }
 
 /**
@@ -163,9 +248,10 @@ export const transformComponentToBackend = (
 export const transformComponentListToBackend = (
   components: Array<{
     id: number
+    componentId?: number
     type: number
     name: string
-    objData: string | Elevator | Goods | Article
+    objData: string | Elevator | Goods | Article | TextComponent
   }>,
 ): Array<{
   id: number
@@ -179,7 +265,12 @@ export const transformComponentListToBackend = (
     name: component.name,
     typeId: component.type,
     pageOrder: index + 1,
-    objData: transformComponentToBackend(component.type, component.objData),
+    objData: transformComponentToBackend(
+      component.type,
+      component.objData,
+      component.id,
+      component.componentId,
+    ),
   }))
 }
 
@@ -191,9 +282,10 @@ export const transformComponentListToBackend = (
 export const transformComponentsForSave = (
   components: Array<{
     id: number
+    componentId?: number
     type: number
     name: string
-    objData: string | Elevator | Goods | Article
+    objData: string | Elevator | Goods | Article | TextComponent
   }>,
 ) => {
   return components.map((component, index) => ({
@@ -201,6 +293,11 @@ export const transformComponentsForSave = (
     name: component.name,
     typeId: component.type,
     pageOrder: index + 1,
-    objData: transformComponentToBackend(component.type, component.objData),
+    objData: transformComponentToBackend(
+      component.type,
+      component.objData,
+      component.id,
+      component.componentId,
+    ),
   }))
 }

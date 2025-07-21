@@ -10,10 +10,10 @@
         { 'custom-style': showData.customStyle },
       ]"
       :tab-position="showData.position"
-      :items="showData.labels"
+      :items="activeLabels"
       v-model:activeKey="activeKey"
     >
-      <a-tab-pane v-for="item in showData.labels" :key="item.id" :tab="item.name"></a-tab-pane>
+      <a-tab-pane v-for="item in activeLabels" :key="item.id" :tab="item.name"></a-tab-pane>
     </a-tabs>
     <a-tabs
       v-if="showData.templateStyle === 'fixed'"
@@ -26,10 +26,10 @@
         { 'custom-style': showData.customStyle },
       ]"
       :tab-position="showData.position"
-      :items="showData.labels"
+      :items="activeLabels"
       v-model:activeKey="activeKey"
     >
-      <a-tab-pane v-for="item in showData.labels" :key="item.id">
+      <a-tab-pane v-for="item in activeLabels" :key="item.id">
         <template #tab>
           <img src="@/assets/logo.svg" alt="logo" class="tab-icon" />
           <span>{{ item.name }}</span>
@@ -47,10 +47,10 @@
         { 'custom-style': showData.customStyle },
       ]"
       :tab-position="showData.position"
-      :items="showData.labels"
+      :items="activeLabels"
       v-model:activeKey="activeKey"
     >
-      <a-tab-pane v-for="item in showData.labels" :key="item.id">
+      <a-tab-pane v-for="item in activeLabels" :key="item.id">
         <template #tab>
           <img src="@/assets/logo.svg" alt="logo" class="tab-icon" />
         </template>
@@ -65,6 +65,7 @@ import type { Elevator } from '@/types/content/content'
 
 const showData = ref<Elevator>({
   id: -1,
+  componentId: -1,
   templateStyle: '',
   labels: [],
   position: 'top',
@@ -111,9 +112,18 @@ const navBgColor = computed(() => {
   return colorSetting?.value || '#ffffff'
 })
 
+// 计算属性：过滤出未删除的标签
+const activeLabels = computed(() => {
+  return showData.value.labels.filter((label) => !label.deleted)
+})
+
 onMounted(() => {
   showData.value = props.objData as Elevator
-  activeKey.value = showData.value.labels[0].id
+  if (showData.value.labels.length > 0) {
+    // 设置第一个未删除标签为活跃标签
+    const firstActiveLabel = showData.value.labels.find((label) => !label.deleted)
+    activeKey.value = firstActiveLabel?.id || -1
+  }
 })
 </script>
 

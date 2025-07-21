@@ -4,21 +4,30 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
+import type { TextComponent } from '@/types/content/content'
 
 const props = defineProps<{
-  objData: string
+  objData: string | TextComponent
 }>()
 
 const showData = ref('无法加载')
 
 onMounted(() => {
-  showData.value = props.objData
+  if (typeof props.objData === 'string') {
+    showData.value = props.objData
+  } else {
+    showData.value = props.objData.titleContent
+  }
 })
 
 watch(
   () => props.objData,
   (newVal) => {
-    showData.value = newVal
+    if (typeof newVal === 'string') {
+      showData.value = newVal
+    } else {
+      showData.value = newVal.titleContent
+    }
   },
 )
 </script>

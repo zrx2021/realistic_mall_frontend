@@ -28,7 +28,11 @@
       标签字数建议在5个字以内，图片建议尺寸100*100像素
     </h5>
     <a-flex class="setting-list">
-      <div v-for="item in data.labels" :key="item.id" class="setting-item">
+      <div
+        v-for="item in data.labels.filter((label) => !label.deleted)"
+        :key="item.id"
+        class="setting-item"
+      >
         <div class="close-btn" @click="deleteTab(item.id)"></div>
         <div class="tab-image" v-if="!(data.templateStyle === 'words')">
           <img src="@/assets/logo.svg" alt="logo" />
@@ -239,6 +243,7 @@ const props = defineProps<{
 
 const data = ref<Elevator>({
   id: -1,
+  componentId: -1,
   templateStyle: 'words',
   labels: [],
   position: 'top',
@@ -433,23 +438,32 @@ const handlePositionChange = (value: string) => {
 }
 
 const deleteTab = (tabId: number) => {
-  if (data.value.labels.length < 3) {
+  if (data.value.labels.filter((item) => !item.deleted).length < 3) {
     message.error('至少保留两个标签')
     return
   }
-  data.value.labels = data.value.labels.filter((item) => item.id !== tabId)
+
+  // 找到要删除的标签并标记为删除
+  const targetTab = data.value.labels.find((item) => item.id === tabId)
+  if (targetTab) {
+    targetTab.deleted = 1 // 标记为删除
+  }
+
   handleChange()
 }
 
 const addTab = () => {
-  const newTab = ref<ElevatorTabs>({
-    id: -1,
+  // FIXME Elevator可能需要用ref包裹
+  const newTab: ElevatorTabs = {
+    id: getUniqueId(),
+    componentId: -1, // 新标签暂时设为-1，后端会分配新ID
     name: '新建标签',
     jumpUrl: 'www.baidu.com',
     imageUrl: '@/assets/logo.svg',
-  })
-  newTab.value.id = getUniqueId()
-  data.value.labels.push(newTab.value)
+    deleted: 0, // 明确标记为未删除
+  }
+
+  data.value.labels.push(newTab)
   handleChange()
 }
 

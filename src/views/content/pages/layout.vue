@@ -88,7 +88,7 @@
             >
               <component
                 :is="getComponent(element.type)"
-                :objData="indexData[index]"
+                :objData="indexData[index] as any"
                 @click="handleClick(element.id, element.type)"
                 :class="{ isSelected: index === settingIndex }"
               />
@@ -113,8 +113,10 @@
               <component
                 :is="getSettingsComponent(settingType)"
                 :key="refreshKeysArray[settingIndex]"
-                v-model:objData="settingData"
-                v-model:pageData="pageData"
+                :objData="settingData as any"
+                :pageData="pageData"
+                @update:objData="(val: any) => (settingData = val)"
+                @update:pageData="(val: Article) => (pageData = val)"
               />
             </div>
             <div class="setting-tabs" v-if="componentList.length">
@@ -158,12 +160,12 @@ import {
   getSettingsComponent,
 } from '@/types/content/content'
 
-import type { Wrapper, Elevator, Goods, Article } from '@/types/content/content'
+import type { Wrapper, Elevator, Goods, Article, TextComponent } from '@/types/content/content'
 import { getPageDetailById } from '@/api/content/page'
 import { getUniqueId } from '@/utils/uniqueId'
 import { savePage } from '@/api/content/page'
 import { message } from 'ant-design-vue'
-import { transformComponentData } from '@/utils/componentTransform'
+import { transformComponentData, transformComponentListToBackend } from '@/utils/componentTransform'
 
 const router = useRouter()
 const route = useRoute()
@@ -182,9 +184,9 @@ const pageData = ref<Article>({
 const componentList = ref<Wrapper[]>([])
 const indexArray = ref<boolean[]>([])
 const refreshKeysArray = ref<number[]>([])
-const indexData = ref<(string | Elevator | Goods | Article)[]>([])
-const settingData = ref<string | Elevator | Goods | Article>(
-  {} as string | Elevator | Goods | Article,
+const indexData = ref<(string | Elevator | Goods | Article | TextComponent)[]>([])
+const settingData = ref<string | Elevator | Goods | Article | TextComponent>(
+  {} as string | Elevator | Goods | Article | TextComponent,
 )
 
 const rightTabs = ref([
@@ -211,6 +213,17 @@ const handleTabClick = (name: string) => {
   settingData.value = pageData.value
 }
 
+// 修改addComponent方法以适应新的组件数据结构
+const addComponent = (type: number) => {
+  const template = ref(getTemplate(type))
+  console.log('newComponent new Template', template.value)
+  if (template.value) {
+    componentList.value.push(template.value)
+    indexData.value.push(template.value.objData)
+  }
+}
+
+// 修改handleClick方法以适应新的组件数据结构
 const handleClick = (id: number, type: number) => {
   componentList.value.forEach((element, index) => {
     if (element.id === id && element.type === type) {
@@ -224,6 +237,20 @@ const handleClick = (id: number, type: number) => {
 // 保存页面数据
 const handleSave = async () => {
   // saveBtnDisabled.value = true
+  console.log('保存前组件列表', componentList.value)
+
+  // 转换组件列表为后端格式
+  const transformedComponents = transformComponentListToBackend(componentList.value)
+  console.log('转换后的组件列表', transformedComponents)
+
+  // 修复类型问题
+  const saveComponents = transformedComponents.map((item) => ({
+    id: item.id,
+    type: item.typeId, // 将typeId转换为type以匹配Wrapper接口
+    name: item.name || '',
+    objData: item.objData,
+  })) as Wrapper[]
+
   const res = await savePage({
     id: pageData.value.id,
     name: pageData.value.name,
@@ -231,7 +258,7 @@ const handleSave = async () => {
     description: pageData.value.description,
     backgroundColor: pageData.value.backgroundColor,
     templateId: Number(route.query.templateId) || -1,
-    components: componentList.value,
+    components: saveComponents,
   })
   if (res) {
     fetchPageDetail(res)
@@ -241,15 +268,6 @@ const handleSave = async () => {
 const handlePreview = () => {
   console.log('预览页面数据', pageData.value)
   console.log('预览', componentList.value)
-}
-
-const addComponent = (type: number) => {
-  const template = ref(getTemplate(type))
-  console.log('newComponent new Template', template.value)
-  if (template.value) {
-    componentList.value.push(template.value)
-    indexData.value.push(template.value.objData)
-  }
 }
 
 // 获取页面详情数据

@@ -10,6 +10,7 @@ import PageSetting from '@/views/content/pages/PageSetting.vue'
 
 export interface Article {
   id: number
+  componentId?: number
   name: string
   status: number
   description: string
@@ -17,21 +18,32 @@ export interface Article {
   templateId: number
 }
 
+// 添加文本组件接口定义
+export interface TextComponent {
+  titleContent: string
+  componentId?: number
+  id?: number // 组件页面关联关系表的主键id
+}
+
 export interface ElevatorTabs {
   id: number
-  name?: string
-  imageUrl?: string
+  componentId?: number
+  name: string
   jumpUrl: string
+  imageUrl: string
+  deleted?: number // 添加删除标记字段
 }
 
 export interface GoodsGroup {
   groupId: number
+  componentId?: number
   groupName: string
   displayCount: number
 }
 
 export interface Elevator {
   id: number
+  componentId: number
   templateStyle: string
   labels: ElevatorTabs[]
   position: 'top' | 'left'
@@ -56,6 +68,7 @@ export interface ColorSetting {
 
 export interface Goods {
   goodsId: number
+  componentId?: number
   templateStyle: string
   goodsList: string[]
   groupData: GoodsGroup[]
@@ -64,9 +77,10 @@ export interface Goods {
 
 export interface Wrapper {
   id: number
+  componentId?: number
   type: number
   name: string
-  objData: Elevator | Goods | string | Article
+  objData: Elevator | Goods | string | Article | TextComponent
 }
 
 export const initMap = () => {
@@ -83,7 +97,17 @@ export const getTemplate = (type: number) => {
   const template = componentTemplate.find((item) => item.type === type) || null
   if (template) {
     const newTemplate = ref(JSON.parse(JSON.stringify(template)))
-    newTemplate.value.id = getUniqueId()
+    const newId = ref(-1)
+    newId.value = getUniqueId()
+    newTemplate.value.id = newId.value
+    newTemplate.value.objData.id = newId.value
+    if (type === 2) {
+      const newLabelId = ref(-1)
+      newTemplate.value.objData.labels.forEach((item: ElevatorTabs) => {
+        newLabelId.value = getUniqueId()
+        item.id = newLabelId.value
+      })
+    }
     return newTemplate.value
   }
   return null
@@ -162,7 +186,11 @@ const componentTemplate = [
     id: getUniqueId(),
     name: '标题文本',
     type: 1,
-    objData: '请输入标题',
+    objData: {
+      titleContent: '请输入标题',
+      componentId: undefined,
+      id: undefined,
+    } as TextComponent,
   },
   {
     id: getUniqueId(),
