@@ -4,6 +4,7 @@
       v-model:value="data.templateStyle"
       button-style="solid"
       class="display-type-radio"
+      @click="templateStyleWatcherFlag = true"
     >
       <a-radio-button value="words">文字型</a-radio-button>
       <a-radio-button value="fixed">图文型</a-radio-button>
@@ -260,6 +261,8 @@ const data = ref<Elevator>({
   deleted: 0,
 })
 
+const templateStyleWatcherFlag = ref(false)
+
 const tabsPosition = ref('top')
 const emits = defineEmits(['update:objData'])
 const customBox = ref(false)
@@ -514,9 +517,11 @@ onMounted(() => {
 watch(
   () => data.value.templateStyle,
   (newVal) => {
-    data.value.fillType = 'none'
-    data.value.fillShape = 'none'
-    handleChange()
+    if (templateStyleWatcherFlag.value) {
+      data.value.fillType = 'none'
+      data.value.fillShape = 'none'
+      handleChange()
+    }
   },
 )
 
