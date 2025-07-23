@@ -1,37 +1,56 @@
 <template>
-  <div class="title-container" ref="elevatorRef">
-    <!-- 文字型 - 根据文本位置显示不同样式 -->
+  <div class="navtab-container">
     <a-tabs
       v-if="showData.templateStyle === 'words'"
-      :class="[showData.styleConfig?.textPosition === 'scroll' ? 'scroll-tabs' : '']"
-      :tab-position="showData.styleConfig?.textPosition === 'scroll' ? 'top' : 'top'"
+      class="navtab-tabs"
+      :class="[
+        `fill-type-${showData.fillType}`,
+        `fill-shape-${showData.fillShape}`,
+        { 'justify-around': showData.labels.length <= 4 },
+        { 'custom-style': showData.customStyle },
+      ]"
+      :tab-position="showData.position"
+      :items="activeLabels"
+      v-model:activeKey="activeKey"
     >
-      <a-tab-pane v-for="item in showData.tabData" :key="item.tabId" :tab="item.label"></a-tab-pane>
+      <a-tab-pane v-for="item in activeLabels" :key="item.id" :tab="item.name"></a-tab-pane>
     </a-tabs>
-
-    <!-- 图文型 -->
     <a-tabs
       v-if="showData.templateStyle === 'fixed'"
       type="card"
-      :class="[showData.styleConfig?.textPosition === 'scroll' ? 'scroll-tabs' : '']"
-      :tab-position="showData.styleConfig?.textPosition === 'scroll' ? 'top' : 'top'"
+      class="navtab-tabs"
+      :class="[
+        `fill-type-${showData.fillType}`,
+        `fill-shape-${showData.fillShape}`,
+        { 'justify-around': showData.labels.length <= 4 },
+        { 'custom-style': showData.customStyle },
+      ]"
+      :tab-position="showData.position"
+      :items="activeLabels"
+      v-model:activeKey="activeKey"
     >
-      <a-tab-pane v-for="item in showData.tabData" :key="item.tabId">
+      <a-tab-pane v-for="item in activeLabels" :key="item.id">
         <template #tab>
           <img src="@/assets/logo.svg" alt="logo" class="tab-icon" />
-          <span>{{ item.label }}</span>
+          <span>{{ item.name }}</span>
         </template>
       </a-tab-pane>
     </a-tabs>
-
-    <!-- 图片型 -->
     <a-tabs
       v-if="showData.templateStyle === 'image'"
       type="card"
-      :class="[showData.styleConfig?.textPosition === 'scroll' ? 'scroll-tabs' : '']"
-      :tab-position="showData.styleConfig?.textPosition === 'scroll' ? 'top' : 'top'"
+      class="navtab-tabs"
+      :class="[
+        `fill-type-${showData.fillType}`,
+        `fill-shape-${showData.fillShape}`,
+        { 'justify-around': showData.labels.length <= 4 },
+        { 'custom-style': showData.customStyle },
+      ]"
+      :tab-position="showData.position"
+      :items="activeLabels"
+      v-model:activeKey="activeKey"
     >
-      <a-tab-pane v-for="item in showData.tabData" :key="item.tabId">
+      <a-tab-pane v-for="item in activeLabels" :key="item.id">
         <template #tab>
           <img src="@/assets/logo.svg" alt="logo" class="tab-icon" />
         </template>
@@ -41,168 +60,193 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, watch, nextTick } from 'vue'
-import type { Elevator } from '@/types/content'
+import { onMounted, ref, computed } from 'vue'
+import type { Elevator } from '@/types/content/content'
 
-const elevatorRef = ref<HTMLElement | null>(null)
 const showData = ref<Elevator>({
-  elevatorId: -1,
+  id: -1,
+  componentId: -1,
   templateStyle: '',
-  tabData: [],
+  labels: [],
+  position: 'top',
+  colorSetting: [],
+  fillType: '',
+  fillShape: '',
+  borderRadius: 0,
+  borderSize: 1,
+  customStyle: 0,
+  paddingVertical: 0,
+  paddingHorizontal: 0,
+  marginVertical: 0,
+  marginHorizontal: 0,
+  deleted: 0,
 })
 
+const activeKey = ref(-1)
 const props = defineProps<{
   objData: Elevator
 }>()
 
-// 计算样式变量
-const styles = computed(() => {
-  const config = showData.value.styleConfig || {
-    textPosition: 'dropdown',
-    tabStyle: 'background',
-    defaultTextColor: '#333333',
-    activeTextColor: '#333333',
-    activeBackgroundColor: '#FFC0CB',
-    backgroundColor: '#FFFFFF',
-  }
-
-  return {
-    '--tab-default-color': config.defaultTextColor,
-    '--tab-active-color': config.activeTextColor,
-    '--tab-active-bg-color': config.activeBackgroundColor,
-    '--tab-bg-color': config.backgroundColor,
-    '--tab-style': config.tabStyle,
-  }
+const activeColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'activeColor')
+  return colorSetting?.value || '#000000'
 })
 
-// 应用样式到tab元素
-const applyTabStyles = () => {
-  if (!elevatorRef.value) return
+const activeBgColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'activeBgColor')
+  return colorSetting?.value || '#ffffff'
+})
 
-  nextTick(() => {
-    // 查找所有tab元素
-    const tabs = elevatorRef.value?.querySelectorAll('.ant-tabs-tab')
-    if (!tabs?.length) return
+const inactiveColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'inactiveColor')
+  return colorSetting?.value || '#666666'
+})
 
-    const tabStyle = showData.value.styleConfig?.tabStyle || 'background'
+const inactiveBgColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'inactiveBgColor')
+  return colorSetting?.value || '#ffffff'
+})
 
-    // 为每个tab应用对应的样式
-    tabs.forEach((tab) => {
-      tab.setAttribute('data-style', tabStyle)
-    })
-  })
-}
+const navBgColor = computed(() => {
+  const colorSetting = showData.value.colorSetting?.find((item) => item.name === 'navBgColor')
+  return colorSetting?.value || '#ffffff'
+})
 
-// 监听数据变化，重新应用样式
-watch(
-  () => showData.value.styleConfig,
-  () => {
-    applyTabStyles()
-  },
-  { deep: true },
-)
+// 计算属性：过滤出未删除的标签
+const activeLabels = computed(() => {
+  return showData.value.labels.filter((label) => !label.deleted)
+})
 
 onMounted(() => {
   showData.value = props.objData as Elevator
-  applyTabStyles()
+  if (showData.value.labels.length > 0) {
+    // 设置第一个未删除标签为活跃标签
+    const firstActiveLabel = showData.value.labels.find((label) => !label.deleted)
+    activeKey.value = firstActiveLabel?.id || -1
+  }
 })
-
-// 确保当tab渲染完成后应用样式
-watch(
-  () => showData.value.tabData,
-  () => {
-    applyTabStyles()
-  },
-  { deep: true },
-)
 </script>
 
 <style scoped>
-.title-container {
+.navtab-container {
   height: 100%;
+  width: 375px;
   min-width: 350px;
   box-sizing: border-box;
   border: 1px solid transparent;
 }
 
-.title-container:hover {
+.navtab-container:hover {
   border: 1px dashed #1890ff;
-}
-
-/* 滚动样式 */
-.scroll-tabs :deep(.ant-tabs-nav-wrap) {
-  overflow-x: auto;
-  justify-content: flex-start !important;
-}
-
-.scroll-tabs :deep(.ant-tabs-nav-list) {
-  width: auto !important;
-  flex-wrap: nowrap !important;
-  justify-content: flex-start !important;
-}
-
-/* 非滚动样式 */
-:deep(.ant-tabs-nav-wrap) {
-  justify-content: center;
-}
-
-:deep(.ant-tabs-nav-list) {
-  width: 100% !important;
-  justify-content: space-around !important;
 }
 
 :deep(.ant-tabs-nav) {
   margin-bottom: 0 !important;
-  border: none !important;
-  background-color: v-bind('styles["--tab-bg-color"]');
-}
-
-:deep(.ant-tabs-nav::before) {
-  display: none !important;
+  background-color: v-bind(navBgColor) !important;
 }
 
 :deep(.ant-tabs-tab) {
-  border: none !important;
-  border-radius: 0 !important;
-  background-color: transparent !important;
-  color: v-bind('styles["--tab-default-color"]') !important;
-  transition: all 0.3s;
+  border: 0 !important;
 }
 
-/* 根据不同样式类型设置tabs的样式 */
-/* 背景色样式 */
-:deep(.ant-tabs-tab-active) {
-  border-bottom: none !important;
-  background-color: v-bind(
-    'styles["--tab-style"] === "background" ? styles["--tab-active-bg-color"] : "transparent"'
+/* 基础样式 */
+.navtab-tabs :deep(.ant-tabs-tab) {
+  color: v-bind(inactiveColor) !important;
+  background-color: v-bind(inactiveBgColor) !important;
+  border: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 自定义样式 */
+.navtab-tabs.custom-style :deep(.ant-tabs-tab) {
+  padding: v-bind(
+    'showData.paddingVertical + "px " + showData.paddingHorizontal + "px"'
   ) !important;
-  color: v-bind('styles["--tab-active-color"]') !important;
+  margin: v-bind('showData.marginVertical + "px " + showData.marginHorizontal + "px"') !important;
 }
 
-/* 圆框样式 */
-:deep(.ant-tabs-tab-active[data-style='round']) {
-  border: 2px solid v-bind('styles["--tab-active-bg-color"]') !important;
-  border-radius: 20px !important;
+/* 布局样式 */
+.navtab-tabs.justify-around :deep(.ant-tabs-nav-list) {
+  width: 375px !important;
+  justify-content: space-around !important;
 }
 
-/* 方框样式 */
-:deep(.ant-tabs-tab-active[data-style='square']) {
-  border: 2px solid v-bind('styles["--tab-active-bg-color"]') !important;
+/* 填充类型样式 */
+.navtab-tabs.fill-type-none :deep(.ant-tabs-tab) {
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
 }
 
-/* 下划线样式 */
-:deep(.ant-tabs-tab-active[data-style='underline']) {
-  border-bottom: 2px solid v-bind('styles["--tab-active-bg-color"]') !important;
+.navtab-tabs.fill-type-background :deep(.ant-tabs-tab-active) {
+  background-color: v-bind(activeBgColor) !important;
+  border: 1px solid transparent !important;
 }
 
-:deep(.ant-tabs-tab-btn) {
-  color: inherit;
+.navtab-tabs.fill-type-border :deep(.ant-tabs-tab-active) {
+  border: v-bind('showData.borderSize + "px solid " + activeBgColor') !important;
+  background-color: transparent !important;
+}
+
+.navtab-tabs.fill-type-underline :deep(.ant-tabs-tab:not(.ant-tabs-tab-active)) {
+  border: 1px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.navtab-tabs.fill-type-background :deep(.ant-tabs-tab:not(.ant-tabs-tab-active)) {
+  background-color: v-bind(inactiveBgColor) !important;
+  border: 1px solid transparent !important;
+}
+
+.navtab-tabs.fill-type-border :deep(.ant-tabs-tab:not(.ant-tabs-tab-active)) {
+  border: v-bind('showData.borderSize + "px solid " + inactiveBgColor') !important;
+  background-color: transparent !important;
+}
+
+.navtab-tabs.fill-type-underline :deep(.ant-tabs-tab-active) {
+  border: 1px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.navtab-tabs:not(.fill-type-underline) :deep(.ant-tabs-ink-bar) {
+  visibility: hidden !important;
 }
 
 :deep(.ant-tabs-ink-bar) {
-  /* 使用自定义样式时隐藏默认下划线 */
-  display: v-bind('styles["--tab-style"] !== "background" ? "none" : "block"');
-  background-color: v-bind('styles["--tab-active-bg-color"]');
+  background-color: v-bind(activeBgColor) !important;
+}
+
+/* 填充形状样式 */
+.navtab-tabs.fill-shape-none :deep(.ant-tabs-tab) {
+  border-radius: 0 !important;
+  background-color: transparent !important;
+}
+
+.navtab-tabs.fill-shape-circle :deep(.ant-tabs-tab) {
+  border-radius: 50% !important;
+}
+
+.navtab-tabs.fill-shape-square :deep(.ant-tabs-tab) {
+  border-radius: 0 !important;
+}
+
+.navtab-tabs.fill-shape-underline :deep(.ant-tabs-tab-active) {
+  border-bottom: 2px solid v-bind(activeColor) !important;
+}
+
+.navtab-tabs.fill-shape-circle-square :deep(.ant-tabs-tab) {
+  border-radius: v-bind('showData.borderRadius + "px"') !important;
+}
+
+/* 文字颜色 */
+.navtab-tabs :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: v-bind(activeColor) !important;
+}
+
+/* 背景颜色 */
+.navtab-tabs.fill-type-background :deep(.ant-tabs-tab-active) {
+  background-color: v-bind(activeBgColor) !important;
 }
 
 .tab-icon {

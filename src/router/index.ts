@@ -24,9 +24,9 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
-        path: '/contents/pages',
+        path: '/content/pages',
         name: 'ContentsManagement',
-        component: () => import('@/views/menu/contents/Contents.vue'),
+        component: () => import('@/views/content/pages/Content.vue'),
         meta: {
           title: '内容管理',
           requiresAuth: true,
@@ -37,21 +37,21 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/content/pages/edit',
     name: 'ContentPageEdit',
-    component: () => import('@/views/content/layout.vue'),
+    component: () => import('@/views/content/pages/layout.vue'),
     meta: {
-      title: '新增编辑页面',
+      title: '页面编辑',
       requiresAuth: true,
     },
     children: [
       {
-        path: '/content/pages/edit/EditorTitle/:objData',
+        path: 'EditorTitle/:objData',
         name: 'TitleSetting',
-        component: () => import('@/views/content/TitleSetting.vue'),
+        component: () => import('@/views/content/pages/TitleSetting.vue'),
       },
       {
-        path: '/content/pages/edit/EditorElevator/:objData',
+        path: 'EditorElevator/:objData',
         name: 'ElevatorSetting',
-        component: () => import('@/views/content/ElevatorSetting.vue'),
+        component: () => import('@/views/content/pages/ElevatorSetting.vue'),
       },
     ],
   },

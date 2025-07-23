@@ -1,19 +1,22 @@
 import type { TableColumnsType } from 'ant-design-vue'
 import { h } from 'vue'
+import { useRouter } from 'vue-router'
 
-interface DataType {
+interface PageItem {
   key: string
-  title: string
+  name: string
   status: number
   createTime: string
   comment: string
+  description: string
+  id: number
 }
 
-export const columns: TableColumnsType<DataType> = [
+export const columns: TableColumnsType<PageItem> = [
   {
     title: '页面标题',
-    dataIndex: 'title',
-    key: 'title',
+    dataIndex: 'name',
+    key: 'name',
     width: 200,
   },
   {
@@ -43,8 +46,8 @@ export const columns: TableColumnsType<DataType> = [
   },
   {
     title: '备注',
-    dataIndex: 'comment',
-    key: 'comment',
+    dataIndex: 'description',
+    key: 'description',
     ellipsis: true,
   },
   {
@@ -52,12 +55,29 @@ export const columns: TableColumnsType<DataType> = [
     key: 'action',
     width: 180,
     customRender: ({ record }) => {
+      const router = useRouter()
+
+      const handleEdit = () => {
+        router.push({
+          name: 'ContentPageEdit',
+          query: { id: record.id },
+        })
+      }
+
+      const handleCopy = () => {
+        console.log('复制', record)
+      }
+
+      const handleDelete = () => {
+        console.log('删除', record)
+      }
+
       return h('div', [
         h(
           'a',
           {
             style: { marginRight: '15px', userSelect: 'none' },
-            onClick: () => console.log('编辑', record),
+            onClick: handleEdit,
           },
           '编辑',
         ),
@@ -65,7 +85,7 @@ export const columns: TableColumnsType<DataType> = [
           'a',
           {
             style: { marginRight: '15px', userSelect: 'none' },
-            onClick: () => console.log('复制', record),
+            onClick: handleCopy,
           },
           '复制',
         ),
@@ -73,7 +93,7 @@ export const columns: TableColumnsType<DataType> = [
           'a',
           {
             style: { color: '#ff4d4f', userSelect: 'none' },
-            onClick: () => console.log('删除', record),
+            onClick: handleDelete,
           },
           '删除',
         ),
@@ -82,26 +102,32 @@ export const columns: TableColumnsType<DataType> = [
   },
 ]
 
-export const data: DataType[] = [
+export const data: PageItem[] = [
   {
     key: '1',
-    title: '首页',
+    name: '首页',
     status: 1,
     createTime: '2024-01-15 10:30:45',
     comment: '网站主页面',
+    description: '网站主页面',
+    id: 1,
   },
   {
     key: '2',
-    title: '关于我们',
+    name: '关于我们',
     status: 1,
     createTime: '2024-01-16 14:20:30',
     comment: '公司简介页面',
+    description: '公司简介页面',
+    id: 2,
   },
   {
     key: '3',
-    title: '新功能介绍',
+    name: '新功能介绍',
     status: 0,
     createTime: '2024-01-17 09:15:00',
     comment: '产品新功能说明页面，待发布',
+    description: '产品新功能说明页面，待发布',
+    id: 3,
   },
 ]

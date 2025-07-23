@@ -4,44 +4,71 @@ import { getUniqueId } from '@/utils/uniqueId'
 
 import Title from '@/components/content/Title.vue'
 import Elevator from '@/components/content/Elevator.vue'
-import TitleSetting from '@/views/content/TitleSetting.vue'
-import ElevatorSetting from '@/views/content/ElevatorSetting.vue'
-import PageSetting from '@/views/content/PageSetting.vue'
+import TitleSetting from '@/views/content/pages/TitleSetting.vue'
+import ElevatorSetting from '@/views/content/pages/ElevatorSetting.vue'
+import PageSetting from '@/views/content/pages/PageSetting.vue'
 
-export interface Page {
-  pageName: string
-  pageDescription: string
+export interface Article {
+  id: number
+  componentId?: number
+  name: string
+  status: number
+  description: string
+  backgroundColor: string
+  templateId: number
+}
+
+// 添加文本组件接口定义
+export interface TextComponent {
+  titleContent: string
+  componentId?: number
+  id?: number // 组件页面关联关系表的主键id
 }
 
 export interface ElevatorTabs {
-  tabId: number
-  label?: string
-  image?: string
+  id: number
+  componentId?: number
+  name: string
   jumpUrl: string
+  imageUrl: string
+  deleted?: number // 添加删除标记字段
 }
 
 export interface GoodsGroup {
   groupId: number
+  componentId?: number
   groupName: string
   displayCount: number
 }
 
 export interface Elevator {
-  elevatorId: number
+  id: number
+  componentId: number
   templateStyle: string
-  tabData: ElevatorTabs[]
-  styleConfig?: {
-    textPosition: string
-    tabStyle: string
-    defaultTextColor: string
-    activeTextColor: string
-    activeBackgroundColor: string
-    backgroundColor: string
-  }
+  labels: ElevatorTabs[]
+  position: 'top' | 'left'
+  colorSetting: ColorSetting[]
+  fillType: string
+  fillShape: string
+  borderRadius: number
+  borderSize: number
+  customStyle: number
+  paddingVertical: number
+  paddingHorizontal: number
+  marginVertical: number
+  marginHorizontal: number
+  deleted: number
+}
+
+export interface ColorSetting {
+  name: string
+  label: string
+  value: string
 }
 
 export interface Goods {
   goodsId: number
+  componentId?: number
   templateStyle: string
   goodsList: string[]
   groupData: GoodsGroup[]
@@ -50,9 +77,10 @@ export interface Goods {
 
 export interface Wrapper {
   id: number
+  componentId?: number
   type: number
   name: string
-  objData: Elevator | Goods | string | Page
+  objData: Elevator | Goods | string | Article | TextComponent
 }
 
 export const initMap = () => {
@@ -69,7 +97,17 @@ export const getTemplate = (type: number) => {
   const template = componentTemplate.find((item) => item.type === type) || null
   if (template) {
     const newTemplate = ref(JSON.parse(JSON.stringify(template)))
-    newTemplate.value.id = getUniqueId()
+    const newId = ref(-1)
+    newId.value = getUniqueId()
+    newTemplate.value.id = newId.value
+    newTemplate.value.objData.id = newId.value
+    if (type === 2) {
+      const newLabelId = ref(-1)
+      newTemplate.value.objData.labels.forEach((item: ElevatorTabs) => {
+        newLabelId.value = getUniqueId()
+        item.id = newLabelId.value
+      })
+    }
     return newTemplate.value
   }
   return null
@@ -103,6 +141,37 @@ export const getSettingsComponent = (type: number) => {
   }
 }
 
+// 用于组件的默认颜色设置，可被其他部分引用
+export const defaultColorSetting = [
+  [
+    {
+      name: 'activeColor',
+      label: '已选文字',
+      value: '#1890FF',
+    },
+    {
+      name: 'activeBgColor',
+      label: '已选填充色',
+      value: '#E6F7FF',
+    },
+    {
+      name: 'inactiveColor',
+      label: '未选文字',
+      value: '#595959',
+    },
+    {
+      name: 'inactiveBgColor',
+      label: '未选填充色',
+      value: '#FFFFFF',
+    },
+    {
+      name: 'navBgColor',
+      label: '导航背景色',
+      value: '#FFFFFF',
+    },
+  ],
+]
+
 const componentTemplate = [
   {
     id: getUniqueId(),
@@ -115,39 +184,46 @@ const componentTemplate = [
   },
   {
     id: getUniqueId(),
-    name: '标题',
+    name: '标题文本',
     type: 1,
-    objData: '请输入标题',
+    objData: {
+      titleContent: '请输入标题',
+      componentId: undefined,
+      id: undefined,
+    } as TextComponent,
   },
   {
     id: getUniqueId(),
     name: '电梯导航',
     type: 2,
     objData: {
-      elevatorId: getUniqueId(),
+      id: getUniqueId(),
       templateStyle: 'words',
-      tabData: [
+      labels: [
         {
-          tabId: getUniqueId(),
-          label: '新建标签',
+          id: getUniqueId(),
+          name: '新建标签',
           jumpUrl: 'www.baidu.com',
-          image: '@/assets/logo.svg',
+          imageUrl: '@/assets/logo.svg',
         },
         {
-          tabId: getUniqueId(),
-          label: '新建标签',
+          id: getUniqueId(),
+          name: '新建标签',
           jumpUrl: 'www.google.com',
-          image: '@/assets/logo.svg',
+          imageUrl: '@/assets/logo.svg',
         },
       ],
-      styleConfig: {
-        textPosition: 'dropdown',
-        tabStyle: 'background',
-        defaultTextColor: '#333333',
-        activeTextColor: '#333333',
-        activeBackgroundColor: '#FFC0CB',
-        backgroundColor: '#FFFFFF',
-      },
+      position: 'top',
+      fillType: 'underline',
+      fillShape: 'none',
+      colorSetting: defaultColorSetting[0],
+      borderRadius: 8,
+      customStyle: 0,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      borderSize: 1,
+      marginVertical: 0,
+      marginHorizontal: 8,
     },
   },
 ]
