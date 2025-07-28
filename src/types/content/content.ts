@@ -4,8 +4,10 @@ import { getUniqueId } from '@/utils/uniqueId'
 
 import Title from '@/components/content/Title.vue'
 import Elevator from '@/components/content/Elevator.vue'
+import Product from '@/components/content/Product.vue'
 import TitleSetting from '@/views/content/pages/TitleSetting.vue'
 import ElevatorSetting from '@/views/content/pages/ElevatorSetting.vue'
+import GoodsSetting from '@/views/content/pages/GoodsSetting.vue'
 import PageSetting from '@/views/content/pages/PageSetting.vue'
 
 export interface Article {
@@ -39,6 +41,8 @@ export interface GoodsGroup {
   componentId?: number
   groupName: string
   displayCount: number
+  displayName?: string // 显示名称
+  displayType?: 'custom' | 'all' // 显示类型：自定义数量或全部
 }
 
 export interface Elevator {
@@ -66,13 +70,41 @@ export interface ColorSetting {
   value: string
 }
 
+// 商品项接口
+export interface GoodsItem {
+  id: number
+  name: string
+  description: string
+  price: number
+  originalPrice?: number // 原价
+  imageUrl: string
+  stock: number
+  sales: number // 销量
+  rating: number // 评分
+  tags: string[] // 商品标签
+  discount?: number // 折扣百分比
+  isHot?: boolean // 是否热销
+  isNew?: boolean // 是否新品
+  isSeckill?: boolean // 是否秒杀
+  seckillEndTime?: string // 秒杀结束时间
+  category: string // 商品分类
+}
+
 export interface Goods {
   goodsId: number
   componentId?: number
   templateStyle: string
-  goodsList: string[]
+  goodsList: GoodsItem[] // 改为具体的商品数组
   groupData: GoodsGroup[]
   displayStyle: string
+  showPrice: boolean // 是否显示价格
+  showCart: boolean // 是否显示购物车
+  showRating: boolean // 是否显示评分
+  showSales: boolean // 是否显示销量
+  showTags: boolean // 是否显示标签
+  enableSeckill: boolean // 是否启用秒杀功能
+  autoPlay: boolean // 是否自动轮播（针对某些布局）
+  playInterval: number // 轮播间隔时间
 }
 
 export interface Wrapper {
@@ -108,6 +140,15 @@ export const getTemplate = (type: number) => {
         item.id = newLabelId.value
       })
     }
+    if (type === 3) {
+      // 为商品组件的分组生成新的ID
+      const newGroupId = ref(-1)
+      newTemplate.value.objData.goodsId = getUniqueId()
+      newTemplate.value.objData.groupData.forEach((item: GoodsGroup) => {
+        newGroupId.value = getUniqueId()
+        item.groupId = newGroupId.value
+      })
+    }
     return newTemplate.value
   }
   return null
@@ -121,6 +162,8 @@ export const getComponent = (type: number) => {
       return Title
     case 'Elevator':
       return Elevator
+    case 'Product':
+      return Product
     default:
       return null
   }
@@ -134,6 +177,8 @@ export const getSettingsComponent = (type: number) => {
       return TitleSetting
     case 'Elevator':
       return ElevatorSetting
+    case 'Product':
+      return GoodsSetting
     case 'Page':
       return PageSetting
     default:
@@ -225,6 +270,110 @@ const componentTemplate = [
       marginVertical: 0,
       marginHorizontal: 8,
     },
+  },
+  {
+    id: getUniqueId(),
+    name: '商品',
+    type: 3,
+    objData: {
+      goodsId: getUniqueId(),
+      componentId: undefined,
+      templateStyle: 'oneMainTwoSub',
+      goodsList: [
+        {
+          id: 1,
+          name: 'iPhone 15 Pro Max 256GB 深空黑色',
+          description: '钛金属设计，A17 Pro芯片，专业级摄像头系统',
+          price: 9999,
+          originalPrice: 10999,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/iPhone 15 Pro Max 256GB 深空黑色.webp',
+            import.meta.url,
+          ).href,
+          stock: 50,
+          sales: 1234,
+          rating: 4.8,
+          tags: ['热销', '新品', '5G'],
+          discount: 9,
+          isHot: true,
+          isNew: true,
+          category: '数码影音',
+        },
+        {
+          id: 2,
+          name: '小米13 Ultra 徕卡影像旗舰手机',
+          description: '徕卡专业影像，骁龙8 Gen2处理器',
+          price: 5999,
+          originalPrice: 6499,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/小米13 Ultra 徕卡影像旗舰手机.webp',
+            import.meta.url,
+          ).href,
+          stock: 30,
+          sales: 856,
+          rating: 4.7,
+          tags: ['徕卡', '影像'],
+          discount: 8,
+          category: '数码影音',
+        },
+        {
+          id: 3,
+          name: '戴森V15 Detect无绳吸尘器',
+          description: '激光探测微尘，强劲吸力，智能清洁',
+          price: 4990,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/戴森V15 Detect无绳吸尘器.webp',
+            import.meta.url,
+          ).href,
+          stock: 20,
+          sales: 432,
+          rating: 4.9,
+          tags: ['智能', '除螨'],
+          isHot: true,
+          category: '家居生活',
+        },
+        {
+          id: 4,
+          name: 'AirPods Pro 第二代',
+          description: '主动降噪，空间音频，无线充电',
+          price: 1899,
+          imageUrl: new URL('@/assets/content/page/goods/AirPods Pro 第二代.webp', import.meta.url)
+            .href,
+          stock: 100,
+          sales: 2341,
+          rating: 4.6,
+          tags: ['降噪', '无线'],
+          category: '数码影音',
+        },
+      ],
+      groupData: [
+        {
+          groupId: getUniqueId(),
+          componentId: undefined,
+          groupName: '家居生活',
+          displayCount: 10,
+          displayName: '精选好物',
+          displayType: 'custom',
+        },
+        {
+          groupId: getUniqueId(),
+          componentId: undefined,
+          groupName: '数码影音',
+          displayCount: 10,
+          displayName: '数码潮品',
+          displayType: 'custom',
+        },
+      ],
+      displayStyle: 'noBorderWhite',
+      showPrice: true,
+      showCart: true,
+      showRating: true,
+      showSales: true,
+      showTags: true,
+      enableSeckill: false,
+      autoPlay: false,
+      playInterval: 3000,
+    } as Goods,
   },
 ]
 
