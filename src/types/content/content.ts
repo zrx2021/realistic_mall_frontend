@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { getImageUrl } from '@/utils/image'
+import { getImageUrl, getGoodsImageUrl } from '@/utils/image'
 import { getUniqueId } from '@/utils/uniqueId'
 
 import Title from '@/components/content/Title.vue'
@@ -287,10 +287,7 @@ const componentTemplate = [
           description: '钛金属设计，A17 Pro芯片，专业级摄像头系统',
           price: 9999,
           originalPrice: 10999,
-          imageUrl: new URL(
-            '@/assets/content/page/goods/iPhone 15 Pro Max 256GB 深空黑色.webp',
-            import.meta.url,
-          ).href,
+          imageUrl: getGoodsImageUrl('iPhone 15 Pro Max 256GB 深空黑色.webp'),
           stock: 50,
           sales: 1234,
           rating: 4.8,
@@ -306,10 +303,7 @@ const componentTemplate = [
           description: '徕卡专业影像，骁龙8 Gen2处理器',
           price: 5999,
           originalPrice: 6499,
-          imageUrl: new URL(
-            '@/assets/content/page/goods/小米13 Ultra 徕卡影像旗舰手机.webp',
-            import.meta.url,
-          ).href,
+          imageUrl: getGoodsImageUrl('小米13 Ultra 徕卡影像旗舰手机.webp'),
           stock: 30,
           sales: 856,
           rating: 4.7,
@@ -323,8 +317,7 @@ const componentTemplate = [
           description: '主动降噪，空间音频，无线充电',
           price: 1899,
           originalPrice: 2199,
-          imageUrl: new URL('@/assets/content/page/goods/AirPods Pro 第二代.webp', import.meta.url)
-            .href,
+          imageUrl: getGoodsImageUrl('AirPods Pro 第二代.webp'),
           stock: 100,
           sales: 2341,
           rating: 4.6,
@@ -337,10 +330,7 @@ const componentTemplate = [
           description: 'M3芯片，Liquid Retina XDR显示屏，专业级性能',
           price: 14999,
           originalPrice: 15999,
-          imageUrl: new URL(
-            '@/assets/content/page/goods/MacBook Pro 14英寸 M3芯片.webp',
-            import.meta.url,
-          ).href,
+          imageUrl: getGoodsImageUrl('MacBook Pro 14英寸 M3芯片.webp'),
           stock: 25,
           sales: 567,
           rating: 4.9,
@@ -456,8 +446,7 @@ const componentTemplate = [
           description: '一级能效，智能温控，静音设计',
           price: 2999,
           originalPrice: 3499,
-          imageUrl: new URL('@/assets/content/page/goods/美的变频空调 1.5匹.webp', import.meta.url)
-            .href,
+          imageUrl: getGoodsImageUrl('美的变频空调 1.5匹.webp'),
           stock: 30,
           sales: 234,
           rating: 4.4,
@@ -471,7 +460,7 @@ const componentTemplate = [
           description: '多功能破壁，营养萃取，智能预约',
           price: 899,
           originalPrice: 1199,
-          imageUrl: new URL('@/assets/content/page/goods/九阳破壁机Y88.webp', import.meta.url).href,
+          imageUrl: getGoodsImageUrl('九阳破壁机Y88.webp'),
           stock: 55,
           sales: 1123,
           rating: 4.7,
@@ -502,8 +491,7 @@ const componentTemplate = [
           name: '宜家HEMNES书桌',
           description: '实木材质，简约设计，多功能收纳',
           price: 799,
-          imageUrl: new URL('@/assets/content/page/goods/宜家HEMNES书桌.webp', import.meta.url)
-            .href,
+          imageUrl: getGoodsImageUrl('宜家HEMNES书桌.webp'),
           stock: 25,
           sales: 156,
           rating: 4.3,
@@ -516,8 +504,7 @@ const componentTemplate = [
           description: 'IH加热，智能烹饪，多种口感选择',
           price: 1299,
           originalPrice: 1499,
-          imageUrl: new URL('@/assets/content/page/goods/松下电饭煲SR-HZ106.webp', import.meta.url)
-            .href,
+          imageUrl: getGoodsImageUrl('松下电饭煲SR-HZ106.webp'),
           stock: 40,
           sales: 445,
           rating: 4.8,
@@ -531,8 +518,7 @@ const componentTemplate = [
           description: '天然乳胶，透气舒适，抗菌防螨',
           price: 2199,
           originalPrice: 2699,
-          imageUrl: new URL('@/assets/content/page/goods/网易严选乳胶床垫.webp', import.meta.url)
-            .href,
+          imageUrl: getGoodsImageUrl('网易严选乳胶床垫.webp'),
           stock: 15,
           sales: 89,
           rating: 4.6,
@@ -547,7 +533,7 @@ const componentTemplate = [
           description: '轻薄保暖，防风防水，时尚百搭',
           price: 599,
           originalPrice: 799,
-          imageUrl: new URL('@/assets/content/page/goods/优衣库羽绒服.webp', import.meta.url).href,
+          imageUrl: getGoodsImageUrl('Uniqlo 优衣库羽绒服.webp'),
           stock: 60,
           sales: 1234,
           rating: 4.5,
@@ -561,7 +547,7 @@ const componentTemplate = [
           description: '经典护肤精华，改善肌肤质感',
           price: 1690,
           originalPrice: 1890,
-          imageUrl: new URL('@/assets/content/page/goods/SK-II神仙水.webp', import.meta.url).href,
+          imageUrl: getGoodsImageUrl('SK-II 神仙水 230ml.webp'),
           stock: 30,
           sales: 567,
           rating: 4.8,
@@ -592,8 +578,7 @@ const componentTemplate = [
           description: '抗老修护，紧致肌肤，夜间修护',
           price: 780,
           originalPrice: 880,
-          imageUrl: new URL('@/assets/content/page/goods/雅诗兰黛小棕瓶精华.webp', import.meta.url)
-            .href,
+          imageUrl: getGoodsImageUrl('雅诗兰黛小棕瓶精华.webp'),
           stock: 25,
           sales: 445,
           rating: 4.7,
@@ -608,8 +593,7 @@ const componentTemplate = [
           description: '健康监测，NFC支付，超长续航',
           price: 199,
           originalPrice: 299,
-          imageUrl: new URL('@/assets/content/page/goods/小米手环8 NFC版.webp', import.meta.url)
-            .href,
+          imageUrl: getGoodsImageUrl('小米手环8 NFC版.webp'),
           stock: 100,
           sales: 2345,
           rating: 4.4,
@@ -625,8 +609,7 @@ const componentTemplate = [
           description: '精选坚果，营养健康，节日送礼',
           price: 89,
           originalPrice: 129,
-          imageUrl: new URL('@/assets/content/page/goods/三只松鼠坚果礼盒.webp', import.meta.url)
-            .href,
+          imageUrl: getGoodsImageUrl('三只松鼠坚果礼盒.webp'),
           stock: 200,
           sales: 3456,
           rating: 4.3,
@@ -642,10 +625,7 @@ const componentTemplate = [
           description: '优质奶源，营养丰富，家庭装',
           price: 69,
           originalPrice: 89,
-          imageUrl: new URL(
-            '@/assets/content/page/goods/蒙牛特仑苏纯牛奶 250ml*16盒.webp',
-            import.meta.url,
-          ).href,
+          imageUrl: getGoodsImageUrl('蒙牛特仑苏纯牛奶250ml16盒.jpg'),
           stock: 150,
           sales: 1789,
           rating: 4.5,
@@ -659,8 +639,7 @@ const componentTemplate = [
           description: '多种口味，休闲零食，办公必备',
           price: 128,
           originalPrice: 168,
-          imageUrl: new URL('@/assets/content/page/goods/良品铺子零食大礼包.webp', import.meta.url)
-            .href,
+          imageUrl: getGoodsImageUrl('良品铺子零食大礼包.webp'),
           stock: 80,
           sales: 1123,
           rating: 4.2,
