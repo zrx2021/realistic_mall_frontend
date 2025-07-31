@@ -1,11 +1,13 @@
 import { ref } from 'vue'
-import { getImageUrl } from '@/utils/image'
+import { getImageUrl, getGoodsImageUrl } from '@/utils/image'
 import { getUniqueId } from '@/utils/uniqueId'
 
 import Title from '@/components/content/Title.vue'
 import Elevator from '@/components/content/Elevator.vue'
+import Product from '@/components/content/Product.vue'
 import TitleSetting from '@/views/content/pages/TitleSetting.vue'
 import ElevatorSetting from '@/views/content/pages/ElevatorSetting.vue'
+import GoodsSetting from '@/views/content/pages/GoodsSetting.vue'
 import PageSetting from '@/views/content/pages/PageSetting.vue'
 
 export interface Article {
@@ -39,6 +41,8 @@ export interface GoodsGroup {
   componentId?: number
   groupName: string
   displayCount: number
+  displayName?: string // 显示名称
+  displayType?: 'custom' | 'all' // 显示类型：自定义数量或全部
 }
 
 export interface Elevator {
@@ -66,13 +70,41 @@ export interface ColorSetting {
   value: string
 }
 
+// 商品项接口
+export interface GoodsItem {
+  id: number
+  name: string
+  description: string
+  price: number
+  originalPrice?: number // 原价
+  imageUrl: string
+  stock: number
+  sales: number // 销量
+  rating: number // 评分
+  tags: string[] // 商品标签
+  discount?: number // 折扣百分比
+  isHot?: boolean // 是否热销
+  isNew?: boolean // 是否新品
+  isSeckill?: boolean // 是否秒杀
+  seckillEndTime?: string // 秒杀结束时间
+  category: string // 商品分类
+}
+
 export interface Goods {
   goodsId: number
   componentId?: number
   templateStyle: string
-  goodsList: string[]
+  goodsList: GoodsItem[] // 改为具体的商品数组
   groupData: GoodsGroup[]
   displayStyle: string
+  showPrice: boolean // 是否显示价格
+  showCart: boolean // 是否显示购物车
+  showRating: boolean // 是否显示评分
+  showSales: boolean // 是否显示销量
+  showTags: boolean // 是否显示标签
+  enableSeckill: boolean // 是否启用秒杀功能
+  autoPlay: boolean // 是否自动轮播（针对某些布局）
+  playInterval: number // 轮播间隔时间
 }
 
 export interface Wrapper {
@@ -108,6 +140,15 @@ export const getTemplate = (type: number) => {
         item.id = newLabelId.value
       })
     }
+    if (type === 3) {
+      // 为商品组件的分组生成新的ID
+      const newGroupId = ref(-1)
+      newTemplate.value.objData.goodsId = getUniqueId()
+      newTemplate.value.objData.groupData.forEach((item: GoodsGroup) => {
+        newGroupId.value = getUniqueId()
+        item.groupId = newGroupId.value
+      })
+    }
     return newTemplate.value
   }
   return null
@@ -121,6 +162,8 @@ export const getComponent = (type: number) => {
       return Title
     case 'Elevator':
       return Elevator
+    case 'Product':
+      return Product
     default:
       return null
   }
@@ -134,6 +177,8 @@ export const getSettingsComponent = (type: number) => {
       return TitleSetting
     case 'Elevator':
       return ElevatorSetting
+    case 'Product':
+      return GoodsSetting
     case 'Page':
       return PageSetting
     default:
@@ -225,6 +270,428 @@ const componentTemplate = [
       marginVertical: 0,
       marginHorizontal: 8,
     },
+  },
+  {
+    id: getUniqueId(),
+    name: '商品',
+    type: 3,
+    objData: {
+      goodsId: getUniqueId(),
+      componentId: undefined,
+      templateStyle: 'oneMainTwoSub',
+      goodsList: [
+        // 数码影音类商品
+        {
+          id: 1,
+          name: 'iPhone 15 Pro Max 256GB 深空黑色',
+          description: '钛金属设计，A17 Pro芯片，专业级摄像头系统',
+          price: 9999,
+          originalPrice: 10999,
+          imageUrl: getGoodsImageUrl('iPhone 15 Pro Max 256GB 深空黑色.webp'),
+          stock: 50,
+          sales: 1234,
+          rating: 4.8,
+          tags: ['热销', '新品', '5G'],
+          discount: 9,
+          isHot: true,
+          isNew: true,
+          category: '数码影音',
+        },
+        {
+          id: 2,
+          name: '小米13 Ultra 徕卡影像旗舰手机',
+          description: '徕卡专业影像，骁龙8 Gen2处理器',
+          price: 5999,
+          originalPrice: 6499,
+          imageUrl: getGoodsImageUrl('小米13 Ultra 徕卡影像旗舰手机.webp'),
+          stock: 30,
+          sales: 856,
+          rating: 4.7,
+          tags: ['徕卡', '影像'],
+          discount: 8,
+          category: '数码影音',
+        },
+        {
+          id: 3,
+          name: 'AirPods Pro 第二代',
+          description: '主动降噪，空间音频，无线充电',
+          price: 1899,
+          originalPrice: 2199,
+          imageUrl: getGoodsImageUrl('AirPods Pro 第二代.webp'),
+          stock: 100,
+          sales: 2341,
+          rating: 4.6,
+          tags: ['降噪', '无线'],
+          category: '数码影音',
+        },
+        {
+          id: 4,
+          name: 'MacBook Pro 14英寸 M3芯片',
+          description: 'M3芯片，Liquid Retina XDR显示屏，专业级性能',
+          price: 14999,
+          originalPrice: 15999,
+          imageUrl: getGoodsImageUrl('MacBook Pro 14英寸 M3芯片.webp'),
+          stock: 25,
+          sales: 567,
+          rating: 4.9,
+          tags: ['新品', '专业'],
+          discount: 6,
+          isNew: true,
+          category: '数码影音',
+        },
+        {
+          id: 5,
+          name: 'iPad Air 第五代 256GB',
+          description: 'M1芯片，10.9英寸Liquid Retina显示屏',
+          price: 5399,
+          originalPrice: 5899,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/iPad Air 第五代 256GB.webp',
+            import.meta.url,
+          ).href,
+          stock: 40,
+          sales: 892,
+          rating: 4.7,
+          tags: ['热销', 'M1'],
+          discount: 8,
+          isHot: true,
+          category: '数码影音',
+        },
+        {
+          id: 6,
+          name: 'Sony WH-1000XM5 无线降噪耳机',
+          description: '业界领先降噪技术，30小时续航',
+          price: 2399,
+          originalPrice: 2699,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/Sony WH-1000XM5 无线降噪耳机.webp',
+            import.meta.url,
+          ).href,
+          stock: 60,
+          sales: 1456,
+          rating: 4.8,
+          tags: ['降噪', '音质'],
+          discount: 11,
+          category: '数码影音',
+        },
+        {
+          id: 7,
+          name: '华为Watch GT 4智能手表',
+          description: '健康监测，运动追踪，14天续航',
+          price: 1688,
+          originalPrice: 1888,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/华为Watch GT4智能手表.webp',
+            import.meta.url,
+          ).href,
+          stock: 80,
+          sales: 723,
+          rating: 4.5,
+          tags: ['智能', '健康'],
+          discount: 10,
+          category: '数码影音',
+        },
+        {
+          id: 8,
+          name: 'Nintendo Switch OLED游戏机',
+          description: '7英寸OLED屏幕，增强音频体验',
+          price: 2599,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/Nintendo Switch OLED游戏机.webp',
+            import.meta.url,
+          ).href,
+          stock: 35,
+          sales: 445,
+          rating: 4.6,
+          tags: ['游戏', 'OLED'],
+          category: '数码影音',
+        },
+        // 家居生活类商品
+        {
+          id: 9,
+          name: '戴森V15 Detect无绳吸尘器',
+          description: '激光探测微尘，强劲吸力，智能清洁',
+          price: 4990,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/戴森V15 Detect无绳吸尘器.webp',
+            import.meta.url,
+          ).href,
+          stock: 20,
+          sales: 432,
+          rating: 4.9,
+          tags: ['智能', '除螨'],
+          isHot: true,
+          category: '家居生活',
+        },
+        {
+          id: 10,
+          name: '小米空气净化器Pro H',
+          description: 'HEPA滤网，智能控制，静音运行',
+          price: 1699,
+          originalPrice: 1899,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/戴森V15 Detect无绳吸尘器.webp',
+            import.meta.url,
+          ).href,
+          stock: 45,
+          sales: 678,
+          rating: 4.6,
+          tags: ['智能', '净化'],
+          discount: 10,
+          category: '家居生活',
+        },
+        {
+          id: 11,
+          name: '美的变频空调 1.5匹',
+          description: '一级能效，智能温控，静音设计',
+          price: 2999,
+          originalPrice: 3499,
+          imageUrl: getGoodsImageUrl('美的变频空调 1.5匹.webp'),
+          stock: 30,
+          sales: 234,
+          rating: 4.4,
+          tags: ['节能', '静音'],
+          discount: 14,
+          category: '家居生活',
+        },
+        {
+          id: 12,
+          name: '九阳破壁机Y88',
+          description: '多功能破壁，营养萃取，智能预约',
+          price: 899,
+          originalPrice: 1199,
+          imageUrl: getGoodsImageUrl('九阳破壁机Y88.webp'),
+          stock: 55,
+          sales: 1123,
+          rating: 4.7,
+          tags: ['热销', '营养'],
+          discount: 25,
+          isHot: true,
+          category: '家居生活',
+        },
+        {
+          id: 13,
+          name: '飞利浦电动牙刷HX6730',
+          description: '声波震动，深度清洁，智能提醒',
+          price: 399,
+          originalPrice: 499,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/飞利浦电动牙刷HX6730.webp',
+            import.meta.url,
+          ).href,
+          stock: 80,
+          sales: 1567,
+          rating: 4.5,
+          tags: ['清洁', '健康'],
+          discount: 20,
+          category: '家居生活',
+        },
+        {
+          id: 14,
+          name: '宜家HEMNES书桌',
+          description: '实木材质，简约设计，多功能收纳',
+          price: 799,
+          imageUrl: getGoodsImageUrl('宜家HEMNES书桌.webp'),
+          stock: 25,
+          sales: 156,
+          rating: 4.3,
+          tags: ['实木', '收纳'],
+          category: '家居生活',
+        },
+        {
+          id: 15,
+          name: '松下电饭煲SR-HZ106',
+          description: 'IH加热，智能烹饪，多种口感选择',
+          price: 1299,
+          originalPrice: 1499,
+          imageUrl: getGoodsImageUrl('松下电饭煲SR-HZ106.webp'),
+          stock: 40,
+          sales: 445,
+          rating: 4.8,
+          tags: ['智能', 'IH'],
+          discount: 13,
+          category: '家居生活',
+        },
+        {
+          id: 16,
+          name: '网易严选乳胶床垫',
+          description: '天然乳胶，透气舒适，抗菌防螨',
+          price: 2199,
+          originalPrice: 2699,
+          imageUrl: getGoodsImageUrl('网易严选乳胶床垫.webp'),
+          stock: 15,
+          sales: 89,
+          rating: 4.6,
+          tags: ['舒适', '防螨'],
+          discount: 18,
+          category: '家居生活',
+        },
+        // 服装美妆类商品
+        {
+          id: 17,
+          name: 'Uniqlo 优衣库羽绒服',
+          description: '轻薄保暖，防风防水，时尚百搭',
+          price: 599,
+          originalPrice: 799,
+          imageUrl: getGoodsImageUrl('Uniqlo 优衣库羽绒服.webp'),
+          stock: 60,
+          sales: 1234,
+          rating: 4.5,
+          tags: ['保暖', '时尚'],
+          discount: 25,
+          category: '服装美妆',
+        },
+        {
+          id: 18,
+          name: 'SK-II 神仙水 230ml',
+          description: '经典护肤精华，改善肌肤质感',
+          price: 1690,
+          originalPrice: 1890,
+          imageUrl: getGoodsImageUrl('SK-II 神仙水 230ml.webp'),
+          stock: 30,
+          sales: 567,
+          rating: 4.8,
+          tags: ['护肤', '精华'],
+          discount: 10,
+          category: '服装美妆',
+        },
+        {
+          id: 19,
+          name: 'Nike Air Max 270运动鞋',
+          description: '气垫缓震，舒适透气，潮流设计',
+          price: 899,
+          originalPrice: 1199,
+          imageUrl: new URL(
+            '@/assets/content/page/goods/Nike Air Max 270运动鞋.webp',
+            import.meta.url,
+          ).href,
+          stock: 45,
+          sales: 892,
+          rating: 4.6,
+          tags: ['运动', '潮流'],
+          discount: 25,
+          category: '服装美妆',
+        },
+        {
+          id: 20,
+          name: '雅诗兰黛小棕瓶精华',
+          description: '抗老修护，紧致肌肤，夜间修护',
+          price: 780,
+          originalPrice: 880,
+          imageUrl: getGoodsImageUrl('雅诗兰黛小棕瓶精华.webp'),
+          stock: 25,
+          sales: 445,
+          rating: 4.7,
+          tags: ['抗老', '修护'],
+          discount: 11,
+          category: '服装美妆',
+        },
+        // 秒杀商品
+        {
+          id: 21,
+          name: '小米手环8 NFC版',
+          description: '健康监测，NFC支付，超长续航',
+          price: 199,
+          originalPrice: 299,
+          imageUrl: getGoodsImageUrl('小米手环8 NFC版.webp'),
+          stock: 100,
+          sales: 2345,
+          rating: 4.4,
+          tags: ['秒杀', 'NFC'],
+          discount: 33,
+          isSeckill: true,
+          seckillEndTime: '2024-12-31T23:59:59',
+          category: '数码影音',
+        },
+        {
+          id: 22,
+          name: '三只松鼠坚果礼盒',
+          description: '精选坚果，营养健康，节日送礼',
+          price: 89,
+          originalPrice: 129,
+          imageUrl: getGoodsImageUrl('三只松鼠坚果礼盒.webp'),
+          stock: 200,
+          sales: 3456,
+          rating: 4.3,
+          tags: ['秒杀', '健康'],
+          discount: 31,
+          isSeckill: true,
+          seckillEndTime: '2024-12-31T23:59:59',
+          category: '食品饮料',
+        },
+        {
+          id: 23,
+          name: '蒙牛特仑苏纯牛奶 250ml*16盒',
+          description: '优质奶源，营养丰富，家庭装',
+          price: 69,
+          originalPrice: 89,
+          imageUrl: getGoodsImageUrl('蒙牛特仑苏纯牛奶250ml16盒.jpg'),
+          stock: 150,
+          sales: 1789,
+          rating: 4.5,
+          tags: ['营养', '家庭装'],
+          discount: 22,
+          category: '食品饮料',
+        },
+        {
+          id: 24,
+          name: '良品铺子零食大礼包',
+          description: '多种口味，休闲零食，办公必备',
+          price: 128,
+          originalPrice: 168,
+          imageUrl: getGoodsImageUrl('良品铺子零食大礼包.webp'),
+          stock: 80,
+          sales: 1123,
+          rating: 4.2,
+          tags: ['零食', '礼包'],
+          discount: 24,
+          category: '食品饮料',
+        },
+      ],
+      groupData: [
+        {
+          groupId: getUniqueId(),
+          componentId: undefined,
+          groupName: '数码影音',
+          displayCount: 8,
+          displayName: '数码潮品',
+          displayType: 'custom',
+        },
+        {
+          groupId: getUniqueId(),
+          componentId: undefined,
+          groupName: '家居生活',
+          displayCount: 8,
+          displayName: '精选好物',
+          displayType: 'custom',
+        },
+        {
+          groupId: getUniqueId(),
+          componentId: undefined,
+          groupName: '服装美妆',
+          displayCount: 4,
+          displayName: '时尚美妆',
+          displayType: 'custom',
+        },
+        {
+          groupId: getUniqueId(),
+          componentId: undefined,
+          groupName: '食品饮料',
+          displayCount: 4,
+          displayName: '美食推荐',
+          displayType: 'custom',
+        },
+      ],
+      displayStyle: 'noBorderWhite',
+      showPrice: true,
+      showCart: true,
+      showRating: true,
+      showSales: true,
+      showTags: true,
+      enableSeckill: false,
+      autoPlay: false,
+      playInterval: 3000,
+    } as Goods,
   },
 ]
 
