@@ -135,6 +135,13 @@
         </div>
       </a-flex>
     </a-layout-content>
+
+    <!-- 移动端预览组件 -->
+    <MobilePreview
+      v-model:visible="previewVisible"
+      :componentList="componentList"
+      :pageData="pageData"
+    />
   </a-layout>
 </template>
 
@@ -166,6 +173,7 @@ import { getUniqueId } from '@/utils/uniqueId'
 import { savePage } from '@/api/content/page'
 import { message } from 'ant-design-vue'
 import { transformComponentData, transformComponentListToBackend } from '@/utils/componentTransform'
+import MobilePreview from '@/components/dialog/MobilePreview.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -173,6 +181,7 @@ const settingType = ref(-1)
 const settingIndex = ref(-1)
 const saveBtnDisabled = ref(false)
 const activeTab = ref('基础组件')
+const previewVisible = ref(false)
 const pageData = ref<Article>({
   id: getUniqueId(),
   status: 0,
@@ -266,8 +275,8 @@ const handleSave = async () => {
 }
 
 const handlePreview = () => {
-  console.log('预览页面数据', pageData.value)
   console.log('预览', componentList.value)
+  previewVisible.value = true
 }
 
 // 获取页面详情数据
