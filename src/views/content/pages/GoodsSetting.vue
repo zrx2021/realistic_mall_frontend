@@ -149,9 +149,9 @@ const activeTab = ref('groups') // 默认显示商品分组
 
 // 样式模板选项
 const templateOptions = ref([
-  { value: 'largeImage', label: '大图模式', icon: '🗂️' },
-  { value: 'twoColumns', label: '两列', icon: '📖' },
   { value: 'oneMainTwoSub', label: '一大两小', icon: '🖼️' },
+  { value: 'twoColumns', label: '两列', icon: '📖' },
+  { value: 'largeImage', label: '大图模式', icon: '🗂️' },
   { value: 'list', label: '列表', icon: '☰' },
 ])
 

@@ -341,11 +341,22 @@
         </div>
       </div>
     </div>
+
+    <!-- 无限滚动状态提示 -->
+    <div class="infinite-scroll-status" v-if="currentProducts.length > 0">
+      <div v-if="isLoading" class="loading-indicator">
+        <div class="loading-spinner"></div>
+        <span>加载更多商品中...</span>
+      </div>
+      <div v-else-if="!hasMoreProducts" class="no-more-indicator">
+        <span>已显示全部商品</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import type { Goods, GoodsItem } from '@/types/content/content'
 
 const props = defineProps<{
@@ -371,8 +382,13 @@ const showData = ref<Goods>({
 
 const activeGroupId = ref(-1)
 
-// 当前显示的商品列表
-const currentProducts = computed(() => {
+// 无限滚动相关状态
+const currentPage = ref(1)
+const pageSize = ref(10) // 每页加载10个商品
+const isLoading = ref(false)
+
+// 获取所有可用商品（不分页）
+const allAvailableProducts = computed(() => {
   if (showData.value.groupData.length === 0) {
     return showData.value.goodsList
   }
@@ -388,8 +404,64 @@ const currentProducts = computed(() => {
   return showData.value.goodsList.filter((product) => product.category === activeGroup.groupName)
 })
 
+// 检查是否还有更多商品
+const hasMoreProducts = computed(() => {
+  const totalProducts = allAvailableProducts.value.length
+  const endIndex = currentPage.value * pageSize.value
+  return endIndex < totalProducts
+})
+
+// 当前显示的商品列表（支持分页）
+const currentProducts = computed(() => {
+  const endIndex = currentPage.value * pageSize.value
+  return allAvailableProducts.value.slice(0, endIndex)
+})
+
 const switchGroup = (groupId: number) => {
   activeGroupId.value = groupId
+  // 切换分组时重置分页
+  currentPage.value = 1
+}
+
+// 加载更多商品
+const loadMoreProducts = () => {
+  if (isLoading.value || !hasMoreProducts.value) {
+    return
+  }
+
+  isLoading.value = true
+
+  // 模拟加载延迟（可选）
+  setTimeout(() => {
+    currentPage.value += 1
+    isLoading.value = false
+  }, 300)
+}
+
+// 防抖计时器
+let scrollTimer: number | null = null
+
+// 滚动监听器（防抖优化）
+const handleScroll = () => {
+  if (scrollTimer) {
+    clearTimeout(scrollTimer)
+  }
+
+  scrollTimer = setTimeout(() => {
+    // 检查窗口滚动
+    const windowHeight = window.innerHeight
+    const documentHeight = document.documentElement.scrollHeight
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+
+    // 计算滚动百分比
+    const scrollPercentage = (scrollTop + windowHeight) / documentHeight
+    console.log('scrollPercentage', scrollPercentage)
+
+    // 当滚动到底部90%时加载更多
+    if (scrollPercentage > 0.9 && hasMoreProducts.value && !isLoading.value) {
+      loadMoreProducts()
+    }
+  }, 100) // 100ms防抖
 }
 
 // 格式化销量显示
@@ -490,14 +562,47 @@ watch(
     if (showData.value.groupData.length > 0) {
       activeGroupId.value = showData.value.groupData[0].groupId
     }
+    // 重置分页状态
+    currentPage.value = 1
   },
   { deep: true },
+)
+
+// 监听分组变化，重置分页
+watch(
+  () => activeGroupId.value,
+  () => {
+    currentPage.value = 1
+  },
 )
 
 onMounted(() => {
   showData.value = { ...props.objData }
   if (showData.value.groupData.length > 0) {
     activeGroupId.value = showData.value.groupData[0].groupId
+  }
+
+  // 添加滚动监听器
+  const container = document.querySelector('.product-container')
+  if (container) {
+    container.addEventListener('scroll', handleScroll)
+  }
+  // 也监听窗口滚动（以防组件内部没有滚动条）
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  // 清理滚动监听器
+  const container = document.querySelector('.product-container')
+  if (container) {
+    container.removeEventListener('scroll', handleScroll)
+  }
+  window.removeEventListener('scroll', handleScroll)
+
+  // 清理防抖计时器
+  if (scrollTimer) {
+    clearTimeout(scrollTimer)
+    scrollTimer = null
   }
 })
 </script>
@@ -1450,6 +1555,54 @@ onMounted(() => {
   .list-item .product-image-container {
     width: 120px;
   }
+}
+
+/* 无限滚动状态样式 */
+.infinite-scroll-status {
+  padding: 20px;
+  text-align: center;
+  width: 100%;
+}
+
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #666;
+  font-size: 14px;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.no-more-indicator {
+  color: #999;
+  font-size: 14px;
+  padding: 10px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.no-more-indicator span {
+  background: #fafafa;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #e8e8e8;
 }
 </style>
 
