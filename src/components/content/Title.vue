@@ -44,20 +44,14 @@ h3:hover {
 
 h3 {
   margin: 0;
-  height: 32px;
-  width: 100%;
-  max-width: 360px;
-  padding: 0 12px;
-  font-size: 15px;
-  line-height: 32px;
+  height: 30px;
+  width: 373px;
+  padding-left: 10px;
+  font-size: 16px;
+  line-height: 30px;
   color: #333;
   text-align: left;
   border: 1px solid transparent;
-  box-sizing: border-box;
-  word-wrap: break-word;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 </style>
 
