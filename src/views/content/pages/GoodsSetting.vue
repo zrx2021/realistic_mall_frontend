@@ -2,7 +2,7 @@
   <div>
     <!-- 样式模板选择 -->
     <h3 style="color: #1f1f1f; padding: 5px; margin: 0">选择样式模板</h3>
-    <h5 style="color: #9a9a9a; padding: 5px; margin: 0">一大两小</h5>
+    <h5 style="color: #9a9a9a; padding: 5px; margin: 0">当前模式：{{ currentTemplateLabel }}</h5>
 
     <div class="template-selector">
       <div
@@ -16,6 +16,7 @@
           <!-- 暂时使用占位符，后续替换为实际图标 -->
           <div class="icon-placeholder">{{ template.icon }}</div>
         </div>
+        <div class="template-label">{{ template.label }}</div>
       </div>
     </div>
 
@@ -43,11 +44,7 @@
           <h5 style="color: #9a9a9a; padding: 5px; margin: 0">做多添加10个分组</h5>
 
           <div class="groups-list">
-            <div
-              v-for="(group, index) in data.groupData"
-              :key="group.groupId"
-              class="group-item"
-            >
+            <div v-for="(group, index) in data.groupData" :key="group.groupId" class="group-item">
               <div class="group-header">
                 <span class="group-name">分组名称：</span>
                 <span class="group-name-value">{{ group.groupName }}</span>
@@ -119,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import type { Goods, GoodsGroup } from '@/types/content/content'
 import { getUniqueId } from '@/utils/uniqueId'
@@ -138,17 +135,33 @@ const data = ref<Goods>({
   goodsList: [],
   groupData: [],
   displayStyle: 'noBorderWhite', // 无边白底
+  showPrice: true,
+  showCart: true,
+  showRating: true,
+  showSales: true,
+  showTags: true,
+  enableSeckill: false,
+  autoPlay: false,
+  playInterval: 3000,
 })
 
 const activeTab = ref('groups') // 默认显示商品分组
 
 // 样式模板选项
 const templateOptions = ref([
-  { value: 'oneMainTwoSub', label: '一大两小', icon: '🖼️' },
-  { value: 'twoColumns', label: '两列', icon: '📖' },
   { value: 'largeImage', label: '大图模式', icon: '🗂️' },
+  { value: 'twoColumns', label: '两列', icon: '📖' },
+  { value: 'oneMainTwoSub', label: '一大两小', icon: '🖼️' },
   { value: 'list', label: '列表', icon: '☰' },
 ])
+
+// 计算当前选中的模板标签
+const currentTemplateLabel = computed(() => {
+  const currentTemplate = templateOptions.value.find(
+    (template) => template.value === data.value.templateStyle,
+  )
+  return currentTemplate?.label || '未知模式'
+})
 
 // 展示样式选项
 const displayStyleOptions = ref([
@@ -188,7 +201,7 @@ const addGroup = () => {
     groupName: `${data.value.groupData.length === 0 ? '家居生活' : '数码影音'}`,
     displayCount: 10,
     displayName: '',
-    displayType: 'custom'
+    displayType: 'custom',
   }
 
   data.value.groupData.push(newGroup)
@@ -223,7 +236,7 @@ onMounted(() => {
       groupName: '数码影音',
       displayCount: 10,
       displayName: '',
-      displayType: 'custom'
+      displayType: 'custom',
     }
     data.value.groupData.push(secondGroup)
   }
@@ -245,15 +258,17 @@ onMounted(() => {
 
 .template-option {
   flex: 1;
-  height: 60px;
+  height: 80px;
   border: 2px solid #e8e8e8;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: #fafafa;
+  gap: 4px;
 }
 
 .template-option:hover {
@@ -274,12 +289,24 @@ onMounted(() => {
 }
 
 .icon-placeholder {
-  font-size: 24px;
+  font-size: 20px;
   color: #666;
 }
 
 .template-option.active .icon-placeholder {
   color: #1890ff;
+}
+
+.template-label {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.template-option.active .template-label {
+  color: #1890ff;
+  font-weight: 500;
 }
 
 /* 商品选择区域 */

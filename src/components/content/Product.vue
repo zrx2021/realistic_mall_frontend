@@ -25,8 +25,16 @@
                 :src="currentProducts[0].imageUrl"
                 :alt="currentProducts[0].name"
                 class="product-image"
+                @error="handleImageError"
               />
-              <div v-else class="product-image placeholder"></div>
+              <div v-else class="product-image placeholder">
+                <div class="placeholder-content">
+                  <div class="placeholder-icon">
+                    {{ getCategoryIcon(currentProducts[0]?.category || '') }}
+                  </div>
+                  <div class="placeholder-text">{{ currentProducts[0]?.name || '商品图片' }}</div>
+                </div>
+              </div>
               <!-- 商品标签 -->
               <div v-if="showData.showTags && currentProducts[0]?.tags" class="product-tags">
                 <span
@@ -48,14 +56,17 @@
               </div>
             </div>
             <div class="product-info">
-              <div class="product-title">
+              <div class="product-title on-main-two-sub">
                 {{ currentProducts[0]?.name || '这里显示商品名称，最多显示1行' }}
               </div>
-              <div class="product-desc">
+              <div class="product-desc on-main-two-sub">
                 {{ currentProducts[0]?.description || '这里显示商品描述，最多显示1行' }}
               </div>
               <!-- 评分和销量 -->
-              <div v-if="showData.showRating || showData.showSales" class="product-meta">
+              <div
+                v-if="showData.showRating || showData.showSales"
+                class="product-meta on-main-two-sub"
+              >
                 <div v-if="showData.showRating && currentProducts[0]?.rating" class="rating">
                   <span class="stars">{{ getStars(currentProducts[0].rating) }}</span>
                   <span class="rating-text">{{ currentProducts[0].rating }}</span>
@@ -86,7 +97,7 @@
           <div
             v-for="(product, index) in currentProducts.slice(1, 3)"
             :key="product?.id || index"
-            class="product-card small"
+            class="product-card on-main-two-sub"
             @click="handleProductClick(product)"
           >
             <div class="product-image-container">
@@ -95,8 +106,14 @@
                 :src="product.imageUrl"
                 :alt="product.name"
                 class="product-image"
+                @error="handleImageError"
               />
-              <div v-else class="product-image placeholder"></div>
+              <div v-else class="product-image placeholder">
+                <div class="placeholder-content">
+                  <div class="placeholder-icon">{{ getCategoryIcon(product?.category || '') }}</div>
+                  <div class="placeholder-text">{{ product?.name || '商品图片' }}</div>
+                </div>
+              </div>
               <!-- 商品标签 -->
               <div v-if="showData.showTags && product?.tags" class="product-tags">
                 <span
@@ -112,11 +129,6 @@
             <div class="product-info">
               <div class="product-title">
                 {{ product?.name || '这里显示商品名称，最多显示2行' }}
-              </div>
-              <!-- 评分 -->
-              <div v-if="showData.showRating && product?.rating" class="rating small">
-                <span class="stars">{{ getStars(product.rating) }}</span>
-                <span class="rating-text">{{ product.rating }}</span>
               </div>
               <div class="product-footer">
                 <div v-if="showData.showPrice" class="price-container">
@@ -139,7 +151,7 @@
         <div
           v-for="(product, index) in currentProducts.slice(0, 4)"
           :key="product?.id || index"
-          class="product-card medium"
+          class="product-card"
           @click="handleProductClick(product)"
         >
           <div class="product-image-container">
@@ -148,8 +160,14 @@
               :src="product.imageUrl"
               :alt="product.name"
               class="product-image"
+              @error="handleImageError"
             />
-            <div v-else class="product-image placeholder"></div>
+            <div v-else class="product-image placeholder">
+              <div class="placeholder-content">
+                <div class="placeholder-icon">{{ getCategoryIcon(product?.category || '') }}</div>
+                <div class="placeholder-text">{{ product?.name || '商品图片' }}</div>
+              </div>
+            </div>
             <!-- 商品标签 -->
             <div v-if="showData.showTags && product?.tags" class="product-tags">
               <span
@@ -162,26 +180,32 @@
               </span>
             </div>
           </div>
-          <div class="product-info">
-            <div class="product-title">{{ product?.name || '这里显示商品名称，最多显示2行' }}</div>
+          <div class="product-info two-columns">
+            <div class="product-title two-columns">
+              {{ product?.name || '这里显示商品名称，最多显示2行' }}
+            </div>
             <!-- 评分和销量 -->
-            <div v-if="showData.showRating || showData.showSales" class="product-meta">
-              <div v-if="showData.showRating && product?.rating" class="rating small">
+            <div v-if="showData.showRating || showData.showSales" class="product-meta two-columns">
+              <div v-if="showData.showRating && product?.rating" class="rating two-columns">
                 <span class="stars">{{ getStars(product.rating) }}</span>
                 <span class="rating-text">{{ product.rating }}</span>
               </div>
-              <div v-if="showData.showSales && product?.sales" class="sales small">
-                {{ formatSales(product.sales) }}
+              <div v-if="showData.showSales && product?.sales" class="sales two-columns">
+                已售{{ formatSales(product.sales) }}
               </div>
             </div>
             <div class="product-footer">
               <div v-if="showData.showPrice" class="price-container">
-                <span class="product-price">¥{{ product?.price || 99 }}</span>
+                <span class="product-price two-columns">¥{{ product?.price || 99 }}</span>
                 <span v-if="product?.originalPrice" class="original-price"
                   >¥{{ product.originalPrice }}</span
                 >
               </div>
-              <div v-if="showData.showCart" class="cart-icon" @click.stop="addToCart(product)">
+              <div
+                v-if="showData.showCart"
+                class="cart-icon two-columns"
+                @click.stop="addToCart(product)"
+              >
                 🛒
               </div>
             </div>
@@ -203,8 +227,14 @@
               :src="product.imageUrl"
               :alt="product.name"
               class="product-image"
+              @error="handleImageError"
             />
-            <div v-else class="product-image placeholder"></div>
+            <div v-else class="product-image placeholder">
+              <div class="placeholder-content">
+                <div class="placeholder-icon">{{ getCategoryIcon(product?.category || '') }}</div>
+                <div class="placeholder-text">{{ product?.name || '商品图片' }}</div>
+              </div>
+            </div>
             <!-- 商品标签 -->
             <div v-if="showData.showTags && product?.tags" class="product-tags">
               <span
@@ -218,12 +248,14 @@
             </div>
           </div>
           <div class="product-info">
-            <div class="product-title">{{ product?.name || '这里显示商品名称，最多显示1行' }}</div>
-            <div class="product-desc">
+            <div class="product-title largeImage">
+              {{ product?.name || '这里显示商品名称，最多显示1行' }}
+            </div>
+            <div class="product-desc largeImage">
               {{ product?.description || '这里显示商品描述，最多显示1行' }}
             </div>
             <!-- 评分和销量 -->
-            <div v-if="showData.showRating || showData.showSales" class="product-meta">
+            <div v-if="showData.showRating || showData.showSales" class="product-meta largeImage">
               <div v-if="showData.showRating && product?.rating" class="rating">
                 <span class="stars">{{ getStars(product.rating) }}</span>
                 <span class="rating-text">{{ product.rating }}</span>
@@ -261,8 +293,14 @@
               :src="product.imageUrl"
               :alt="product.name"
               class="product-image"
+              @error="handleImageError"
             />
-            <div v-else class="product-image placeholder"></div>
+            <div v-else class="product-image placeholder">
+              <div class="placeholder-content">
+                <div class="placeholder-icon">{{ getCategoryIcon(product?.category || '') }}</div>
+                <div class="placeholder-text">{{ product?.name || '商品图片' }}</div>
+              </div>
+            </div>
             <!-- 商品标签 -->
             <div v-if="showData.showTags && product?.tags" class="product-tags">
               <span
@@ -425,6 +463,24 @@ const addToCart = (product?: GoodsItem) => {
   // cartStore.addItem(product)
 }
 
+// 处理图片加载错误
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.style.display = 'none'
+  // 可以在这里设置默认图片或显示占位符
+}
+
+// 根据商品类别获取图标
+const getCategoryIcon = (category: string) => {
+  const iconMap: Record<string, string> = {
+    数码影音: '📱',
+    家居生活: '🏠',
+    服装美妆: '👗',
+    食品饮料: '🍎',
+  }
+  return iconMap[category] || '📦'
+}
+
 onMounted(() => {
   showData.value = { ...props.objData }
   if (showData.value.groupData.length > 0) {
@@ -436,7 +492,9 @@ onMounted(() => {
 <style scoped>
 .product-container {
   width: 100%;
+  max-width: 375px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .product-container:hover {
@@ -446,29 +504,67 @@ onMounted(() => {
 /* 商品分组标签 */
 .product-tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #e8e8e8;
-  padding-bottom: 8px;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .tab-item {
-  padding: 8px 16px;
+  padding: 10px 20px;
   cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.3s;
+  border-radius: 20px;
+  transition: all 0.3s ease;
   color: #666;
   font-size: 14px;
+  font-weight: 500;
+  border: 2px solid transparent;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  min-width: 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
+}
+
+.tab-item:hover::before {
+  left: 100%;
 }
 
 .tab-item:hover {
   background: #f0f8ff;
   color: #1890ff;
+  border-color: #1890ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
 }
 
 .tab-item.active {
-  background: #1890ff;
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
   color: white;
+  border-color: #1890ff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(24, 144, 255, 0.3);
+}
+
+.tab-item.active:hover {
+  background: linear-gradient(135deg, #40a9ff, #1890ff);
+  transform: translateY(-2px);
 }
 
 /* 商品展示区域 */
@@ -502,13 +598,19 @@ onMounted(() => {
 .layout-one-main-two-sub {
   display: flex;
   gap: 8px;
-  height: 300px;
+  height: 360px;
   width: 100%;
+  max-width: 359px;
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 12px;
+  box-sizing: border-box;
 }
 
 .main-product {
   flex: 1;
   min-width: 0;
+  max-width: 200px;
 }
 
 .sub-products {
@@ -517,6 +619,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 8px;
   min-width: 0;
+  max-width: 200px;
 }
 
 /* 两列布局 */
@@ -525,39 +628,75 @@ onMounted(() => {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   width: 100%;
+  max-width: 359px;
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 12px;
+  box-sizing: border-box;
 }
 
 /* 大图模式 */
 .layout-large-image {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
+  max-width: 359px;
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 12px;
+  box-sizing: border-box;
 }
 
 /* 列表模式 */
 .layout-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
+  max-width: 359px;
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 12px;
+  box-sizing: border-box;
 }
 
 /* 商品卡片样式 */
 .product-card {
-  background: #f8f8f8;
-  border-radius: 8px;
+  background: white;
+  border-radius: 12px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border: 1px solid #e8e8e8;
-  transition: box-shadow 0.2s ease;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
   width: 100%;
   box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.product-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05), rgba(64, 169, 255, 0.05));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.product-card:hover::before {
+  opacity: 1;
 }
 
 .product-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  border-color: #e6f7ff;
 }
 
 .product-card.large {
@@ -565,69 +704,175 @@ onMounted(() => {
 }
 
 .product-card.small {
-  height: calc(50% - 4px);
+  height: calc(50% - 6px);
+  min-height: 160px;
 }
 
 .product-card.medium {
-  height: 220px;
+  height: 260px;
 }
 
 .product-card.large-image {
-  height: 280px;
+  height: 320px;
 }
 
 .product-card.list-item {
-  height: 120px;
+  height: 140px;
   flex-direction: row;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.product-card.list-item:hover {
+  border-color: #3498db;
+  box-shadow: 0 4px 20px rgba(52, 152, 219, 0.15);
+  transform: translateY(-2px);
 }
 
 /* 商品图片容器 */
 .product-image-container {
   position: relative;
   flex: 1;
-  min-height: 100px;
+  min-height: 120px;
   overflow: hidden;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 8px 8px 0 0;
+}
+
+.sub-products .product-image-container {
+  min-height: 90px;
+  flex: 1.2;
+}
+
+.small .product-image-container {
+  min-height: 90px;
+  flex: 1.2;
 }
 
 .list-item .product-image-container {
-  width: 120px;
+  width: 140px;
   flex: none;
+  border-radius: 12px 0 0 12px;
+  min-height: auto;
+  background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+  position: relative;
+  overflow: hidden;
+}
+
+.list-item .product-image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(52, 152, 219, 0.05) 100%);
+  pointer-events: none;
 }
 
 /* 商品图片 */
 .product-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
+  object-fit: contain;
+  transition: all 0.4s ease;
+  padding: 8px;
+  box-sizing: border-box;
 }
 
 .product-image.placeholder {
-  background: #d0d0d0;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-size: 14px;
+  font-weight: 500;
+  border: 2px dashed #dee2e6;
+}
+
+.placeholder-content {
+  text-align: center;
+  padding: 16px;
+}
+
+.placeholder-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+.placeholder-text {
+  font-size: 12px;
+  color: #6c757d;
+  line-height: 1.3;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-card.small .placeholder-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.product-card.small .placeholder-text {
+  font-size: 10px;
 }
 
 .product-card:hover .product-image {
-  transform: scale(1.05);
+  transform: scale(1.08);
+  filter: brightness(1.05);
+}
+
+/* 为不同尺寸的卡片调整图片样式 */
+.product-card.large .product-image {
+  padding: 12px;
+}
+
+.product-card.small .product-image {
+  padding: 4px;
+}
+
+.product-card.list-item .product-image {
+  padding: 8px;
+  object-fit: cover;
 }
 
 /* 商品标签 */
 .product-tags {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 12px;
+  left: 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  z-index: 2;
+  gap: 6px;
+  z-index: 3;
 }
 
 .tag {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
   color: white;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.tag:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
 }
 
 .tag-hot {
@@ -682,40 +927,111 @@ onMounted(() => {
 
 /* 商品信息 */
 .product-info {
-  padding: 12px;
+  padding: 16px;
   background: white;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 80px;
+  min-height: 100px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.product-info.two-columns {
+  padding: 12px;
+}
+
+.product-info.two-columns .stars {
+  font-size: 14px;
+}
+
+.sub-products .product-info {
+  padding: 8px;
+  min-height: 75px;
 }
 
 .list-item .product-info {
   flex: 1;
-  padding: 12px 16px;
+  padding: 16px 20px;
+  min-height: auto;
 }
 
 .product-title {
-  font-size: 14px;
-  color: #333;
-  line-height: 1.4;
-  margin-bottom: 4px;
+  font-size: 15px;
+  color: #2c3e50;
+  line-height: 1.5;
+  margin-bottom: 6px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: clip;
+  word-wrap: break-word;
   word-break: break-word;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
-.large .product-title {
-  -webkit-line-clamp: 1;
-  max-height: 1.4em;
-}
-
-.small .product-title,
-.medium .product-title,
-.list-item .product-title {
+.product-title.largeImage {
   -webkit-line-clamp: 2;
-  max-height: 2.8em;
+  max-height: 3em;
+  font-size: 16px;
+  line-height: 1.4;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.product-title .on-main-two-sub {
+  -webkit-line-clamp: 2;
+  max-height: 3em;
+  font-size: 16px;
+  line-height: 1.4;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.sub-products .product-title {
+  -webkit-line-clamp: 2;
+  font-size: 12px;
+  margin-bottom: 0px;
+  line-height: 1.2;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+}
+
+.sub-products .product-title.two-columns {
+  -webkit-line-clamp: 2;
+  max-height: 3em;
+  font-size: 14px;
+  line-height: 14px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.product-title.on-main-two-sub {
+  -webkit-line-clamp: 2;
+  max-height: 2.4em;
+  font-size: 12px;
+  margin-bottom: 3px;
+  line-height: 1.2;
+}
+
+.list-item .product-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.list-item:hover .product-title {
+  color: #3498db;
 }
 
 .product-desc {
@@ -729,13 +1045,28 @@ onMounted(() => {
   overflow: hidden;
 }
 
+.product-desc.largeImage {
+}
+
+.product-desc.on-main-two-sub {
+}
+
 /* 商品元信息（评分、销量） */
 .product-meta {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 8px;
   font-size: 12px;
+}
+
+.product-meta.largeImage {
+}
+
+.product-meta.two-columns {
+  margin: 4px;
+}
+
+.product-meta.on-main-two-sub {
 }
 
 .rating {
@@ -744,18 +1075,13 @@ onMounted(() => {
   gap: 4px;
 }
 
-.rating.small {
-  font-size: 10px;
+.rating.two-columns.stars {
+  font-size: 14px;
 }
 
 .stars {
   color: #ffa726;
-  font-size: 12px;
   line-height: 1;
-}
-
-.rating.small .stars {
-  font-size: 10px;
 }
 
 .rating-text {
@@ -765,11 +1091,10 @@ onMounted(() => {
 
 .sales {
   color: #999;
-  font-size: 12px;
 }
 
-.sales.small {
-  font-size: 10px;
+.sales.two-columns {
+  font-size: 12px;
 }
 
 .product-footer {
@@ -787,37 +1112,92 @@ onMounted(() => {
   flex: 1;
 }
 
+.small .price-container {
+  gap: 3px;
+}
+
 .product-price {
-  font-size: 16px;
-  color: #ff4444;
-  font-weight: bold;
+  color: #e74c3c;
+  font-weight: 700;
+  font-family: 'Arial', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.product-price.two-columns {
+  font-size: 14px;
 }
 
 .original-price {
-  font-size: 12px;
-  color: #999;
+  font-size: 13px;
+  color: #95a5a6;
   text-decoration: line-through;
+  /* margin-left: 8px; */
+  font-weight: 400;
+}
+
+.small .original-price {
+  font-size: 11px;
+  margin-left: 4px;
 }
 
 .cart-icon {
-  font-size: 18px;
-  color: #ff4444;
+  font-size: 20px;
+  color: #e74c3c;
   cursor: pointer;
-  transition: transform 0.2s ease;
-  padding: 4px;
-  border-radius: 4px;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  background: rgba(231, 76, 60, 0.1);
+  border: 2px solid transparent;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.cart-icon.two-columns {
+  font-size: 18px;
+  padding: 5px;
 }
 
 .cart-icon:hover {
-  transform: scale(1.1);
-  background: rgba(255, 68, 68, 0.1);
+  transform: scale(1.15) rotate(5deg);
+  background: rgba(231, 76, 60, 0.2);
+  border-color: #e74c3c;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.small .cart-icon {
+  font-size: 14px;
+  padding: 4px;
+  min-width: 24px;
+  min-height: 24px;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .product-tabs {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .tab-item {
+    padding: 8px 16px;
+    font-size: 13px;
+    min-width: 70px;
+  }
+
   .layout-one-main-two-sub {
     flex-direction: column;
     height: auto;
+    gap: 8px;
+    padding: 6px;
+  }
+
+  .main-product {
+    flex: none;
   }
 
   .sub-products {
@@ -826,12 +1206,35 @@ onMounted(() => {
   }
 
   .product-card.small {
-    height: 180px;
+    height: 200px;
   }
 
   .layout-two-columns {
     grid-template-columns: 1fr;
     gap: 8px;
+    padding: 6px;
+  }
+
+  .layout-large-image,
+  .layout-list {
+    padding: 6px;
+    gap: 8px;
+  }
+
+  .product-info {
+    padding: 12px;
+  }
+
+  .list-item .product-info {
+    padding: 12px 16px;
+  }
+
+  .product-image-container {
+    min-height: 100px;
+  }
+
+  .list-item .product-image-container {
+    width: 120px;
   }
 }
 </style>
