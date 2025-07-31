@@ -345,7 +345,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import type { Goods, GoodsItem } from '@/types/content/content'
 
 const props = defineProps<{
@@ -480,6 +480,19 @@ const getCategoryIcon = (category: string) => {
   }
   return iconMap[category] || '📦'
 }
+
+// 监听props变化并更新showData
+watch(
+  () => props.objData,
+  async (newObjData: Goods) => {
+    await nextTick()
+    showData.value = { ...newObjData }
+    if (showData.value.groupData.length > 0) {
+      activeGroupId.value = showData.value.groupData[0].groupId
+    }
+  },
+  { deep: true },
+)
 
 onMounted(() => {
   showData.value = { ...props.objData }

@@ -176,6 +176,7 @@ const handleChange = () => {
 }
 
 const selectTemplate = (templateValue: string) => {
+  console.log('templateValue', templateValue)
   data.value.templateStyle = templateValue
   handleChange()
 }
