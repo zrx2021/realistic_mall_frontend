@@ -169,7 +169,8 @@ onMounted(() => {
 
 /* 布局样式 */
 .navtab-tabs.justify-around :deep(.ant-tabs-nav-list) {
-  width: 375px !important;
+  width: 100% !important;
+  max-width: 360px !important;
   justify-content: space-around !important;
 }
 
@@ -252,8 +253,8 @@ onMounted(() => {
 .tab-icon {
   display: block;
   margin: 0px auto;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 }
 </style>
 

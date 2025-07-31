@@ -135,12 +135,19 @@
         </div>
       </a-flex>
     </a-layout-content>
+
+    <!-- 移动端预览组件 -->
+    <MobilePreview
+      v-model:visible="previewVisible"
+      :componentList="componentList"
+      :pageData="pageData"
+    />
   </a-layout>
 </template>
 
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   ArrowLeftOutlined,
@@ -166,6 +173,7 @@ import { getUniqueId } from '@/utils/uniqueId'
 import { savePage } from '@/api/content/page'
 import { message } from 'ant-design-vue'
 import { transformComponentData, transformComponentListToBackend } from '@/utils/componentTransform'
+import MobilePreview from '@/components/dialog/MobilePreview.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -173,6 +181,7 @@ const settingType = ref(-1)
 const settingIndex = ref(-1)
 const saveBtnDisabled = ref(false)
 const activeTab = ref('基础组件')
+const previewVisible = ref(false)
 const pageData = ref<Article>({
   id: getUniqueId(),
   status: 0,
@@ -266,8 +275,8 @@ const handleSave = async () => {
 }
 
 const handlePreview = () => {
-  console.log('预览页面数据', pageData.value)
   console.log('预览', componentList.value)
+  previewVisible.value = true
 }
 
 // 获取页面详情数据
@@ -339,16 +348,36 @@ const goBack = () => {
   })
 }
 
-watch(settingData, (newVal) => {
+watch(settingData, (newVal, oldVal) => {
   if (settingType.value < 998) {
     indexData.value[settingIndex.value] = newVal
     componentList.value[settingIndex.value].objData = newVal
+
+    // 只有当数据真正发生变化时才重新渲染组件
+    if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+      // 保存当前滚动位置
+      const editorArea = document.querySelector('.editor-area')
+      const settingsContent = document.querySelector('.settings-content')
+      const editorScrollTop = editorArea?.scrollTop || 0
+      const settingsScrollTop = settingsContent?.scrollTop || 0
+
+      refreshKeysArray.value[settingIndex.value] = getUniqueId()
+
+      // 在下一个tick恢复滚动位置
+      nextTick(() => {
+        if (editorArea) {
+          editorArea.scrollTop = editorScrollTop
+        }
+        if (settingsContent) {
+          settingsContent.scrollTop = settingsScrollTop
+        }
+      })
+    }
   }
   if (settingType.value === 999) {
     console.log('settingType.value === 999', newVal)
     pageData.value = newVal as Article
   }
-  refreshKeysArray.value[settingIndex.value] = getUniqueId()
 })
 
 onMounted(() => {
