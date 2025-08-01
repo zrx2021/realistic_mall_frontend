@@ -70,13 +70,6 @@
         <!-- 内容编辑区域 -->
         <div class="editor-area">
           <div class="editor-container">
-            <div class="editor-container-inner">
-              <img
-                src="@/assets/content/page/editing/手机头部.png"
-                alt="placeholder"
-                width="375px"
-              />
-            </div>
             <div class="placeholder-content" v-if="componentList.length === 0">
               <laptop-outlined class="placeholder-icon" />
               <h3>内容编辑区</h3>
@@ -400,6 +393,19 @@ onMounted(() => {
 </script>
 
 <style scoped>
+body::-webkit-scrollbar {
+  width: 0.5em;
+  background-color: #f5f5f5;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #000000;
+}
+
+body {
+  -ms-overflow-style: none;
+}
+
 /* 整体布局 */
 .main-container {
   height: calc(100vh - 64px);
@@ -428,7 +434,7 @@ onMounted(() => {
 
 .editor-container {
   display: flex;
-  width: 375px;
+  width: 360px;
   text-align: center;
   background: #fff;
   align-items: center;

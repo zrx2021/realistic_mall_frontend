@@ -130,7 +130,7 @@ onMounted(() => {
 <style scoped>
 .navtab-container {
   height: 100%;
-  width: 375px;
+  width: 360px;
   min-width: 350px;
   box-sizing: border-box;
   border: 1px solid transparent;

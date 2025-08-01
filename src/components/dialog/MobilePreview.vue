@@ -25,16 +25,6 @@
       <!-- 移动端模拟器 -->
       <div class="mobile-simulator" :class="{ fullscreen: isFullscreen }">
         <div class="mobile-frame">
-          <!-- iPhone 物理按键 -->
-          <div class="phone-buttons">
-            <div class="volume-buttons">
-              <div class="volume-up"></div>
-              <div class="volume-down"></div>
-            </div>
-            <div class="power-button"></div>
-            <div class="silent-switch"></div>
-          </div>
-
           <!-- 手机状态栏 -->
           <div class="status-bar">
             <div class="status-left">
@@ -51,15 +41,6 @@
 
           <!-- 预览内容区域 -->
           <div class="preview-content" :style="{ backgroundColor: pageData.backgroundColor }">
-            <!-- 手机头部图片 -->
-            <div class="mobile-header-container">
-              <img
-                src="@/assets/content/page/editing/手机头部.png"
-                alt="mobile header"
-                class="mobile-header"
-              />
-            </div>
-
             <!-- 渲染组件列表 -->
             <div class="component-list">
               <div
@@ -326,15 +307,16 @@ watch(
 .mobile-frame {
   width: 360px;
   max-width: calc(100vw - 120px);
-  min-height: 640px;
+  height: 640px;
   background: #000;
   border-radius: 36px;
+  box-sizing: content-box !important;
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   overflow: hidden;
-  position: relative;
+  position: absolute;
   border: 6px solid #1a1a1a;
   padding: 4px;
   margin: 0 auto;
@@ -539,6 +521,12 @@ watch(
   padding: 0;
   overflow-y: auto;
   min-height: 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.component-list::-webkit-scrollbar {
+  display: none; /* Chrome Safari */
 }
 
 .preview-component {
@@ -670,8 +658,8 @@ watch(
 
   .mobile-frame {
     width: calc(100% - 20px);
-    max-width: 340px;
-    min-height: 540px;
+    min-width: 360px;
+    min-height: 640px;
   }
 }
 
