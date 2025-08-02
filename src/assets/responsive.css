@@ -1,0 +1,420 @@
+/* 响应式断点媒体查询 */
+/* 根据不同设备屏幕宽度适配 */
+
+/* 基础变量定义 */
+:root {
+  /* 容器最大宽度 */
+  --container-max-width: 1200px;
+
+  /* 内边距变量 */
+  --padding-xxs: 8px;
+  --padding-xs: 12px;
+  --padding-sm: 16px;
+  --padding-md: 20px;
+  --padding-lg: 24px;
+  --padding-xl: 32px;
+
+  /* 字体大小变量 */
+  --font-size-xxs: 12px;
+  --font-size-xs: 13px;
+  --font-size-sm: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+}
+
+/* =================
+   响应式断点媒体查询
+   ================= */
+
+/* xxs: 折叠屏、极老机型 (≤ 344px) */
+@media (max-width: 344px) {
+  :root {
+    --current-padding: var(--padding-xxs);
+    --current-font-size: var(--font-size-xxs);
+  }
+
+  .container {
+    /* padding: 0 8px;
+    font-size: 12px; */
+  }
+
+  /* 极小屏幕下的特殊样式 */
+  .btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .text-responsive {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+/* xs: iPhone SE、早期安卓小屏 (≤ 375px) */
+@media (max-width: 375px) {
+  :root {
+    --current-padding: var(--padding-xs);
+    --current-font-size: var(--font-size-xs);
+  }
+
+  .container {
+    /* padding: 0 12px;
+    font-size: 13px; */
+  }
+
+  .btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .text-responsive {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* 导航栏适配 */
+  .navbar {
+    height: 44px;
+    padding: 0 12px;
+  }
+}
+
+/* sm: 普通小屏手机 (≤ 480px) */
+@media (max-width: 480px) {
+  :root {
+    --current-padding: var(--padding-sm);
+    --current-font-size: var(--font-size-sm);
+  }
+
+  .container {
+    /* padding: 0 16px;
+    font-size: 14px; */
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .text-responsive {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .navbar {
+    height: 48px;
+    padding: 0 16px;
+  }
+
+  /* 卡片布局 */
+  .card {
+    margin-bottom: 12px;
+    padding: 16px;
+  }
+}
+
+/* md: 中型手机 (≤ 576px) */
+@media (max-width: 576px) {
+  :root {
+    --current-padding: var(--padding-md);
+    --current-font-size: var(--font-size-md);
+  }
+
+  .container {
+    /* padding: 0 20px;
+    font-size: 15px; */
+  }
+
+  .btn {
+    padding: 12px 24px;
+    font-size: 15px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .text-responsive {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .navbar {
+    height: 52px;
+    padding: 0 20px;
+  }
+
+  .card {
+    margin-bottom: 16px;
+    padding: 20px;
+  }
+
+  /* 表单元素 */
+  .form-input {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+}
+
+/* lg: 大屏手机 / 横屏小设备 (≤ 768px) */
+@media (max-width: 768px) {
+  :root {
+    --current-padding: var(--padding-lg);
+    --current-font-size: var(--font-size-lg);
+  }
+
+  .container {
+    /* padding: 0 24px;
+    font-size: 16px;
+    max-width: 720px;
+    margin: 0 auto; */
+  }
+
+  .btn {
+    padding: 14px 28px;
+    font-size: 16px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .text-responsive {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .navbar {
+    height: 56px;
+    padding: 0 24px;
+  }
+
+  .card {
+    margin-bottom: 20px;
+    padding: 24px;
+  }
+
+  .form-input {
+    padding: 14px 18px;
+    font-size: 16px;
+  }
+
+  /* 侧边栏在大屏手机上隐藏 */
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    width: 100%;
+  }
+}
+
+/* xl: 平板设备 (≤ 992px) */
+@media (max-width: 992px) {
+  :root {
+    --current-padding: var(--padding-xl);
+    --current-font-size: var(--font-size-xl);
+  }
+
+  .container {
+    /* padding: 0 32px;
+    font-size: 18px;
+    max-width: 960px;
+    margin: 0 auto; */
+  }
+
+  .btn {
+    padding: 16px 32px;
+    font-size: 18px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .text-responsive {
+    font-size: 18px;
+    line-height: 1.6;
+  }
+
+  .navbar {
+    height: 60px;
+    padding: 0 32px;
+  }
+
+  .card {
+    margin-bottom: 24px;
+    padding: 32px;
+  }
+
+  .form-input {
+    padding: 16px 20px;
+    font-size: 18px;
+  }
+
+  /* 平板设备可以显示简化的侧边栏 */
+  .sidebar {
+    display: block;
+    width: 200px;
+  }
+
+  .main-content {
+    margin-left: 200px;
+  }
+}
+
+/* =================
+   通用响应式工具类
+   ================= */
+
+/* 显示/隐藏工具类 */
+.show-xxs {
+  display: none;
+}
+.show-xs {
+  display: none;
+}
+.show-sm {
+  display: none;
+}
+.show-md {
+  display: none;
+}
+.show-lg {
+  display: none;
+}
+.show-xl {
+  display: none;
+}
+
+@media (max-width: 344px) {
+  .show-xxs {
+    display: block;
+  }
+  .hide-xxs {
+    display: none;
+  }
+}
+
+@media (max-width: 375px) {
+  .show-xs {
+    display: block;
+  }
+  .hide-xs {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .show-sm {
+    display: block;
+  }
+  .hide-sm {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .show-md {
+    display: block;
+  }
+  .hide-md {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .show-lg {
+    display: block;
+  }
+  .hide-lg {
+    display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .show-xl {
+    display: block;
+  }
+  .hide-xl {
+    display: none;
+  }
+}
+
+/* 文字对齐工具类 */
+@media (max-width: 576px) {
+  .text-center-mobile {
+    text-align: center;
+  }
+  .text-left-mobile {
+    text-align: left;
+  }
+  .text-right-mobile {
+    text-align: right;
+  }
+}
+
+/* 宽度工具类 */
+@media (max-width: 768px) {
+  .w-full-mobile {
+    width: 100%;
+  }
+  .w-half-mobile {
+    width: 50%;
+  }
+}
+
+/* 边距工具类 */
+@media (max-width: 576px) {
+  .mb-sm-mobile {
+    margin-bottom: 8px;
+  }
+  .mb-md-mobile {
+    margin-bottom: 16px;
+  }
+  .mb-lg-mobile {
+    margin-bottom: 24px;
+  }
+
+  .mt-sm-mobile {
+    margin-top: 8px;
+  }
+  .mt-md-mobile {
+    margin-top: 16px;
+  }
+  .mt-lg-mobile {
+    margin-top: 24px;
+  }
+
+  .px-sm-mobile {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .px-md-mobile {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .px-lg-mobile {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}

@@ -610,7 +610,7 @@ onUnmounted(() => {
 <style scoped>
 .product-container {
   width: 100%;
-  max-width: 375px;
+  /* max-width: 375px; */
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -716,10 +716,10 @@ onUnmounted(() => {
 .layout-one-main-two-sub {
   display: flex;
   gap: 8px;
-  height: 360px;
+  /* height: 360px; */
   width: 100%;
-  max-width: 359px;
-  padding: 8px;
+  /* max-width: 359px; */
+  /* padding: 8px; */
   background: #fafafa;
   border-radius: 12px;
   box-sizing: border-box;
@@ -728,7 +728,7 @@ onUnmounted(() => {
 .main-product {
   flex: 1;
   min-width: 0;
-  max-width: 200px;
+  /* max-width: 200px; */
 }
 
 .sub-products {
@@ -737,7 +737,7 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 8px;
   min-width: 0;
-  max-width: 200px;
+  /* max-width: 200px; */
 }
 
 /* 两列布局 */
@@ -1507,7 +1507,7 @@ onUnmounted(() => {
     flex-direction: column;
     height: auto;
     gap: 8px;
-    padding: 6px;
+    /* padding: 6px; */
   }
 
   .main-product {

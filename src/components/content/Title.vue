@@ -46,7 +46,7 @@ h3 {
   margin: 0;
   height: 32px;
   width: 100%;
-  max-width: 360px;
+  /* max-width: 360px; */
   padding: 0 12px;
   font-size: 15px;
   line-height: 32px;

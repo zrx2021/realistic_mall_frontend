@@ -1,23 +1,23 @@
 <template>
   <div class="mobile-preview-overlay" v-if="visible" @click="closePreview">
-    <div class="mobile-preview-container" @click.stop>
+    <div class="mobile-preview-container container" @click.stop>
       <!-- 预览头部 -->
-      <div class="preview-header">
+      <div class="preview-header" :class="{ fullscreen: isFullscreen }">
         <div class="preview-title">
-          <h3>移动端预览</h3>
+          <h3 class="text-responsive">移动端预览</h3>
           <span class="preview-subtitle">{{ pageData.name || '页面预览' }}</span>
         </div>
         <div class="preview-actions">
-          <a-button type="text" @click="toggleFullscreen" class="action-btn">
+          <a-button type="text" @click="toggleFullscreen" class="action-btn btn hide-xxs hide-xs">
             <template #icon>
               <fullscreen-outlined v-if="!isFullscreen" />
               <fullscreen-exit-outlined v-else />
             </template>
-            {{ isFullscreen ? '退出全屏' : '全屏' }}
+            <span class="hide-sm">{{ isFullscreen ? '退出全屏' : '全屏' }}</span>
           </a-button>
-          <a-button type="text" @click="closePreview" class="action-btn">
+          <a-button type="text" @click="closePreview" class="action-btn btn">
             <template #icon><close-outlined /></template>
-            关闭
+            <span class="hide-sm">关闭</span>
           </a-button>
         </div>
       </div>
@@ -55,9 +55,9 @@
             <!-- 空状态 -->
             <div class="empty-content" v-if="componentList.length === 0">
               <div class="empty-icon">📱</div>
-              <h4>暂无内容</h4>
-              <p>当前页面还没有添加任何组件</p>
-              <p class="empty-tip">返回编辑器添加组件后再预览</p>
+              <h4 class="text-responsive">暂无内容</h4>
+              <p class="text-responsive">当前页面还没有添加任何组件</p>
+              <p class="empty-tip text-responsive">返回编辑器添加组件后再预览</p>
             </div>
           </div>
 
@@ -236,16 +236,17 @@ watch(
 }
 
 .mobile-preview-container {
-  width: calc(100% - 40px);
-  height: calc(100% - 40px);
+  /* width: calc(100% - 40px);*/
+  width: 100%;
+  /* height: calc(100% - 40px); */
+  height: 100%;
   max-width: 1200px;
-  max-height: calc(100vh - 40px);
+  /* max-height: calc(100vh - 40px); */
   display: flex;
   flex-direction: column;
   background: #fff;
-  border-radius: 12px;
+  /* border-radius: 12px; */
   overflow: hidden;
-  margin: 20px;
 }
 
 .preview-header {
@@ -256,6 +257,10 @@ watch(
   border-bottom: 1px solid #e8e8e8;
   background: #fff;
   flex-shrink: 0;
+}
+
+.preview-header.fullscreen {
+  display: none;
 }
 
 .preview-title h3 {
@@ -326,7 +331,7 @@ watch(
 
 .fullscreen .mobile-frame {
   width: 100%;
-  max-width: 360px;
+  /* max-width: 360px; */
   height: 100%;
   border-radius: 0;
   border: none;
@@ -337,12 +342,53 @@ watch(
 }
 
 .fullscreen .status-bar {
-  border-radius: 0;
+  display: none;
 }
 
 .fullscreen .preview-content {
   border-radius: 0;
   padding-bottom: 0;
+}
+
+/* 全屏模式响应式适配 */
+@media (max-width: 344px) {
+  .fullscreen .mobile-frame {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+  }
+
+  .fullscreen .preview-content {
+    height: 100vh;
+  }
+}
+
+@media (max-width: 375px) {
+  .fullscreen .mobile-frame {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .fullscreen .mobile-simulator {
+    padding: 0;
+  }
+
+  .fullscreen .mobile-frame {
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .fullscreen .mobile-frame {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+  }
 }
 
 /* iPhone 物理按键样式 */
@@ -511,7 +557,7 @@ watch(
   width: 100%;
   height: auto;
   display: block;
-  max-width: 360px;
+  /* max-width: 360px; */
   object-fit: cover;
 }
 
@@ -560,7 +606,8 @@ watch(
 
 /* 针对360x640分辨率的组件优化 */
 .preview-component :deep(.product-container) {
-  max-width: 360px;
+  /* max-width: 360px;*/
+  width: 100%;
   font-size: 14px;
 }
 
@@ -620,31 +667,103 @@ watch(
   font-size: 12px !important;
 }
 
-/* 全屏模式下的样式调整 */
-@media (max-width: 768px) {
-  .mobile-preview-container {
-    margin: 10px;
-    border-radius: 0;
-    max-width: calc(100% - 20px);
-    width: calc(100% - 20px);
+/* 空状态响应式适配 */
+@media (max-width: 344px) {
+  .empty-content {
+    padding: 40px 12px;
   }
 
-  .mobile-simulator {
-    padding: 5px;
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
   }
 
-  .mobile-frame {
-    width: calc(100% - 40px);
-    max-width: 360px;
-    min-width: 300px;
-    min-height: 560px;
+  .empty-content h4 {
+    font-size: 14px;
+  }
+
+  .empty-content p {
+    font-size: 12px;
+  }
+
+  .empty-tip {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .empty-content {
+    padding: 50px 16px;
+  }
+
+  .empty-icon {
+    font-size: 52px;
+    margin-bottom: 14px;
+  }
+
+  .empty-content h4 {
+    font-size: 15px;
+  }
+
+  .empty-content p {
+    font-size: 13px;
   }
 }
 
 @media (max-width: 480px) {
+  .empty-content {
+    padding: 60px 18px;
+  }
+
+  .empty-icon {
+    font-size: 56px;
+    margin-bottom: 15px;
+  }
+
+  .empty-content h4 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .empty-content {
+    padding: 70px 20px;
+  }
+
+  .empty-icon {
+    font-size: 60px;
+  }
+
+  .empty-content h4 {
+    font-size: 17px;
+  }
+}
+
+/* =================
+   响应式断点样式适配
+   ================= */
+
+/* xxs: 折叠屏、极老机型 (≤ 344px) */
+@media (max-width: 344px) {
   .mobile-preview-container {
-    margin: 5px;
-    width: calc(100% - 10px);
+    border-radius: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+  }
+
+  .preview-header {
+    padding: var(--padding-xxs);
+    font-size: var(--font-size-xxs);
+  }
+
+  .preview-title h3 {
+    font-size: 14px;
+  }
+
+  .preview-subtitle {
+    font-size: 11px;
   }
 
   .mobile-simulator {
@@ -652,24 +771,290 @@ watch(
   }
 
   .mobile-frame {
-    width: calc(100% - 20px);
-    min-width: 360px;
-    min-height: 640px;
+    /* width: calc(100% - 8px);
+    height: calc(100vh - 80px);
+    max-width: none;
+    min-width: auto;
+    border-radius: 12px;
+    border-width: 2px; */
+  }
+
+  .status-bar {
+    height: 32px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  .notch {
+    width: 80px;
+    height: 16px;
   }
 }
 
-/* 响应式调整 */
-@media (max-height: 600px) {
+/* xs: iPhone SE、早期安卓小屏 (≤ 375px) */
+@media (max-width: 375px) {
   .mobile-preview-container {
-    margin: 10px;
+    border-radius: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .preview-header {
-    padding: 12px 20px;
+    padding: var(--padding-xs);
+    font-size: var(--font-size-xs);
+  }
+
+  .preview-title h3 {
+    font-size: 15px;
+  }
+
+  .preview-subtitle {
+    font-size: 12px;
   }
 
   .mobile-simulator {
-    padding: 15px;
+    padding: 4px;
+  }
+
+  .mobile-frame {
+    /* width: calc(100% - 16px);
+    height: calc(100vh - 90px);
+    max-width: 340px;
+    min-width: 300px;
+    border-radius: 16px;
+    border-width: 3px; */
+  }
+
+  .status-bar {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .notch {
+    width: 90px;
+    height: 18px;
+  }
+}
+
+/* sm: 普通小屏手机 (≤ 480px) */
+@media (max-width: 480px) {
+  .mobile-preview-container {
+  }
+
+  .preview-header {
+    padding: var(--padding-sm);
+    font-size: var(--font-size-sm);
+  }
+
+  .preview-title h3 {
+    font-size: 16px;
+  }
+
+  .preview-subtitle {
+    font-size: 13px;
+  }
+
+  .mobile-simulator {
+    padding: 8px;
+  }
+
+  .mobile-frame {
+    /* width: calc(100% - 32px);
+    height: calc(100vh - 120px);
+    max-width: 360px;
+    min-width: 320px;
+    border-radius: 20px;
+    border-width: 4px; */
+  }
+
+  .status-bar {
+    height: 38px;
+    padding: 0 14px;
+    font-size: 12px;
+  }
+
+  .action-btn {
+    min-width: 32px;
+    padding: 8px !important;
+  }
+}
+
+/* md: 中型手机 (≤ 576px) */
+@media (max-width: 576px) {
+  .mobile-preview-container {
+  }
+
+  .preview-header {
+    padding: var(--padding-md);
+    font-size: var(--font-size-md);
+  }
+
+  .preview-title h3 {
+    font-size: 17px;
+  }
+
+  .preview-subtitle {
+    font-size: 13px;
+  }
+
+  .mobile-simulator {
+    padding: 12px;
+  }
+
+  .mobile-frame {
+    /* width: calc(100% - 48px);
+    height: calc(100vh - 140px);
+    max-width: 380px;
+    min-width: 340px;
+    border-radius: 24px;
+    border-width: 5px; */
+  }
+}
+
+/* lg: 大屏手机 / 横屏小设备 (≤ 768px) */
+@media (max-width: 768px) {
+  .mobile-preview-container {
+  }
+
+  .preview-header {
+    padding: var(--padding-lg);
+    font-size: var(--font-size-lg);
+  }
+
+  .preview-title h3 {
+    font-size: 18px;
+  }
+
+  .preview-subtitle {
+    font-size: 14px;
+  }
+
+  .mobile-simulator {
+    padding: 16px;
+  }
+
+  .mobile-frame {
+    /* width: 380px;
+    height: 680px;
+    max-width: calc(100% - 64px);
+    min-width: 360px;
+    border-radius: 28px;
+    border-width: 5px; */
+  }
+
+  .status-bar {
+    height: 42px;
+    padding: 0 16px;
+    font-size: 13px;
+  }
+}
+
+/* xl: 平板设备 (≤ 992px) */
+@media (max-width: 992px) {
+  .mobile-preview-container {
+  }
+
+  .preview-header {
+    padding: var(--padding-xl);
+    font-size: var(--font-size-xl);
+  }
+
+  .preview-title h3 {
+    font-size: 20px;
+  }
+
+  .preview-subtitle {
+    font-size: 15px;
+  }
+
+  .mobile-simulator {
+    padding: 24px;
+  }
+
+  .mobile-frame {
+    /* width: 400px;
+    height: 720px;
+    max-width: calc(100% - 80px);
+    border-radius: 32px;
+    border-width: 6px; */
+  }
+
+  .status-bar {
+    height: 44px;
+    padding: 0 18px;
+    font-size: 14px;
+  }
+
+  .action-btn {
+    padding: 12px 16px !important;
+    font-size: 16px;
+  }
+}
+
+/* 横屏适配 */
+@media (orientation: landscape) and (max-height: 600px) {
+  .mobile-preview-container {
+    flex-direction: row;
+    max-height: 100vh;
+  }
+
+  .preview-header {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    width: 60px;
+    height: auto;
+    padding: 12px 8px;
+    border-bottom: none;
+    border-right: 1px solid #e8e8e8;
+  }
+
+  .preview-title {
+    transform: rotate(180deg);
+  }
+
+  .preview-actions {
+    flex-direction: column;
+    gap: 4px;
+    transform: rotate(180deg);
+  }
+
+  .mobile-simulator {
+    flex: 1;
+    padding: 8px;
+  }
+
+  .mobile-frame {
+    /* width: auto;
+    height: calc(100vh - 32px);
+    max-width: 420px;
+    max-height: none; */
+  }
+}
+
+/* 超小屏幕特殊优化 */
+@media (max-width: 320px) {
+  .mobile-frame {
+    /* width: calc(100vw - 16px);
+    max-width: none;
+    min-width: auto;
+    border-radius: 8px;
+    border-width: 1px; */
+  }
+
+  .preview-header {
+    padding: 8px 12px;
+  }
+
+  .mobile-simulator {
+    padding: 4px;
+  }
+
+  .status-bar {
+    height: 28px;
+    padding: 0 8px;
+    font-size: 10px;
   }
 }
 </style>

@@ -434,7 +434,7 @@ body {
 
 .editor-container {
   display: flex;
-  width: 360px;
+  width: 100%;
   text-align: center;
   background: #fff;
   align-items: center;

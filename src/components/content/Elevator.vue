@@ -129,9 +129,8 @@ onMounted(() => {
 
 <style scoped>
 .navtab-container {
+  width: 100%;
   height: 100%;
-  width: 360px;
-  min-width: 350px;
   box-sizing: border-box;
   border: 1px solid transparent;
 }
@@ -170,7 +169,7 @@ onMounted(() => {
 /* 布局样式 */
 .navtab-tabs.justify-around :deep(.ant-tabs-nav-list) {
   width: 100% !important;
-  max-width: 360px !important;
+  /* max-width: 360px !important; */
   justify-content: space-around !important;
 }
 
