@@ -327,14 +327,13 @@ watch(
 .fullscreen .mobile-frame {
   width: 100%;
   max-width: 360px;
-  height: 100vh;
+  height: 100%;
   border-radius: 0;
   border: none;
   box-shadow: none;
   margin: 0 auto;
   padding: 0;
   background: #000;
-  min-height: 640px;
 }
 
 .fullscreen .status-bar {
@@ -563,10 +562,6 @@ watch(
 .preview-component :deep(.product-container) {
   max-width: 360px;
   font-size: 14px;
-}
-
-.preview-component :deep(.product-card) {
-  padding: 8px;
 }
 
 .preview-component :deep(.product-title) {

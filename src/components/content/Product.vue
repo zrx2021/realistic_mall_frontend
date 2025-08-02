@@ -1305,7 +1305,6 @@ onUnmounted(() => {
 .product-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
   font-size: 12px;
 }
 
@@ -1320,7 +1319,6 @@ onUnmounted(() => {
 .product-meta.two-columns {
   display: flex;
   align-items: center;
-  gap: 12px;
   margin: 4px;
   font-size: 12px;
 }
@@ -1328,7 +1326,6 @@ onUnmounted(() => {
 .product-meta.on-main-two-sub {
   display: flex;
   align-items: center;
-  gap: 12px;
   font-size: 12px;
   margin-bottom: 8px;
 }
@@ -1408,7 +1405,7 @@ onUnmounted(() => {
 .price-container {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
   flex: 1;
 }
 
@@ -1429,7 +1426,7 @@ onUnmounted(() => {
 }
 
 .product-card.large .product-price {
-  font-size: 16px;
+  font-size: 12px;
 }
 
 .sub-products .product-price {
