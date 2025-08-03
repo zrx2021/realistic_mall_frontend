@@ -82,6 +82,7 @@
               <component
                 :is="getComponent(element.type)"
                 :objData="indexData[index] as any"
+                :environment="'editing'"
                 @click="handleClick(element.id, element.type)"
                 :class="{ isSelected: index === settingIndex }"
               />

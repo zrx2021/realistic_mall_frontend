@@ -1,5 +1,8 @@
 <template>
-  <div class="product-container" :class="`template-${showData.templateStyle}`">
+  <div
+    class="product-container"
+    :class="[`template-${showData.templateStyle}`, `env-${environment}`, environmentClass]"
+  >
     <!-- 商品分组标签 -->
     <div v-if="showData.groupData.length > 0" class="product-tabs">
       <div
@@ -358,9 +361,11 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import type { Goods, GoodsItem } from '@/types/content/content'
+import type { ComponentEnvironment } from '@/types/environment'
 
 const props = defineProps<{
   objData: Goods
+  environment?: ComponentEnvironment
 }>()
 
 const showData = ref<Goods>({
@@ -379,6 +384,10 @@ const showData = ref<Goods>({
   autoPlay: false,
   playInterval: 3000,
 })
+
+// 环境相关的计算属性
+const environment = computed(() => props.environment || 'editing')
+const environmentClass = computed(() => `product-${environment.value}`)
 
 const activeGroupId = ref(-1)
 
@@ -608,15 +617,39 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* ===== 基础样式 - 所有环境共享 ===== */
 .product-container {
   width: 100%;
-  /* max-width: 375px; */
   box-sizing: border-box;
   overflow: hidden;
 }
 
-.product-container:hover {
+/* ===== 编辑环境样式 ===== */
+.env-editing.product-container {
+  min-width: 300px;
+}
+
+.env-editing.product-container:hover {
   border: 1px dashed #1890ff;
+}
+
+/* ===== 预览环境样式 ===== */
+.env-preview.product-container {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.env-preview.product-container:hover {
+  border: none; /* 预览模式不显示编辑边框 */
+}
+
+/* ===== 全屏环境样式 ===== */
+.env-fullscreen.product-container {
+  width: 100vw;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* 商品分组标签 */
@@ -712,23 +745,22 @@ onUnmounted(() => {
   background: transparent;
 }
 
-/* 一大两小布局 */
+/* ===== 一大两小布局 - 基础样式 ===== */
 .layout-one-main-two-sub {
   display: flex;
   gap: 8px;
-  /* height: 360px; */
   width: 100%;
-  /* max-width: 359px; */
-  /* padding: 8px; */
+  padding: 8px;
   background: #fafafa;
   border-radius: 12px;
   box-sizing: border-box;
+  margin: 0 auto;
+  min-height: 360px;
 }
 
 .main-product {
   flex: 1;
   min-width: 0;
-  /* max-width: 200px; */
 }
 
 .sub-products {
@@ -737,46 +769,134 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 8px;
   min-width: 0;
-  /* max-width: 200px; */
 }
 
-/* 两列布局 */
+/* 编辑环境 - 一大两小布局 */
+.env-editing .layout-one-main-two-sub {
+  max-width: 800px;
+  gap: 12px;
+  padding: 12px;
+  min-height: 400px;
+}
+
+/* 预览环境 - 一大两小布局 */
+.env-preview .layout-one-main-two-sub {
+  max-width: 360px;
+  gap: 8px;
+  padding: 8px;
+  min-height: 360px;
+}
+
+/* 全屏环境 - 一大两小布局 */
+.env-fullscreen .layout-one-main-two-sub {
+  max-width: 100%;
+  gap: 16px;
+  padding: 16px;
+  min-height: 450px;
+  width: 100vw;
+}
+
+/* ===== 两列布局 - 基础样式 ===== */
 .layout-two-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   width: 100%;
-  max-width: 359px;
   padding: 8px;
   background: #fafafa;
   border-radius: 12px;
   box-sizing: border-box;
+  margin: 0 auto;
 }
 
-/* 大图模式 */
+/* 编辑环境 - 两列布局 */
+.env-editing .layout-two-columns {
+  max-width: 800px;
+  gap: 12px;
+  padding: 12px;
+}
+
+/* 预览环境 - 两列布局 */
+.env-preview .layout-two-columns {
+  max-width: 360px;
+  gap: 8px;
+  padding: 8px;
+}
+
+/* 全屏环境 - 两列布局 */
+.env-fullscreen .layout-two-columns {
+  max-width: 100%;
+  gap: 12px;
+  padding: 12px;
+  width: 100vw;
+}
+
+/* ===== 大图模式 - 基础样式 ===== */
 .layout-large-image {
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  max-width: 359px;
   padding: 8px;
   background: #fafafa;
   border-radius: 12px;
   box-sizing: border-box;
+  margin: 0 auto;
 }
 
-/* 列表模式 */
+/* 编辑环境 - 大图模式 */
+.env-editing .layout-large-image {
+  max-width: 600px;
+  gap: 20px;
+  padding: 12px;
+}
+
+/* 预览环境 - 大图模式 */
+.env-preview .layout-large-image {
+  max-width: 360px;
+  gap: 16px;
+  padding: 8px;
+}
+
+/* 全屏环境 - 大图模式 */
+.env-fullscreen .layout-large-image {
+  max-width: 100%;
+  gap: 24px;
+  padding: 16px;
+}
+
+/* ===== 列表模式 - 基础样式 ===== */
 .layout-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  max-width: 359px;
   padding: 8px;
   background: #fafafa;
   border-radius: 12px;
   box-sizing: border-box;
+  margin: 0 auto;
+}
+
+/* 编辑环境 - 列表模式 */
+.env-editing .layout-list {
+  max-width: 600px;
+  gap: 16px;
+  padding: 12px;
+}
+
+/* 预览环境 - 列表模式 */
+.env-preview .layout-list {
+  max-width: 360px;
+  gap: 12px;
+  padding: 8px;
+}
+
+/* 全屏环境 - 列表模式 */
+.env-fullscreen .layout-list {
+  max-width: 100%;
+  gap: 20px;
+  padding: 16px;
 }
 
 /* 商品卡片样式 */
@@ -916,6 +1036,8 @@ onUnmounted(() => {
   transition: all 0.4s ease;
   padding: 8px;
   box-sizing: border-box;
+  /* 确保图片保持正确的宽高比 */
+  aspect-ratio: 1;
 }
 
 .product-image.placeholder {
@@ -979,7 +1101,7 @@ onUnmounted(() => {
   object-fit: cover;
 }
 
-/* 商品标签 */
+/* ===== 商品标签 - 基础样式 ===== */
 .product-tags {
   position: absolute;
   top: 12px;
@@ -1002,11 +1124,68 @@ onUnmounted(() => {
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
 }
 
-.tag:hover {
+/* 编辑环境 - 商品标签 */
+.env-editing .product-tags {
+  top: 12px;
+  left: 12px;
+  gap: 6px;
+}
+
+.env-editing .tag {
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 12px;
+  max-width: 100px;
+}
+
+.env-editing .tag:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* 预览环境 - 商品标签 */
+.env-preview .product-tags {
+  top: 8px;
+  left: 8px;
+  gap: 4px;
+  max-width: 60px;
+}
+
+.env-preview .tag {
+  padding: 2px 6px;
+  font-size: 10px;
+  border-radius: 8px;
+  max-width: 100%;
+  transform: scale(1);
+}
+
+.env-preview .tag:hover {
+  transform: scale(1); /* 预览模式不放大 */
+}
+
+/* 全屏环境 - 商品标签 */
+.env-fullscreen .product-tags {
+  top: 12px;
+  left: 12px;
+  gap: 6px;
+  max-width: 120px;
+}
+
+.env-fullscreen .tag {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 12px;
+  max-width: 100%;
+}
+
+.env-fullscreen .tag:hover {
+  transform: scale(1); /* 全屏模式不放大 */
 }
 
 .tag-hot {
@@ -1507,7 +1686,7 @@ onUnmounted(() => {
     flex-direction: column;
     height: auto;
     gap: 8px;
-    /* padding: 6px; */
+    padding: 6px;
   }
 
   .main-product {
@@ -1552,6 +1731,92 @@ onUnmounted(() => {
   .list-item .product-image-container {
     width: 120px;
   }
+}
+
+/* 编辑页面大屏幕优化 */
+@media (min-width: 1024px) {
+  .layout-two-columns {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 12px;
+    max-width: 800px;
+  }
+
+  .layout-one-main-two-sub {
+    gap: 12px;
+    padding: 12px;
+    min-height: 400px;
+  }
+
+  .layout-large-image,
+  .layout-list {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .product-image-container {
+    min-height: 180px;
+  }
+
+  .sub-products .product-image-container {
+    min-height: 120px;
+  }
+}
+
+/* 超大屏幕编辑页面优化 */
+@media (min-width: 1440px) {
+  .layout-two-columns {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    padding: 16px;
+    max-width: 1000px;
+  }
+
+  .layout-one-main-two-sub {
+    gap: 16px;
+    padding: 16px;
+    min-height: 450px;
+    max-width: 1000px;
+  }
+
+  .layout-large-image,
+  .layout-list {
+    padding: 16px;
+    gap: 20px;
+    max-width: 800px;
+  }
+
+  .product-image-container {
+    min-height: 200px;
+  }
+
+  .sub-products .product-image-container {
+    min-height: 140px;
+  }
+
+  .product-info {
+    padding: 18px;
+  }
+}
+
+/* 编辑页面特殊优化 - 确保商品卡片保持合理比例 */
+.layout-two-columns .product-card {
+  max-width: 300px; /* 限制单个商品卡片的最大宽度 */
+  justify-self: center; /* 在Grid中居中显示 */
+}
+
+.layout-one-main-two-sub .product-card {
+  max-width: none; /* 一大两小布局中不限制宽度 */
+}
+
+.layout-large-image .product-card {
+  max-width: 400px; /* 大图模式限制最大宽度 */
+  align-self: center; /* 在Flex中居中显示 */
+}
+
+.layout-list .product-card {
+  max-width: 500px; /* 列表模式限制最大宽度 */
+  align-self: center; /* 在Flex中居中显示 */
 }
 
 /* 无限滚动状态样式 */
@@ -1605,6 +1870,6 @@ onUnmounted(() => {
 
 <script lang="ts">
 export default {
-  name: 'Product',
+  name: 'ProductComponent',
 }
 </script>
