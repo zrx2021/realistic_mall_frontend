@@ -30,12 +30,14 @@
       <div class="layout-info" v-if="templateStyle === 'oneMainTwoSub'">
         <div class="info-card">
           <h3>📱 一大两小布局说明</h3>
-          <p><strong>新的排列方式：</strong></p>
+          <p><strong>精确比例设计：</strong></p>
           <ul>
-            <li>🔝 <strong>主产品</strong>：占据上方区域，展示主推商品</li>
-            <li>🔄 <strong>子产品</strong>：在下方左右排列，展示相关商品</li>
+            <li>📏 <strong>主产品</strong>：2:1 宽高比，占据上方区域</li>
+            <li>🔄 <strong>子产品区域</strong>：4:1 宽高比，与主产品等宽</li>
+            <li>📐 <strong>每个子产品</strong>：2:1 宽高比，左右平分空间</li>
+            <li>⚖️ <strong>空间关系</strong>：子产品高度是主产品高度的一半</li>
           </ul>
-          <p class="highlight">✨ 这种布局更适合突出主产品，同时给子产品足够的展示空间</p>
+          <p class="highlight">✨ 精确的比例设计确保布局在任何尺寸下都保持协调美观</p>
         </div>
       </div>
 

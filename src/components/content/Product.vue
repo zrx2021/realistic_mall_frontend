@@ -100,7 +100,7 @@
           <div
             v-for="(product, index) in currentProducts.slice(1, 3)"
             :key="product?.id || index"
-            class="product-card on-main-two-sub"
+            class="product-card"
             @click="handleProductClick(product)"
           >
             <div class="product-image-container">
@@ -756,67 +756,65 @@ onUnmounted(() => {
   border-radius: 12px;
   box-sizing: border-box;
   margin: 0 auto;
-  min-height: 360px;
+  min-height: auto; /* 让高度由内容的aspect-ratio决定 */
 }
 
 .main-product {
-  flex: 1.2; /* 主产品占更多空间 */
+  width: 100%; /* 主产品占据全宽 */
+  aspect-ratio: 2/1; /* 主产品宽高比2:1，为子产品留出合适的比例空间 */
   min-width: 0;
 }
 
 .sub-products {
-  flex: 1;
+  width: 100%; /* 子产品区域与主产品同宽 */
+  aspect-ratio: 4/1; /* 子产品区域宽高比4:1，每个子产品近似2:1 */
   display: flex;
   flex-direction: row; /* 两个子产品左右排列 */
-  gap: 8px;
+  /* gap: 8px; */
   min-width: 0;
+  box-sizing: border-box;
+  justify-content: space-between;
 }
 
 /* 编辑环境 - 一大两小布局 */
 .env-editing .layout-one-main-two-sub {
-  max-width: 800px;
+  max-width: 600px; /* 减小最大宽度，让比例更合理 */
   gap: 12px;
   padding: 12px;
-  min-height: 450px; /* 增加高度适应上下布局 */
+  min-height: auto; /* 让高度由内容决定 */
 }
 
 .env-editing .main-product {
-  flex: 1.5; /* 主产品占更多空间 */
+  aspect-ratio: 2/1; /* 保持2:1比例 */
 }
 
 .env-editing .sub-products {
-  flex: 1;
   gap: 12px;
+  aspect-ratio: 4/1; /* 子产品区域4:1比例 */
 }
 
 /* 预览环境 - 一大两小布局 */
 .env-preview .layout-one-main-two-sub {
-  max-width: 100%; /* 占满可用宽度，但不超出容器 */
-  width: 100%;
+  max-width: none; /* 移除最大宽度限制，占满模拟器宽度 */
   gap: 6px;
   padding: 6px;
-  min-height: 320px; /* 调整预览环境高度 */
-  box-sizing: border-box; /* 确保padding不会导致溢出 */
+  min-height: auto; /* 让高度由内容决定 */
 }
 
 .env-preview .main-product {
-  flex: 1.2;
+  aspect-ratio: 2/1; /* 保持2:1比例 */
 }
 
 .env-preview .sub-products {
-  flex: 1;
-  gap: 6px;
-  max-width: 100%; /* 防止子产品区域过宽 */
-  overflow: hidden; /* 防止内容溢出 */
+  justify-content: space-between;
+  aspect-ratio: 4/1; /* 子产品区域4:1比例 */
 }
 
-.env-preview .sub-products .product-card {
-  height: auto; /* 让高度自适应 */
-  flex: 1;
-  min-height: 140px; /* 设置最小高度 */
-  max-width: 50%; /* 每个子产品最多占50%宽度 */
-  min-width: 120px; /* 设置最小宽度，保证基本可用性 */
-  box-sizing: border-box;
+.env-preview .sub-products .product-card,
+.env-fullscreen .sub-products .product-card {
+  width: 48%;
+  min-height: 250px;
+  aspect-ratio: 2/1;
 }
 
 /* 全屏环境 - 一大两小布局 */
@@ -824,17 +822,12 @@ onUnmounted(() => {
   max-width: 100%;
   gap: 16px;
   padding: 16px;
-  min-height: 500px; /* 增加全屏环境高度 */
+  min-height: auto; /* 让高度由内容决定 */
   width: 100vw;
 }
 
 .env-fullscreen .main-product {
-  flex: 1.3;
-}
-
-.env-fullscreen .sub-products {
-  flex: 1;
-  gap: 16px;
+  aspect-ratio: 2/1; /* 保持2:1比例 */
 }
 
 /* ===== 两列布局 - 基础样式 ===== */
@@ -859,11 +852,9 @@ onUnmounted(() => {
 
 /* 预览环境 - 两列布局 */
 .env-preview .layout-two-columns {
-  max-width: 100%; /* 占满可用宽度，但不超出容器 */
-  width: 100%;
+  max-width: none; /* 移除最大宽度限制，占满模拟器宽度 */
   gap: 8px;
   padding: 8px;
-  box-sizing: border-box; /* 确保padding不会导致溢出 */
 }
 
 /* 全屏环境 - 两列布局 */
@@ -896,11 +887,9 @@ onUnmounted(() => {
 
 /* 预览环境 - 大图模式 */
 .env-preview .layout-large-image {
-  max-width: 100%; /* 占满可用宽度，但不超出容器 */
-  width: 100%;
+  max-width: none; /* 移除最大宽度限制，占满模拟器宽度 */
   gap: 16px;
   padding: 8px;
-  box-sizing: border-box; /* 确保padding不会导致溢出 */
 }
 
 /* 全屏环境 - 大图模式 */
@@ -932,11 +921,9 @@ onUnmounted(() => {
 
 /* 预览环境 - 列表模式 */
 .env-preview .layout-list {
-  max-width: 100%; /* 占满可用宽度，但不超出容器 */
-  width: 100%;
+  max-width: none; /* 移除最大宽度限制，占满模拟器宽度 */
   gap: 12px;
   padding: 8px;
-  box-sizing: border-box; /* 确保padding不会导致溢出 */
 }
 
 /* 全屏环境 - 列表模式 */
@@ -992,7 +979,6 @@ onUnmounted(() => {
 .sub-products .product-card,
 .product-card.on-main-two-sub {
   height: calc(50% - 6px);
-  min-height: 160px;
 }
 
 /* 确保标题在一大两小布局的主商品区域显示为一行 */
@@ -1044,40 +1030,66 @@ onUnmounted(() => {
   border-radius: 8px 8px 0 0;
 }
 
-/* 子产品样式 - 适应水平排列 */
+/* 子产品样式 - 适应固定比例布局 */
 .sub-products .product-card {
   flex: 1; /* 两个子产品平均分配宽度 */
+  height: 100%; /* 填满子产品区域高度 */
   min-width: 0;
   display: flex;
   flex-direction: column;
 }
 
 .sub-products .product-image-container {
-  min-height: 100px; /* 调整图片容器高度 */
-  flex: 1;
+  flex: 1; /* 图片容器占据剩余空间 */
+  min-height: 0; /* 移除最小高度限制 */
+  position: relative;
 }
 
 .sub-products .product-info {
-  padding: 8px;
+  padding: 6px 8px; /* 减小内边距适应紧凑布局 */
   flex: 0 0 auto; /* 信息区域不缩放 */
 }
 
 .sub-products .product-title {
-  font-size: 12px;
-  line-height: 1.3;
-  -webkit-line-clamp: 2;
-  margin-bottom: 4px;
+  font-size: 11px; /* 稍微减小字体 */
+  line-height: 1.2;
+  -webkit-line-clamp: 1; /* 只显示一行标题 */
+  margin-bottom: 2px;
 }
 
 .sub-products .product-price {
-  font-size: 14px;
+  font-size: 12px; /* 减小价格字体 */
   font-weight: 600;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .sub-products .product-sales,
 .sub-products .product-rating {
-  font-size: 10px;
+  font-size: 9px; /* 进一步减小辅助信息字体 */
+}
+
+/* 子产品中的购物车按钮优化 */
+.sub-products .cart-icon {
+  font-size: 12px;
+  padding: 3px;
+  min-width: 20px;
+  min-height: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* 子产品中的标签优化 */
+.sub-products .product-tags {
+  top: 6px;
+  left: 6px;
+  gap: 2px;
+}
+
+.sub-products .tag {
+  padding: 2px 4px;
+  font-size: 8px;
+  border-radius: 6px;
+  max-width: 40px;
 }
 
 .small .product-image-container {
@@ -1762,29 +1774,30 @@ onUnmounted(() => {
 
   /* 小屏幕下的一大两小布局优化 */
   .layout-one-main-two-sub {
-    gap: 6px;
-    padding: 6px;
-    min-height: 300px; /* 适应上下布局的高度 */
+    gap: 4px;
+    padding: 4px;
+    min-height: auto; /* 让高度由内容决定 */
   }
 
   .main-product {
-    flex: 1.2; /* 主产品保持较大比例 */
+    aspect-ratio: 2/1; /* 保持2:1比例 */
     min-width: 0;
   }
 
   .sub-products {
-    flex: 1;
-    /* 在小屏幕下也保持水平排列 flex-direction: row */
     gap: 4px; /* 减小间距适应小屏 */
+    aspect-ratio: 4/1; /* 保持4:1比例 */
     min-width: 0;
   }
 
   .sub-products .product-card {
-    min-height: 120px; /* 在小屏幕下减小高度 */
+    height: 100%; /* 填满容器高度 */
+    aspect-ratio: 2/1; /* 每个子产品卡片2:1比例 */
   }
 
   .sub-products .product-image-container {
-    min-height: 80px; /* 调整图片高度 */
+    flex: 1;
+    min-height: 0; /* 移除最小高度限制 */
   }
 
   .product-card.small,
@@ -1841,16 +1854,17 @@ onUnmounted(() => {
   .layout-one-main-two-sub {
     gap: 12px;
     padding: 12px;
-    min-height: 450px; /* 适应上下布局 */
+    min-height: auto; /* 让高度由内容决定 */
+    max-width: 600px; /* 控制最大宽度保持合理比例 */
   }
 
   .main-product {
-    flex: 1.5; /* 主产品占更多空间 */
+    aspect-ratio: 2/1; /* 保持2:1比例 */
   }
 
   .sub-products {
-    flex: 1;
     gap: 12px;
+    aspect-ratio: 4/1; /* 保持4:1比例 */
   }
 
   .layout-large-image,
@@ -1880,17 +1894,17 @@ onUnmounted(() => {
   .layout-one-main-two-sub {
     gap: 16px;
     padding: 16px;
-    min-height: 520px; /* 适应上下布局 */
-    max-width: 1000px;
+    min-height: auto; /* 让高度由内容决定 */
+    max-width: 800px; /* 控制最大宽度保持合理比例 */
   }
 
   .main-product {
-    flex: 1.6; /* 主产品占更大空间 */
+    aspect-ratio: 2/1; /* 保持2:1比例 */
   }
 
   .sub-products {
-    flex: 1;
     gap: 16px;
+    aspect-ratio: 4/1; /* 保持4:1比例 */
   }
 
   .layout-large-image,

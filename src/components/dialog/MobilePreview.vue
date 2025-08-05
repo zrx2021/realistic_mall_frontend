@@ -406,7 +406,7 @@ watch(
 
 /* 全屏模式下的商品卡片 */
 .fullscreen .preview-content :deep(.product-card) {
-  width: 100% !important;
+  /* width: 100% !important; */
   min-width: 0 !important;
   max-width: none !important;
   box-sizing: border-box !important;
@@ -932,7 +932,7 @@ watch(
 
 /* 两列商品卡片样式 */
 .preview-content :deep(.product-card) {
-  width: 100% !important;
+  /* width: 100% !important; */
   min-width: 0 !important;
   flex: none !important;
   box-sizing: border-box !important;
@@ -953,14 +953,14 @@ watch(
   line-height: 1.1 !important;
 }
 
-.preview-component :deep(.product-card.on-main-two-sub .product-tags) {
+.preview-component :deep(.product-card .product-tags) {
   top: 4px !important;
   left: 4px !important;
   max-width: 40px !important;
   gap: 2px !important;
 }
 
-.preview-component :deep(.product-card.on-main-two-sub .product-tags .tag) {
+.preview-component :deep(.product-card .product-tags .tag) {
   padding: 1px 4px !important;
   font-size: 8px !important;
   border-radius: 4px !important;
@@ -979,13 +979,13 @@ watch(
   font-size: 9px !important;
 }
 
-.fullscreen .preview-component :deep(.product-card.on-main-two-sub .product-tags) {
+.fullscreen .preview-component :deep(.product-card .product-tags) {
   top: 6px !important;
   left: 6px !important;
   max-width: 50px !important;
 }
 
-.fullscreen .preview-component :deep(.product-card.on-main-two-sub .product-tags .tag) {
+.fullscreen .preview-component :deep(.product-card .product-tags .tag) {
   padding: 2px 5px !important;
   font-size: 9px !important;
 }
