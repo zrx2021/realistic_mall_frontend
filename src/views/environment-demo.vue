@@ -19,7 +19,7 @@
         <label>布局样式：</label>
         <select v-model="templateStyle" class="template-select">
           <option value="twoColumns">两列布局</option>
-          <option value="oneMainTwoSub">一大两小</option>
+          <option value="oneMainTwoSub">一大两小 (上下排列)</option>
           <option value="largeImage">大图模式</option>
           <option value="list">列表模式</option>
         </select>
@@ -27,6 +27,18 @@
     </div>
 
     <div class="demo-content">
+      <div class="layout-info" v-if="templateStyle === 'oneMainTwoSub'">
+        <div class="info-card">
+          <h3>📱 一大两小布局说明</h3>
+          <p><strong>新的排列方式：</strong></p>
+          <ul>
+            <li>🔝 <strong>主产品</strong>：占据上方区域，展示主推商品</li>
+            <li>🔄 <strong>子产品</strong>：在下方左右排列，展示相关商品</li>
+          </ul>
+          <p class="highlight">✨ 这种布局更适合突出主产品，同时给子产品足够的展示空间</p>
+        </div>
+      </div>
+
       <div class="demo-section">
         <h2>当前环境: {{ environmentLabels[currentEnvironment] }}</h2>
         <div class="demo-container" :class="`container-${currentEnvironment}`">
@@ -231,6 +243,49 @@ const demoProductData = computed<Goods>(() => ({
 
 .demo-content {
   margin-bottom: 40px;
+}
+
+.layout-info {
+  margin-bottom: 30px;
+}
+
+.info-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-card h3 {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.info-card p {
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+.info-card ul {
+  margin: 15px 0;
+  padding-left: 20px;
+}
+
+.info-card li {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.info-card .highlight {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 15px;
+  border-left: 4px solid rgba(255, 255, 255, 0.5);
+  font-weight: 500;
 }
 
 .demo-section {
