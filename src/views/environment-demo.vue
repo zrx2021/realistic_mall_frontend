@@ -38,6 +38,11 @@
             <li>⚖️ <strong>空间关系</strong>：子产品高度是主产品高度的一半</li>
           </ul>
           <p class="highlight">✨ 精确的比例设计确保布局在任何尺寸下都保持协调美观</p>
+
+          <div class="feature-tip">
+            <h4>🆕 新增功能：吸顶标签</h4>
+            <p>滚动页面时，商品分组标签会智能吸顶，方便用户随时切换分组！</p>
+          </div>
         </div>
       </div>
 
@@ -288,6 +293,28 @@ const demoProductData = computed<Goods>(() => ({
   margin-top: 15px;
   border-left: 4px solid rgba(255, 255, 255, 0.5);
   font-weight: 500;
+}
+
+.info-card .feature-tip {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
+}
+
+.info-card .feature-tip h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.info-card .feature-tip p {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
 }
 
 .demo-section {

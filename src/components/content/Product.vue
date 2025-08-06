@@ -1,10 +1,16 @@
 <template>
   <div
+    ref="productContainerRef"
     class="product-container"
     :class="[`template-${showData.templateStyle}`, `env-${environment}`, environmentClass]"
   >
     <!-- 商品分组标签 -->
-    <div v-if="showData.groupData.length > 0" class="product-tabs">
+    <div
+      v-if="showData.groupData.length > 0"
+      ref="productTabsRef"
+      class="product-tabs"
+      :class="{ 'is-sticky': isTabsSticky }"
+    >
       <div
         v-for="group in showData.groupData"
         :key="group.groupId"
@@ -17,7 +23,12 @@
     </div>
 
     <!-- 商品展示区域 -->
-    <div class="product-display" :class="`display-${showData.displayStyle}`">
+    <div
+      ref="productDisplayRef"
+      class="product-display"
+      :class="`display-${showData.displayStyle}`"
+      :style="{ paddingTop: isTabsSticky ? `${stickyTabsHeight}px` : '0' }"
+    >
       <!-- 一大两小布局 -->
       <div v-if="showData.templateStyle === 'oneMainTwoSub'" class="layout-one-main-two-sub">
         <div class="main-product">
@@ -391,9 +402,19 @@ const environmentClass = computed(() => `product-${environment.value}`)
 
 const activeGroupId = ref(-1)
 
+// DOM引用
+const productContainerRef = ref<HTMLElement>()
+const productTabsRef = ref<HTMLElement>()
+const productDisplayRef = ref<HTMLElement>()
+
+// 吸顶相关状态
+const isTabsSticky = ref(false)
+const stickyTabsHeight = ref(0)
+const containerOffsetTop = ref(0)
+
 // 无限滚动相关状态
 const currentPage = ref(1)
-const pageSize = ref(10) // 每页加载10个商品
+const pageSize = ref(8) // 每页加载8个商品，平衡首屏展示与加载频率
 const isLoading = ref(false)
 
 // 获取所有可用商品（不分页）
@@ -430,6 +451,11 @@ const switchGroup = (groupId: number) => {
   activeGroupId.value = groupId
   // 切换分组时重置分页
   currentPage.value = 1
+
+  // 延迟检查吸顶状态，确保DOM已更新
+  nextTick(() => {
+    updateStickyState()
+  })
 }
 
 // 加载更多商品
@@ -457,20 +483,79 @@ const handleScroll = () => {
   }
 
   scrollTimer = setTimeout(() => {
-    // 检查窗口滚动
-    const windowHeight = window.innerHeight
-    const documentHeight = document.documentElement.scrollHeight
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+    updateStickyState()
+    checkLoadMore()
+  }, 25)
+}
 
-    // 计算滚动百分比
-    const scrollPercentage = (scrollTop + windowHeight) / documentHeight
-    console.log('scrollPercentage', scrollPercentage)
+// 更新吸顶状态
+const updateStickyState = () => {
+  if (!productContainerRef.value || !productTabsRef.value) return
 
-    // 当滚动到底部90%时加载更多
-    if (scrollPercentage > 0.9 && hasMoreProducts.value && !isLoading.value) {
-      loadMoreProducts()
-    }
-  }, 100) // 100ms防抖
+  const containerRect = productContainerRef.value.getBoundingClientRect()
+  const containerTop = ref(containerRect.top)
+  const containerBottom = ref(containerRect.bottom)
+  const windowHeight = window.innerHeight
+
+  // 开始吸顶的条件：商品组件的顶端到达或超过页面最顶端，且商品组件还在视窗内
+  const shouldStartSticky = containerTop.value <= 0 && containerBottom.value > 0
+
+  // 取消吸顶的条件：商品组件回到页面顶部上方，或者商品组件完全离开视窗底部
+  const shouldCancelSticky = containerTop.value > 0 || containerBottom.value <= 0
+
+  if (shouldStartSticky && !isTabsSticky.value) {
+    isTabsSticky.value = true
+    stickyTabsHeight.value = productTabsRef.value.offsetHeight
+    containerOffsetTop.value = productContainerRef.value.offsetTop
+
+    /* // 开发环境下的调试信息
+    if (import.meta.env.DEV) {
+      console.log('🎯 商品标签开始吸顶', {
+        containerTop,
+        containerBottom,
+        windowHeight,
+        stickyTabsHeight: stickyTabsHeight.value,
+        environment: environment.value,
+      })
+    } */
+  } else if (shouldCancelSticky && isTabsSticky.value) {
+    isTabsSticky.value = false
+    stickyTabsHeight.value = 0
+
+    /* // 开发环境下的调试信息
+    if (import.meta.env.DEV) {
+      console.log('📍 商品标签取消吸顶', {
+        containerTop,
+        containerBottom,
+        reason: containerTop.value > 0 ? '容器回到顶部上方' : '容器完全离开视窗',
+      })
+    } */
+  }
+}
+
+// 检查是否需要加载更多商品
+const checkLoadMore = () => {
+  if (!productDisplayRef.value) return
+
+  // 获取商品展示区域的位置信息
+  const displayRect = productDisplayRef.value.getBoundingClientRect()
+  const windowHeight = window.innerHeight
+
+  // 当商品展示区域的底部进入视窗时加载更多
+  const distanceFromBottom = displayRect.bottom - windowHeight
+
+  if (distanceFromBottom <= 200 && hasMoreProducts.value && !isLoading.value) {
+    /* // 开发环境下的调试信息
+    if (import.meta.env.DEV) {
+      console.log('📱 触发分页加载', {
+        distanceFromBottom,
+        currentPage: currentPage.value,
+        totalProducts: allAvailableProducts.value.length,
+        isTabsSticky: isTabsSticky.value,
+      })
+    } */
+    loadMoreProducts()
+  }
 }
 
 // 格式化销量显示
@@ -591,22 +676,44 @@ onMounted(() => {
     activeGroupId.value = showData.value.groupData[0].groupId
   }
 
-  // 添加滚动监听器
-  const container = document.querySelector('.product-container')
-  if (container) {
-    container.addEventListener('scroll', handleScroll)
-  }
-  // 也监听窗口滚动（以防组件内部没有滚动条）
-  window.addEventListener('scroll', handleScroll)
+  // 使用nextTick确保DOM元素已经渲染
+  nextTick(() => {
+    // 初始化标签高度
+    if (productTabsRef.value) {
+      stickyTabsHeight.value = productTabsRef.value.offsetHeight
+    }
+
+    // 添加滚动监听器（主要监听窗口滚动）
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    // 添加窗口大小变化监听器
+    window.addEventListener('resize', handleScroll, { passive: true })
+
+    // 如果在预览或全屏环境，也监听父容器滚动
+    if (environment.value === 'preview' || environment.value === 'fullscreen') {
+      const previewContainer = document.querySelector('.component-list')
+      if (previewContainer) {
+        previewContainer.addEventListener('scroll', handleScroll, { passive: true })
+      }
+    }
+
+    // 初始检查一次吸顶状态
+    updateStickyState()
+  })
 })
 
 onUnmounted(() => {
   // 清理滚动监听器
-  const container = document.querySelector('.product-container')
-  if (container) {
-    container.removeEventListener('scroll', handleScroll)
-  }
   window.removeEventListener('scroll', handleScroll)
+
+  // 清理窗口大小变化监听器
+  window.removeEventListener('resize', handleScroll)
+
+  // 清理预览容器的滚动监听器
+  const previewContainer = document.querySelector('.component-list')
+  if (previewContainer) {
+    previewContainer.removeEventListener('scroll', handleScroll)
+  }
 
   // 清理防抖计时器
   if (scrollTimer) {
@@ -663,6 +770,41 @@ onUnmounted(() => {
   border: 1px solid #f0f0f0;
   flex-wrap: wrap;
   justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+/* 吸顶状态样式 */
+.product-tabs.is-sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin-bottom: 0;
+  border-radius: 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+  background: rgba(250, 250, 250, 0.95);
+  z-index: 1000;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+/* 预览环境下的吸顶样式 */
+.env-preview .product-tabs.is-sticky {
+  position: absolute;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  background: rgba(250, 250, 250, 0.98);
+}
+
+/* 全屏环境下的吸顶样式 */
+.env-fullscreen .product-tabs.is-sticky {
+  position: fixed;
+  z-index: 1000;
+  background: rgba(250, 250, 250, 0.95);
+  backdrop-filter: blur(10px);
 }
 
 .tab-item {
@@ -773,7 +915,7 @@ onUnmounted(() => {
   /* gap: 8px; */
   min-width: 0;
   box-sizing: border-box;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 /* 编辑环境 - 一大两小布局 */
