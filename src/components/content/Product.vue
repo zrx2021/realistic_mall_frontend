@@ -9,7 +9,11 @@
       v-if="showData.groupData.length > 0"
       ref="productTabsRef"
       class="product-tabs"
-      :class="{ 'is-sticky': isTabsSticky }"
+      :class="{
+        'is-sticky': isTabsSticky,
+        'is-transitioning': isTransitioning,
+        unsticking: !isTabsSticky && isTransitioning,
+      }"
     >
       <div
         v-for="group in showData.groupData"
@@ -26,8 +30,18 @@
     <div
       ref="productDisplayRef"
       class="product-display"
-      :class="`display-${showData.displayStyle}`"
-      :style="{ paddingTop: isTabsSticky ? `${stickyTabsHeight}px` : '0' }"
+      :class="[
+        `display-${showData.displayStyle}`,
+        { 'has-sticky-padding': isTabsSticky || isTransitioning },
+      ]"
+      :style="{
+        paddingTop: isTabsSticky
+          ? `${stickyTabsHeight}px`
+          : isTransitioning
+            ? `${stickyTabsHeight}px`
+            : '0',
+        transition: isTransitioning ? 'padding-top 0.4s cubic-bezier(0.4, 0.0, 0.2, 1)' : 'none',
+      }"
     >
       <!-- 一大两小布局 -->
       <div v-if="showData.templateStyle === 'oneMainTwoSub'" class="layout-one-main-two-sub">
@@ -411,6 +425,9 @@ const productDisplayRef = ref<HTMLElement>()
 const isTabsSticky = ref(false)
 const stickyTabsHeight = ref(0)
 const containerOffsetTop = ref(0)
+// 添加过渡状态管理
+const isTransitioning = ref(false)
+const stickyProgress = ref(0) // 0-1之间的过渡进度
 
 // 无限滚动相关状态
 const currentPage = ref(1)
@@ -473,8 +490,32 @@ const loadMoreProducts = () => {
   }, 300)
 }
 
-// 防抖计时器
+// 防抖计时器和过渡管理
 let scrollTimer: number | null = null
+let transitionTimer: number | null = null
+
+// 清理过渡状态的辅助函数
+const clearTransitionState = (isUnsticking = false) => {
+  if (transitionTimer) {
+    clearTimeout(transitionTimer)
+    transitionTimer = null
+  }
+
+  if (isUnsticking) {
+    // 取消吸顶时，先等待padding动画完成，再清理过渡状态
+    transitionTimer = setTimeout(() => {
+      stickyTabsHeight.value = 0 // 延迟清零高度，让padding动画完成
+      setTimeout(() => {
+        isTransitioning.value = false
+      }, 50) // 短暂延迟确保状态更新
+    }, 400) // 与CSS动画时间匹配
+  } else {
+    // 开始吸顶时，正常清理过渡状态
+    transitionTimer = setTimeout(() => {
+      isTransitioning.value = false
+    }, 400)
+  }
+}
 
 // 滚动监听器（防抖优化）
 const handleScroll = () => {
@@ -482,10 +523,11 @@ const handleScroll = () => {
     clearTimeout(scrollTimer)
   }
 
-  scrollTimer = setTimeout(() => {
+  // 使用requestAnimationFrame确保动画流畅
+  scrollTimer = window.requestAnimationFrame(() => {
     updateStickyState()
     checkLoadMore()
-  }, 25)
+  })
 }
 
 // 更新吸顶状态
@@ -493,20 +535,46 @@ const updateStickyState = () => {
   if (!productContainerRef.value || !productTabsRef.value) return
 
   const containerRect = productContainerRef.value.getBoundingClientRect()
-  const containerTop = ref(containerRect.top)
-  const containerBottom = ref(containerRect.bottom)
+  const containerTop = containerRect.top
+  const containerBottom = containerRect.bottom
   const windowHeight = window.innerHeight
 
+  // 计算过渡进度（基于容器顶部位置）
+  const maxTransitionDistance = 100 // 过渡距离，可以调整
+  let progress = 0
+
+  if (containerTop <= 0) {
+    // 当容器顶部到达或超过页面顶部时
+    progress = Math.min(1, Math.abs(containerTop) / maxTransitionDistance)
+  } else {
+    // 当容器顶部在页面顶部下方时
+    progress = Math.max(0, 1 - containerTop / maxTransitionDistance)
+  }
+
+  stickyProgress.value = progress
+
   // 开始吸顶的条件：商品组件的顶端到达或超过页面最顶端，且商品组件还在视窗内
-  const shouldStartSticky = containerTop.value <= 0 && containerBottom.value > 0
+  const shouldStartSticky = containerTop <= 0 && containerBottom > 0
 
   // 取消吸顶的条件：商品组件回到页面顶部上方，或者商品组件完全离开视窗底部
-  const shouldCancelSticky = containerTop.value > 0 || containerBottom.value <= 0
+  const shouldCancelSticky = containerTop > 0 || containerBottom <= 0
 
   if (shouldStartSticky && !isTabsSticky.value) {
+    // 如果正在取消吸顶的过程中又要开始吸顶，先清理之前的状态
+    if (isTransitioning.value) {
+      if (transitionTimer) {
+        clearTimeout(transitionTimer)
+        transitionTimer = null
+      }
+    }
+
+    isTransitioning.value = true
     isTabsSticky.value = true
     stickyTabsHeight.value = productTabsRef.value.offsetHeight
     containerOffsetTop.value = productContainerRef.value.offsetTop
+
+    // 使用统一的过渡状态清理函数
+    clearTransitionState(false)
 
     /* // 开发环境下的调试信息
     if (import.meta.env.DEV) {
@@ -516,18 +584,35 @@ const updateStickyState = () => {
         windowHeight,
         stickyTabsHeight: stickyTabsHeight.value,
         environment: environment.value,
+        progress: stickyProgress.value,
       })
     } */
   } else if (shouldCancelSticky && isTabsSticky.value) {
+    // 如果正在开始吸顶的过程中又要取消吸顶，先清理之前的状态
+    if (isTransitioning.value) {
+      if (transitionTimer) {
+        clearTimeout(transitionTimer)
+        transitionTimer = null
+      }
+    }
+
+    isTransitioning.value = true
     isTabsSticky.value = false
-    stickyTabsHeight.value = 0
+    // 不立即清零高度，让动画先执行
+    // stickyTabsHeight.value = 0
+
+    // 使用统一的过渡状态清理函数，传入取消吸顶标识
+    clearTransitionState(true)
 
     /* // 开发环境下的调试信息
     if (import.meta.env.DEV) {
       console.log('📍 商品标签取消吸顶', {
         containerTop,
         containerBottom,
-        reason: containerTop.value > 0 ? '容器回到顶部上方' : '容器完全离开视窗',
+        reason: containerTop > 0 ? '容器回到顶部上方' : '容器完全离开视窗',
+        progress: stickyProgress.value,
+        stickyTabsHeight: stickyTabsHeight.value,
+        willStartPaddingAnimation: true,
       })
     } */
   }
@@ -717,8 +802,14 @@ onUnmounted(() => {
 
   // 清理防抖计时器
   if (scrollTimer) {
-    clearTimeout(scrollTimer)
+    cancelAnimationFrame(scrollTimer)
     scrollTimer = null
+  }
+
+  // 清理过渡计时器
+  if (transitionTimer) {
+    clearTimeout(transitionTimer)
+    transitionTimer = null
   }
 })
 </script>
@@ -770,8 +861,10 @@ onUnmounted(() => {
   border: 1px solid #f0f0f0;
   flex-wrap: wrap;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
+  transform: translateZ(0); /* 启用硬件加速 */
+  will-change: transform, box-shadow, background, border-radius; /* 优化性能 */
 }
 
 /* 吸顶状态样式 */
@@ -783,11 +876,29 @@ onUnmounted(() => {
   width: 100%;
   margin-bottom: 0;
   border-radius: 0;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
   background: rgba(250, 250, 250, 0.95);
   z-index: 1000;
   border-bottom: 2px solid #e0e0e0;
+  transform: translateY(0) translateZ(0);
+  animation: slideDownSticky 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 取消吸顶动画样式 */
+.product-tabs.unsticking {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+  animation: slideUpUnsticky 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 过渡状态优化 */
+.product-tabs.is-transitioning {
+  pointer-events: none; /* 过渡期间禁用交互 */
 }
 
 /* 预览环境下的吸顶样式 */
@@ -799,6 +910,12 @@ onUnmounted(() => {
   background: rgba(250, 250, 250, 0.98);
 }
 
+.env-preview .product-tabs.unsticking {
+  position: absolute;
+  z-index: 100;
+  animation: slideUpUnsticky 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
 /* 全屏环境下的吸顶样式 */
 .env-fullscreen .product-tabs.is-sticky {
   position: fixed;
@@ -807,11 +924,19 @@ onUnmounted(() => {
   backdrop-filter: blur(10px);
 }
 
+.env-fullscreen .product-tabs.unsticking {
+  position: fixed;
+  z-index: 1000;
+  background: rgba(250, 250, 250, 0.95);
+  backdrop-filter: blur(10px);
+  animation: slideUpUnsticky 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
 .tab-item {
   padding: 10px 20px;
   cursor: pointer;
   border-radius: 20px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: #666;
   font-size: 14px;
   font-weight: 500;
@@ -822,6 +947,8 @@ onUnmounted(() => {
   text-align: center;
   position: relative;
   overflow: hidden;
+  transform: translateZ(0); /* 启用硬件加速 */
+  will-change: transform, background, border-color, box-shadow; /* 性能优化 */
 }
 
 .tab-item::before {
@@ -866,6 +993,29 @@ onUnmounted(() => {
   border-radius: 6px;
   width: 100%;
   box-sizing: border-box;
+  transform: translateZ(0); /* 启用硬件加速 */
+  will-change: padding-top; /* 性能优化 */
+}
+
+/* 有吸顶padding时的优化 */
+.product-display.has-sticky-padding {
+  backface-visibility: hidden; /* 减少重绘 */
+  transform: translateZ(0); /* 确保硬件加速 */
+}
+
+/* 不同布局模式下的过渡优化 */
+.layout-one-main-two-sub.has-sticky-padding,
+.layout-two-columns.has-sticky-padding,
+.layout-large-image.has-sticky-padding,
+.layout-list.has-sticky-padding {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* 商品卡片在过渡期间的优化 */
+.has-sticky-padding .product-card {
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* 展示样式 */
@@ -2120,6 +2270,49 @@ onUnmounted(() => {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+/* 吸顶动画 */
+@keyframes slideDownSticky {
+  0% {
+    transform: translateY(-100%) translateZ(0);
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  50% {
+    transform: translateY(-20%) translateZ(0);
+    opacity: 0.7;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* 取消吸顶动画 */
+@keyframes slideUpUnsticky {
+  0% {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  30% {
+    transform: translateY(-10%) translateZ(0);
+    opacity: 0.8;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.12);
+  }
+  70% {
+    transform: translateY(-60%) translateZ(0);
+    opacity: 0.3;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  }
+  100% {
+    transform: translateY(-100%) translateZ(0);
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 
