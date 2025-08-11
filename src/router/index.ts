@@ -32,6 +32,15 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
         },
       },
+      {
+        path: '/goods/management',
+        name: 'GoodsManagement',
+        component: () => import('@/views/goods/GoodsManagement.vue'),
+        meta: {
+          title: '商品管理',
+          requiresAuth: true,
+        },
+      },
     ],
   },
   {
