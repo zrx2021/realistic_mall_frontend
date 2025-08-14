@@ -10,142 +10,220 @@
     <a-flex :style="boxStyle" vertical gap="small">
       <!-- 第一行：基本搜索条件 -->
       <a-flex gap="middle" align="center" wrap="wrap" class="search-form-row">
-        <!-- 商品名称搜索 -->
+        <!-- 商品名称/SPU编码搜索 -->
         <a-flex gap="small" align="center" style="margin-right: 16px">
-          <span
-            style="
-              white-space: nowrap;
-              color: #666;
-              width: 60px;
-              text-align: right;
-              line-height: 40px;
-            "
-            >商品名称</span
-          >
+          <span class="search-label">商品名称</span>
           <a-input
             v-model:value="searchForm.name"
-            placeholder="请输入商品名称/ID"
-            style="width: 180px"
+            placeholder="请输入商品名称/SPU编码"
+            style="width: 200px"
             allow-clear
           />
         </a-flex>
 
-        <!-- 商品分组 -->
+        <!-- 商品分类 -->
         <a-flex gap="small" align="center" style="margin-right: 16px">
-          <span
-            style="
-              white-space: nowrap;
-              color: #666;
-              width: 60px;
-              text-align: right;
-              line-height: 40px;
-            "
-            >商品分组</span
-          >
+          <span class="search-label">商品分类</span>
           <a-select
-            v-model:value="searchForm.category"
-            placeholder="全部"
+            v-model:value="searchForm.categoryId"
+            placeholder="全部分类"
+            style="width: 120px"
+            allow-clear
+            :loading="metadataLoading"
+          >
+            <a-select-option
+              v-for="category in metadata.categories"
+              :key="category.id"
+              :value="category.id"
+            >
+              {{ category.name }}
+            </a-select-option>
+          </a-select>
+        </a-flex>
+
+        <!-- 商品品牌 -->
+        <a-flex gap="small" align="center" style="margin-right: 16px">
+          <span class="search-label">商品品牌</span>
+          <a-select
+            v-model:value="searchForm.brandId"
+            placeholder="全部品牌"
+            style="width: 120px"
+            allow-clear
+            :loading="metadataLoading"
+          >
+            <a-select-option v-for="brand in metadata.brands" :key="brand.id" :value="brand.id">
+              {{ brand.name }}
+            </a-select-option>
+          </a-select>
+        </a-flex>
+
+        <!-- 商品类型 -->
+        <a-flex gap="small" align="center" style="margin-right: 16px">
+          <span class="search-label">商品类型</span>
+          <a-select
+            v-model:value="searchForm.goodsType"
+            placeholder="全部类型"
+            style="width: 100px"
+            allow-clear
+          >
+            <a-select-option
+              v-for="type in metadata.goodsTypes"
+              :key="type.value"
+              :value="type.value"
+            >
+              {{ type.label }}
+            </a-select-option>
+          </a-select>
+        </a-flex>
+      </a-flex>
+
+      <!-- 第二行：价格和库存条件 -->
+      <a-flex gap="middle" align="center" wrap="wrap" class="search-form-row">
+        <!-- 售价区间 -->
+        <a-flex gap="small" align="center" style="margin-right: 16px">
+          <span class="search-label">售价区间</span>
+          <a-input
+            v-model:value="searchForm.minPrice"
+            placeholder="最低价"
+            style="width: 100px"
+            type="number"
+          />
+          <span style="margin: 0 4px; color: #999; line-height: 32px">-</span>
+          <a-input
+            v-model:value="searchForm.maxPrice"
+            placeholder="最高价"
+            style="width: 100px"
+            type="number"
+          />
+        </a-flex>
+
+        <!-- 库存筛选 -->
+        <a-flex gap="small" align="center" style="margin-right: 16px">
+          <span class="search-label">库存状态</span>
+          <a-select
+            v-model:value="searchForm.stockStatus"
+            placeholder="全部库存"
             style="width: 120px"
             allow-clear
           >
-            <a-select-option value="">全部</a-select-option>
-            <a-select-option value="家用电器">家用电器</a-select-option>
-            <a-select-option value="数码产品">数码产品</a-select-option>
-            <a-select-option value="服装鞋帽">服装鞋帽</a-select-option>
-            <a-select-option value="食品饮料">食品饮料</a-select-option>
-          </a-select>
-        </a-flex>
-
-        <!-- 商品价格 -->
-        <a-flex gap="small" align="center" style="margin-right: 16px">
-          <span
-            style="
-              white-space: nowrap;
-              color: #666;
-              width: 60px;
-              text-align: right;
-              line-height: 40px;
-            "
-            >商品价格</span
-          >
-          <a-input
-            v-model:value="searchForm.minPrice"
-            placeholder="最低售价"
-            style="width: 100px"
-            type="number"
-          />
-          <span style="margin: 0 4px; color: #999; line-height: 40px">-</span>
-          <a-input
-            v-model:value="searchForm.maxPrice"
-            placeholder="最高售价"
-            style="width: 100px"
-            type="number"
-          />
-        </a-flex>
-
-        <!-- 库存 -->
-        <a-flex gap="small" align="center">
-          <span
-            style="
-              white-space: nowrap;
-              color: #666;
-              width: 40px;
-              text-align: right;
-              line-height: 40px;
-            "
-            >库存</span
-          >
-          <a-select
-            v-model:value="searchForm.inventoryType"
-            placeholder="最小库存"
-            style="width: 100px"
-            allow-clear
-          >
-            <a-select-option value="">最小库存</a-select-option>
-            <a-select-option value="low">库存不足</a-select-option>
             <a-select-option value="normal">库存正常</a-select-option>
-            <a-select-option value="high">库存充足</a-select-option>
+            <a-select-option value="low">库存不足</a-select-option>
+            <a-select-option value="out">库存为0</a-select-option>
           </a-select>
+        </a-flex>
+
+        <!-- 审核状态 -->
+        <a-flex gap="small" align="center" style="margin-right: 16px">
+          <span class="search-label">审核状态</span>
           <a-select
-            v-model:value="searchForm.inventoryRange"
-            placeholder="最大库存"
+            v-model:value="searchForm.auditStatus"
+            placeholder="全部状态"
             style="width: 100px"
             allow-clear
           >
-            <a-select-option value="">最大库存</a-select-option>
-            <a-select-option value="100">100以下</a-select-option>
-            <a-select-option value="500">500以下</a-select-option>
-            <a-select-option value="1000">1000以下</a-select-option>
-            <a-select-option value="unlimited">不限</a-select-option>
+            <a-select-option
+              v-for="status in metadata.auditStatusOptions"
+              :key="status.value"
+              :value="status.value"
+            >
+              {{ status.label }}
+            </a-select-option>
           </a-select>
         </a-flex>
       </a-flex>
 
-      <!-- 第二行：上架时间和操作按钮 -->
+      <!-- 第三行：标签和时间筛选 -->
+      <a-flex gap="middle" align="center" wrap="wrap" class="search-form-row">
+        <!-- 商品标签 -->
+        <a-flex gap="small" align="center" style="margin-right: 16px">
+          <span class="search-label">商品标签</span>
+          <a-checkbox-group v-model:value="searchForm.tags" style="display: flex; gap: 12px">
+            <a-checkbox value="isHot">热销</a-checkbox>
+            <a-checkbox value="isNew">新品</a-checkbox>
+            <a-checkbox value="isRecommend">推荐</a-checkbox>
+            <a-checkbox value="isFreeShipping">包邮</a-checkbox>
+          </a-checkbox-group>
+        </a-flex>
+      </a-flex>
+
+      <!-- 第四行：时间筛选和操作按钮 -->
       <a-flex justify="space-between" align="center" class="search-form-row">
         <a-flex gap="small" align="center">
-          <span
-            style="
-              white-space: nowrap;
-              color: #666;
-              width: 60px;
-              text-align: right;
-              line-height: 40px;
-            "
-            >上架时间</span
-          >
-          <a-date-picker
-            v-model:value="searchForm.startTime"
-            placeholder="请选择时间"
-            style="width: 150px"
+          <span class="search-label">上架时间</span>
+          <a-range-picker
+            v-model:value="searchForm.shelfTimeRange"
+            style="width: 240px"
             format="YYYY-MM-DD"
+            placeholder="['开始时间', '结束时间']"
+          />
+
+          <span class="search-label" style="margin-left: 16px">创建时间</span>
+          <a-range-picker
+            v-model:value="searchForm.createTimeRange"
+            style="width: 240px"
+            format="YYYY-MM-DD"
+            placeholder="['开始时间', '结束时间']"
           />
         </a-flex>
+
         <a-flex gap="middle">
-          <a-button type="primary" size="middle" @click="handleSearch">搜索</a-button>
-          <a-button size="middle" @click="handleReset">重置</a-button>
+          <a-button @click="toggleAdvancedSearch">
+            {{ showAdvancedSearch ? '收起' : '高级搜索' }}
+          </a-button>
+          <a-button type="primary" @click="handleSearch">搜索</a-button>
+          <a-button @click="handleReset">重置</a-button>
         </a-flex>
       </a-flex>
+
+      <!-- 高级搜索条件（可折叠） -->
+      <div v-if="showAdvancedSearch" class="advanced-search">
+        <a-divider>高级搜索</a-divider>
+        <a-flex gap="middle" align="center" wrap="wrap" class="search-form-row">
+          <!-- 销量区间 -->
+          <a-flex gap="small" align="center" style="margin-right: 16px">
+            <span class="search-label">销量区间</span>
+            <a-input
+              v-model:value="searchForm.minSalesCount"
+              placeholder="最低销量"
+              style="width: 100px"
+              type="number"
+            />
+            <span style="margin: 0 4px; color: #999; line-height: 32px">-</span>
+            <a-input
+              v-model:value="searchForm.maxSalesCount"
+              placeholder="最高销量"
+              style="width: 100px"
+              type="number"
+            />
+          </a-flex>
+
+          <!-- 好评率 -->
+          <a-flex gap="small" align="center" style="margin-right: 16px">
+            <span class="search-label">好评率</span>
+            <a-select
+              v-model:value="searchForm.commentRateRange"
+              placeholder="全部"
+              style="width: 120px"
+              allow-clear
+            >
+              <a-select-option value="high">95%以上</a-select-option>
+              <a-select-option value="medium">90%-95%</a-select-option>
+              <a-select-option value="low">90%以下</a-select-option>
+            </a-select>
+          </a-flex>
+
+          <!-- 浏览量 -->
+          <a-flex gap="small" align="center" style="margin-right: 16px">
+            <span class="search-label">浏览量</span>
+            <a-input
+              v-model:value="searchForm.minViewCount"
+              placeholder="最低浏览量"
+              style="width: 120px"
+              type="number"
+            />
+          </a-flex>
+        </a-flex>
+      </div>
     </a-flex>
 
     <!-- 商品列表表格 -->
@@ -178,6 +256,12 @@
         }"
         @change="handleTableChange"
         size="middle"
+        :scroll="{ x: 1800 }"
+        :customRow="
+          (record: GoodsItem) => ({
+            onDblclick: () => handleViewDetail(record),
+          })
+        "
       />
 
       <!-- 底部批量操作和分页 -->
@@ -246,35 +330,88 @@
         />
       </a-flex>
     </a-flex>
+
+    <!-- 商品详情弹窗 -->
+    <GoodsDetailModal v-model:open="detailModalOpen" :goods-id="currentGoodsId" />
   </a-flex>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import type { CSSProperties } from 'vue'
 
 import { columns, mockData, type GoodsItem } from '@/tables/goods'
 import { message } from 'ant-design-vue'
 import type { Dayjs } from 'dayjs'
+import GoodsDetailModal from '@/components/goods/GoodsDetailModal.vue'
 import {
   getGoodsList,
   batchDeleteGoods,
   batchOnlineGoods,
   batchOfflineGoods,
   exportGoods,
+  getGoodsMetadata,
   type GoodsQueryParams,
+  type GoodsMetadata,
 } from '@/api/goods'
 
 // 搜索表单
 const searchForm = reactive({
+  // 基础搜索
   name: '',
-  category: '',
+  categoryId: undefined as number | undefined,
+  brandId: undefined as number | undefined,
+  goodsType: undefined as number | undefined,
+
+  // 价格库存
   minPrice: '',
   maxPrice: '',
-  inventoryType: '',
-  inventoryRange: '',
-  startTime: null as Dayjs | null,
+  stockStatus: '',
+  auditStatus: undefined as number | undefined,
+
+  // 标签
+  tags: [] as string[],
+
+  // 时间范围
+  shelfTimeRange: null as [Dayjs, Dayjs] | null,
+  createTimeRange: null as [Dayjs, Dayjs] | null,
+
+  // 高级搜索
+  minSalesCount: '',
+  maxSalesCount: '',
+  commentRateRange: '',
+  minViewCount: '',
 })
+
+// 高级搜索展开状态
+const showAdvancedSearch = ref(false)
+
+// 元数据
+const metadata = ref<GoodsMetadata>({
+  categories: [],
+  brands: [],
+  suppliers: [],
+  goodsTypes: [
+    { value: 1, label: '实物' },
+    { value: 2, label: '虚拟' },
+    { value: 3, label: '服务' },
+  ],
+  statusOptions: [
+    { value: 0, label: '已下架' },
+    { value: 1, label: '上架中' },
+    { value: 2, label: '库存下架' },
+    { value: 3, label: '审核中' },
+    { value: 4, label: '审核失败' },
+    { value: 5, label: '审核通过' },
+  ],
+  auditStatusOptions: [
+    { value: 0, label: '待审核' },
+    { value: 1, label: '审核通过' },
+    { value: 2, label: '审核拒绝' },
+  ],
+})
+
+const metadataLoading = ref(false)
 
 // 当前激活的标签页
 const activeTab = ref('all')
@@ -296,6 +433,10 @@ const pagination = ref({
 // 多选相关
 const selectedRowKeys = ref<string[]>([])
 
+// 详情弹窗相关
+const detailModalOpen = ref(false)
+const currentGoodsId = ref<number>()
+
 // 获取商品数据
 const fetchGoodsData = async () => {
   loading.value = true
@@ -308,10 +449,48 @@ const fetchGoodsData = async () => {
 
     // 添加搜索条件
     if (searchForm.name) queryParams.name = searchForm.name
-    if (searchForm.category) queryParams.category = searchForm.category
+    if (searchForm.categoryId) queryParams.categoryId = searchForm.categoryId
+    if (searchForm.brandId) queryParams.brandId = searchForm.brandId
+    if (searchForm.goodsType) queryParams.goodsType = searchForm.goodsType
     if (searchForm.minPrice) queryParams.minPrice = Number(searchForm.minPrice)
     if (searchForm.maxPrice) queryParams.maxPrice = Number(searchForm.maxPrice)
-    if (searchForm.startTime) queryParams.startTime = searchForm.startTime.format('YYYY-MM-DD')
+    if (searchForm.auditStatus !== undefined) queryParams.auditStatus = searchForm.auditStatus
+
+    // 标签筛选
+    if (searchForm.tags.includes('isHot')) queryParams.isHot = true
+    if (searchForm.tags.includes('isNew')) queryParams.isNew = true
+    if (searchForm.tags.includes('isRecommend')) queryParams.isRecommend = true
+    if (searchForm.tags.includes('isFreeShipping')) queryParams.isFreeShipping = true
+
+    // 时间筛选
+    if (searchForm.shelfTimeRange) {
+      queryParams.shelfStartTime = searchForm.shelfTimeRange[0].format('YYYY-MM-DD')
+      queryParams.shelfEndTime = searchForm.shelfTimeRange[1].format('YYYY-MM-DD')
+    }
+    if (searchForm.createTimeRange) {
+      queryParams.endTime = searchForm.createTimeRange[1].format('YYYY-MM-DD')
+    }
+
+    // 高级搜索条件
+    if (searchForm.minSalesCount) queryParams.minSalesCount = Number(searchForm.minSalesCount)
+    if (searchForm.maxSalesCount) queryParams.maxSalesCount = Number(searchForm.maxSalesCount)
+    if (searchForm.minViewCount) queryParams.minViewCount = Number(searchForm.minViewCount)
+
+    // 好评率筛选
+    if (searchForm.commentRateRange === 'high') queryParams.minGoodCommentRate = 95
+    else if (searchForm.commentRateRange === 'medium') {
+      queryParams.minGoodCommentRate = 90
+      // 这里可以添加最大好评率限制，暂时省略
+    } else if (searchForm.commentRateRange === 'low') {
+      // 90%以下，可以设置最大值
+    }
+
+    // 库存状态处理
+    if (searchForm.stockStatus === 'out') {
+      queryParams.maxStock = 0
+    } else if (searchForm.stockStatus === 'low') {
+      queryParams.warningStock = true
+    }
 
     // 根据当前标签页设置状态
     switch (activeTab.value) {
@@ -378,15 +557,104 @@ const handleSearch = () => {
 
 // 重置
 const handleReset = () => {
+  // 重置基础搜索
   searchForm.name = ''
-  searchForm.category = ''
+  searchForm.categoryId = undefined
+  searchForm.brandId = undefined
+  searchForm.goodsType = undefined
+
+  // 重置价格库存
   searchForm.minPrice = ''
   searchForm.maxPrice = ''
-  searchForm.inventoryType = ''
-  searchForm.inventoryRange = ''
-  searchForm.startTime = null
+  searchForm.stockStatus = ''
+  searchForm.auditStatus = undefined
+
+  // 重置标签
+  searchForm.tags = []
+
+  // 重置时间
+  searchForm.shelfTimeRange = null
+  searchForm.createTimeRange = null
+
+  // 重置高级搜索
+  searchForm.minSalesCount = ''
+  searchForm.maxSalesCount = ''
+  searchForm.commentRateRange = ''
+  searchForm.minViewCount = ''
+
   pagination.value.current = 1
   fetchGoodsData()
+}
+
+// 切换高级搜索
+const toggleAdvancedSearch = () => {
+  showAdvancedSearch.value = !showAdvancedSearch.value
+}
+
+// 获取元数据
+const fetchMetadata = async () => {
+  metadataLoading.value = true
+  try {
+    const data = await getGoodsMetadata()
+    metadata.value = data
+  } catch (error) {
+    console.error('获取元数据失败:', error)
+    // 如果API调用失败，使用模拟数据
+    metadata.value = {
+      categories: [
+        { id: 1, name: '家用电器' },
+        { id: 2, name: '数码产品' },
+        { id: 3, name: '服装鞋帽' },
+        { id: 4, name: '食品饮料' },
+        { id: 5, name: '图书文具' },
+        { id: 6, name: '家居用品' },
+      ],
+      brands: [
+        { id: 1, name: '格兰仕' },
+        { id: 2, name: '苹果' },
+        { id: 3, name: 'Nike' },
+        { id: 4, name: '三只松鼠' },
+        { id: 5, name: '戴森' },
+        { id: 6, name: '小米' },
+        { id: 7, name: '华为' },
+        { id: 8, name: '美的' },
+      ],
+      suppliers: [
+        { id: 1, name: '格兰仕供应商' },
+        { id: 2, name: '苹果授权供应商' },
+        { id: 3, name: '耐克供应商' },
+        { id: 4, name: '三只松鼠供应商' },
+        { id: 5, name: '戴森供应商' },
+      ],
+      goodsTypes: [
+        { value: 1, label: '实物' },
+        { value: 2, label: '虚拟' },
+        { value: 3, label: '服务' },
+      ],
+      statusOptions: [
+        { value: 0, label: '已下架' },
+        { value: 1, label: '上架中' },
+        { value: 2, label: '库存下架' },
+        { value: 3, label: '审核中' },
+        { value: 4, label: '审核失败' },
+        { value: 5, label: '审核通过' },
+      ],
+      auditStatusOptions: [
+        { value: 0, label: '待审核' },
+        { value: 1, label: '审核通过' },
+        { value: 2, label: '审核拒绝' },
+      ],
+    }
+    message.warning('使用模拟数据，请检查后端接口')
+  } finally {
+    metadataLoading.value = false
+  }
+}
+
+// 查看商品详情
+const handleViewDetail = (record: GoodsItem) => {
+  currentGoodsId.value = record.id
+  detailModalOpen.value = true
 }
 
 // 多选逻辑
@@ -409,7 +677,7 @@ const handleExport = async () => {
     const queryParams: GoodsQueryParams = {}
     // 添加当前的搜索条件
     if (searchForm.name) queryParams.name = searchForm.name
-    if (searchForm.category) queryParams.category = searchForm.category
+    if (searchForm.categoryId) queryParams.categoryId = searchForm.categoryId
 
     await exportGoods(queryParams)
     message.success('导出成功')
@@ -494,13 +762,48 @@ const boxStyle: CSSProperties = {
   boxSizing: 'border-box',
 }
 
+// 监听详情查看事件
+const handleGoodsDetailEvent = (event: Event) => {
+  const customEvent = event as CustomEvent
+  const record = customEvent.detail
+  handleViewDetail(record)
+}
+
 // 组件挂载时获取数据
-onMounted(() => {
-  fetchGoodsData()
+onMounted(async () => {
+  // 并行获取元数据和商品数据
+  await Promise.all([fetchMetadata(), fetchGoodsData()])
+
+  // 监听自定义事件
+  window.addEventListener('view-goods-detail', handleGoodsDetailEvent as EventListener)
+})
+
+// 组件卸载时清理事件监听
+onUnmounted(() => {
+  window.removeEventListener('view-goods-detail', handleGoodsDetailEvent as EventListener)
 })
 </script>
 
 <style scoped>
+/* 搜索标签样式 */
+.search-label {
+  white-space: nowrap;
+  color: #666;
+  width: 80px;
+  text-align: right;
+  line-height: 32px;
+  font-weight: 500;
+}
+
+/* 高级搜索区域样式 */
+.advanced-search {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+  margin-top: 12px;
+}
+
 :deep(.ant-select-selector) {
   color: #333 !important;
 }
