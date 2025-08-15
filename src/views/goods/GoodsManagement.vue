@@ -325,7 +325,8 @@
           show-size-changer
           show-quick-jumper
           :page-size-options="['10', '20', '50', '100']"
-          @change="handleTableChange"
+          @change="handlePageChange"
+          @showSizeChange="handlePageSizeChange"
           size="small"
         />
       </a-flex>
@@ -489,7 +490,7 @@ const fetchGoodsData = async () => {
     if (searchForm.stockStatus === 'out') {
       queryParams.maxStock = 0
     } else if (searchForm.stockStatus === 'low') {
-      queryParams.warningStock = true
+      queryParams.isLowStock = true
     }
 
     // 根据当前标签页设置状态
@@ -514,13 +515,16 @@ const fetchGoodsData = async () => {
     const response = await getGoodsList(queryParams)
 
     // 处理响应数据
-    tableData.value = response.content.map((item) => ({
+    tableData.value = response.content.map((item, index) => ({
       ...item,
-      key: String(item.id),
+      // 如果id为null，使用spuCode或索引作为key
+      key: item.id ? String(item.id) : item.spuCode || String(index),
+      // 确保id有值，如果为null则使用索引+1
+      id: item.id || index + 1,
     }))
 
     pagination.value.total = response.totalElements
-    pagination.value.current = response.page + 1
+    pagination.value.current = response.page
     pagination.value.pageSize = response.size
   } catch (error) {
     console.error('获取商品数据失败:', error)
@@ -539,6 +543,20 @@ const fetchGoodsData = async () => {
 const handleTableChange = (pag: { current: number; pageSize: number }) => {
   pagination.value.current = pag.current
   pagination.value.pageSize = pag.pageSize
+  fetchGoodsData()
+}
+
+// 分页页码变化处理
+const handlePageChange = (page: number, pageSize: number) => {
+  pagination.value.current = page
+  pagination.value.pageSize = pageSize
+  fetchGoodsData()
+}
+
+// 分页大小变化处理
+const handlePageSizeChange = (current: number, size: number) => {
+  pagination.value.current = 1 // 改变页面大小时重置到第一页
+  pagination.value.pageSize = size
   fetchGoodsData()
 }
 

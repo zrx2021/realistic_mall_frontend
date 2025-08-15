@@ -1,6 +1,7 @@
 import type { TableColumnsType } from 'ant-design-vue'
 import { h } from 'vue'
 import { Tag } from 'ant-design-vue'
+import AuthImage from '@/components/common/AuthImage.vue'
 
 export interface GoodsItem {
   key: string
@@ -66,13 +67,16 @@ export const columns: TableColumnsType<GoodsItem> = [
     width: 320,
     fixed: 'left',
     customRender: ({ record }) => {
-      const imageSrc =
-        record.mainImage ||
-        new URL('../assets/content/page/goods/九阳破壁机Y88.webp', import.meta.url).href
+      const fallbackImage = new URL(
+        '../assets/content/page/goods/九阳破壁机Y88.webp',
+        import.meta.url,
+      ).href
 
       return h('div', { style: { display: 'flex', alignItems: 'flex-start', gap: '12px' } }, [
-        h('img', {
-          src: imageSrc,
+        h(AuthImage, {
+          src: record.mainImage,
+          fallback: fallbackImage,
+          alt: record.name,
           style: {
             width: '60px',
             height: '60px',
@@ -81,13 +85,6 @@ export const columns: TableColumnsType<GoodsItem> = [
             border: '1px solid #f0f0f0',
             display: 'block',
             flexShrink: 0,
-          },
-          onError: (e: Event) => {
-            const target = e.target as HTMLImageElement
-            target.src = new URL(
-              '../assets/content/page/goods/九阳破壁机Y88.webp',
-              import.meta.url,
-            ).href
           },
         }),
         h('div', { style: { flex: 1, minWidth: 0 } }, [

@@ -21,7 +21,7 @@ export interface GoodsQueryParams {
   // 库存相关
   minStock?: number // 最低库存
   maxStock?: number // 最高库存
-  warningStock?: boolean // 是否库存预警
+  isLowStock?: boolean // 是否筛选库存预警商品
 
   // 状态相关
   status?: number // 商品状态
@@ -125,7 +125,15 @@ export interface PageResponse<T> {
 
 // 获取商品列表
 export const getGoodsList = (params: GoodsQueryParams) => {
-  return get<PageResponse<GoodsInfo>>('/goodsManagement/list', params)
+  const { pageNumber = 0, pageSize = 10, ...queryParams } = params
+
+  // 构建查询参数（分页参数通过URL传递）
+  const urlParams = new URLSearchParams({
+    pageNumber: String((pageNumber || 0) + 1), // 前端从0开始，后端从1开始
+    pageSize: String(pageSize || 10),
+  })
+
+  return post<PageResponse<GoodsInfo>>(`/goodsManagement/list?${urlParams.toString()}`, queryParams)
 }
 
 // 获取商品详情
@@ -200,7 +208,7 @@ export interface GoodsMetadata {
 
 // 获取商品管理页面元数据
 export const getGoodsMetadata = () => {
-  return get<GoodsMetadata>('/goods/metadata')
+  return get<GoodsMetadata>('/goodsManagement/metadata')
 }
 
 // 获取商品分类列表

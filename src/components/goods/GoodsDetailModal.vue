@@ -51,13 +51,13 @@
         <a-row :gutter="[12, 12]">
           <a-col :span="6" v-if="goodsDetail.mainImage">
             <div class="image-item">
-              <img :src="goodsDetail.mainImage" alt="主图" class="goods-image" />
+              <AuthImage :src="goodsDetail.mainImage" alt="主图" class="goods-image" />
               <div class="image-label">主图</div>
             </div>
           </a-col>
           <a-col :span="6" v-for="(img, index) in goodsDetail.images?.slice(0, 7)" :key="index">
             <div class="image-item">
-              <img :src="img" :alt="`商品图${index + 1}`" class="goods-image" />
+              <AuthImage :src="img" :alt="`商品图${index + 1}`" class="goods-image" />
               <div class="image-label">图{{ index + 1 }}</div>
             </div>
           </a-col>
@@ -363,6 +363,7 @@ import { ref, computed, watch } from 'vue'
 import type { GoodsInfo } from '@/api/goods'
 import { getGoodsDetail } from '@/api/goods'
 import { message } from 'ant-design-vue'
+import AuthImage from '@/components/common/AuthImage.vue'
 
 // Props
 interface Props {
@@ -395,6 +396,8 @@ const isLowStock = computed(() => {
   const warningStock = goodsDetail.value.warningStock || 0
   return totalStock <= warningStock && warningStock > 0
 })
+
+// 删除了不再使用的图片URL计算属性，现在直接使用AuthImage组件处理
 
 // 监听弹窗打开
 const handleOpen = async () => {
