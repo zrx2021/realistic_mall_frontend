@@ -1,6 +1,6 @@
 import type { TableColumnsType } from 'ant-design-vue'
 import { h } from 'vue'
-import { Tag } from 'ant-design-vue'
+import { Tag, message } from 'ant-design-vue'
 import AuthImage from '@/components/common/AuthImage.vue'
 
 export interface GoodsItem {
@@ -58,7 +58,65 @@ export const columns: TableColumnsType<GoodsItem> = [
     width: 120,
     fixed: 'left',
     customRender: ({ text }) => {
-      return h('span', { style: { fontFamily: 'monospace', fontSize: '12px' } }, text)
+      const handleCopy = async () => {
+        try {
+          await navigator.clipboard.writeText(text)
+          message.success('SPU编码已复制到剪贴板')
+        } catch {
+          // 兼容旧浏览器的复制方法
+          const textArea = document.createElement('textarea')
+          textArea.value = text
+          document.body.appendChild(textArea)
+          textArea.select()
+          document.execCommand('copy')
+          document.body.removeChild(textArea)
+          message.success('SPU编码已复制到剪贴板')
+        }
+      }
+
+      return h(
+        'div',
+        {
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontFamily: 'monospace',
+            fontSize: '12px',
+          },
+        },
+        [
+          h('span', text),
+          h(
+            'svg',
+            {
+              width: '14',
+              height: '14',
+              viewBox: '0 0 1024 1024',
+              style: {
+                cursor: 'pointer',
+                color: '#666',
+                transition: 'color 0.2s',
+                flexShrink: 0,
+              },
+              onClick: handleCopy,
+              onMouseenter: (e: MouseEvent) => {
+                ;(e.target as SVGElement).style.color = '#1890ff'
+              },
+              onMouseleave: (e: MouseEvent) => {
+                ;(e.target as SVGElement).style.color = '#666'
+              },
+              title: '复制SPU编码',
+            },
+            [
+              h('path', {
+                d: 'M832 64H296c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h496v688c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V96c0-17.7-14.3-32-32-32zM704 192H192c-17.7 0-32 14.3-32 32v530.7c0 8.5 3.4 16.6 9.4 22.6l173.3 173.3c2.2 2.2 4.7 4 7.4 5.5v1.9h4.4c2.9 0.3 5.9 0.3 8.8 0H704c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32zM350 856.2L263.9 770H350v86.2zM664 888H414V746c0-22.1-17.9-40-40-40H232V264h432v624z',
+                fill: 'currentColor',
+              }),
+            ],
+          ),
+        ],
+      )
     },
   },
   {

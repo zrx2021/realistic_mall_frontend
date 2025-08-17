@@ -4,7 +4,6 @@ import { get, post, put, del } from '@/utils/request'
 export interface GoodsQueryParams {
   // 基础搜索
   name?: string // 商品名称/SPU编码
-  spuCode?: string // SPU编码
   subTitle?: string // 副标题
 
   // 分类和品牌
@@ -36,7 +35,8 @@ export interface GoodsQueryParams {
   isFreeShipping?: boolean // 是否包邮
 
   // 时间相关
-  endTime?: string // 结束时间
+  createStartTime?: string // 创建开始时间
+  createEndTime?: string // 创建结束时间
   shelfStartTime?: string // 上架开始时间
   shelfEndTime?: string // 上架结束时间
 
@@ -133,7 +133,10 @@ export const getGoodsList = (params: GoodsQueryParams) => {
     pageSize: String(pageSize || 10),
   })
 
-  return post<PageResponse<GoodsInfo>>(`/goodsManagement/list?${urlParams.toString()}`, queryParams)
+  return post<PageResponse<GoodsInfo>>(
+    `/goods-management/list?${urlParams.toString()}`,
+    queryParams,
+  )
 }
 
 // 获取商品详情

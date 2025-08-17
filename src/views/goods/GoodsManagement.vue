@@ -154,7 +154,7 @@
             v-model:value="searchForm.shelfTimeRange"
             style="width: 240px"
             format="YYYY-MM-DD"
-            placeholder="['开始时间', '结束时间']"
+            :placeholder="['开始时间', '结束时间']"
           />
 
           <span class="search-label" style="margin-left: 16px">创建时间</span>
@@ -162,7 +162,7 @@
             v-model:value="searchForm.createTimeRange"
             style="width: 240px"
             format="YYYY-MM-DD"
-            placeholder="['开始时间', '结束时间']"
+            :placeholder="['开始时间', '结束时间']"
           />
         </a-flex>
 
@@ -469,7 +469,8 @@ const fetchGoodsData = async () => {
       queryParams.shelfEndTime = searchForm.shelfTimeRange[1].format('YYYY-MM-DD')
     }
     if (searchForm.createTimeRange) {
-      queryParams.endTime = searchForm.createTimeRange[1].format('YYYY-MM-DD')
+      queryParams.createStartTime = searchForm.createTimeRange[0].format('YYYY-MM-DD')
+      queryParams.createEndTime = searchForm.createTimeRange[1].format('YYYY-MM-DD')
     }
 
     // 高级搜索条件
@@ -525,7 +526,7 @@ const fetchGoodsData = async () => {
 
     pagination.value.total = response.totalElements
     pagination.value.current = response.page
-    pagination.value.pageSize = response.size
+    // 不要使用后端返回的size，保持用户设置的pageSize不变
   } catch (error) {
     console.error('获取商品数据失败:', error)
     // 如果API调用失败，使用模拟数据
