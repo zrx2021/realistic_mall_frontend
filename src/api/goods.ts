@@ -7,7 +7,7 @@ export interface GoodsQueryParams {
   subTitle?: string // 副标题
 
   // 分类和品牌
-  categoryId?: number // 分类ID
+  categoryId?: number | number[] // 分类ID，支持单个或多个
   brandId?: number // 品牌ID
   supplierId?: number // 供应商ID
 
@@ -133,10 +133,7 @@ export const getGoodsList = (params: GoodsQueryParams) => {
     pageSize: String(pageSize || 10),
   })
 
-  return post<PageResponse<GoodsInfo>>(
-    `/goods-management/list?${urlParams.toString()}`,
-    queryParams,
-  )
+  return post<PageResponse<GoodsInfo>>(`/goods/list?${urlParams.toString()}`, queryParams)
 }
 
 // 获取商品详情
@@ -185,6 +182,7 @@ export interface CategoryOption {
   name: string
   parentId?: number
   level?: number
+  children?: CategoryOption[] // 子分类
 }
 
 export interface BrandOption {
@@ -209,14 +207,14 @@ export interface GoodsMetadata {
   auditStatusOptions: { value: number; label: string }[]
 }
 
-// 获取商品管理页面元数据
-export const getGoodsMetadata = () => {
-  return get<GoodsMetadata>('/goodsManagement/metadata')
+// 获取商品子分类
+export const getGoodsCategorySubTree = (parentId: number) => {
+  return get<CategoryOption[]>(`/goods/category/sub/${parentId}`)
 }
 
-// 获取商品分类列表
+// 获取商品分类树(前两层)
 export const getGoodsCategories = () => {
-  return get<CategoryOption[]>('/goods/categories')
+  return get<CategoryOption[]>('/goods/category')
 }
 
 // 获取品牌列表

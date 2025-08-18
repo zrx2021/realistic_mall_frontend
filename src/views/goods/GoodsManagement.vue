@@ -24,21 +24,20 @@
         <!-- 商品分类 -->
         <a-flex gap="small" align="center" style="margin-right: 16px">
           <span class="search-label">商品分类</span>
-          <a-select
+          <a-tree-select
             v-model:value="searchForm.categoryId"
             placeholder="全部分类"
-            style="width: 120px"
+            style="width: 200px"
             allow-clear
+            multiple
+            :max-tag-count="2"
             :loading="metadataLoading"
-          >
-            <a-select-option
-              v-for="category in metadata.categories"
-              :key="category.id"
-              :value="category.id"
-            >
-              {{ category.name }}
-            </a-select-option>
-          </a-select>
+            :tree-data="treeSelectCategories"
+            :load-data="loadChildrenData"
+            :show-search="true"
+            :filter-tree-node="filterTreeNode"
+            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+          />
         </a-flex>
 
         <!-- 商品品牌 -->
@@ -338,7 +337,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import type { CSSProperties } from 'vue'
 
 import { columns, mockData, type GoodsItem } from '@/tables/goods'
@@ -351,16 +350,17 @@ import {
   batchOnlineGoods,
   batchOfflineGoods,
   exportGoods,
-  getGoodsMetadata,
+  getGoodsCategories,
+  getGoodsCategorySubTree,
   type GoodsQueryParams,
-  type GoodsMetadata,
+  type CategoryOption,
 } from '@/api/goods'
 
 // 搜索表单
 const searchForm = reactive({
   // 基础搜索
   name: '',
-  categoryId: undefined as number | undefined,
+  categoryId: [] as number[],
   brandId: undefined as number | undefined,
   goodsType: undefined as number | undefined,
 
@@ -388,10 +388,10 @@ const searchForm = reactive({
 const showAdvancedSearch = ref(false)
 
 // 元数据
-const metadata = ref<GoodsMetadata>({
-  categories: [],
-  brands: [],
-  suppliers: [],
+const metadata = ref({
+  categories: [] as CategoryOption[],
+  brands: [] as { id: number; name: string }[],
+  suppliers: [] as { id: number; name: string }[],
   goodsTypes: [
     { value: 1, label: '实物' },
     { value: 2, label: '虚拟' },
@@ -413,6 +413,11 @@ const metadata = ref<GoodsMetadata>({
 })
 
 const metadataLoading = ref(false)
+
+// 计算转换后的分类数据
+const treeSelectCategories = computed(() => {
+  return transformCategoriesForTreeSelect(metadata.value.categories || [])
+})
 
 // 当前激活的标签页
 const activeTab = ref('all')
@@ -450,7 +455,10 @@ const fetchGoodsData = async () => {
 
     // 添加搜索条件
     if (searchForm.name) queryParams.name = searchForm.name
-    if (searchForm.categoryId) queryParams.categoryId = searchForm.categoryId
+    if (searchForm.categoryId && searchForm.categoryId.length > 0) {
+      queryParams.categoryId =
+        searchForm.categoryId.length === 1 ? searchForm.categoryId[0] : searchForm.categoryId
+    }
     if (searchForm.brandId) queryParams.brandId = searchForm.brandId
     if (searchForm.goodsType) queryParams.goodsType = searchForm.goodsType
     if (searchForm.minPrice) queryParams.minPrice = Number(searchForm.minPrice)
@@ -578,7 +586,7 @@ const handleSearch = () => {
 const handleReset = () => {
   // 重置基础搜索
   searchForm.name = ''
-  searchForm.categoryId = undefined
+  searchForm.categoryId = []
   searchForm.brandId = undefined
   searchForm.goodsType = undefined
 
@@ -610,23 +618,123 @@ const toggleAdvancedSearch = () => {
   showAdvancedSearch.value = !showAdvancedSearch.value
 }
 
+// TreeSelect过滤函数
+const filterTreeNode = (searchValue: string, treeNode: { title: string }) => {
+  return treeNode.title.toLowerCase().includes(searchValue.toLowerCase())
+}
+
+// 异步加载子分类数据
+const loadChildrenData = async (treeNode: {
+  dataRef: { children?: unknown[]; isLeaf?: boolean }
+  value: number
+}) => {
+  const { dataRef, value } = treeNode
+
+  // 如果已经有子节点数据，则不再加载
+  if (dataRef.children && dataRef.children.length > 0) {
+    return
+  }
+
+  try {
+    // 调用API获取子分类
+    const subCategories = await getGoodsCategorySubTree(value)
+
+    // 如果没有子分类，标记为叶子节点
+    if (!subCategories || subCategories.length === 0) {
+      dataRef.isLeaf = true
+      dataRef.children = []
+      return
+    }
+
+    // 转换为TreeSelect格式
+    const transformedChildren = transformCategoriesForTreeSelect(subCategories)
+
+    // 更新原始数据
+    dataRef.children = transformedChildren
+
+    // 为第三层分类标记为叶子节点（假设只有三层分类结构）
+    transformedChildren.forEach((child: { children?: unknown[]; isLeaf?: boolean }) => {
+      child.isLeaf = true // 第三层分类直接标记为叶子节点
+    })
+
+    // 触发重新渲染
+    metadata.value.categories = [...metadata.value.categories]
+  } catch (error) {
+    console.error('加载子分类失败:', error)
+    // 出错时也标记为叶子节点，避免重复尝试
+    dataRef.isLeaf = true
+    dataRef.children = []
+  }
+}
+
+// 转换分类数据为TreeSelect格式
+const transformCategoriesForTreeSelect = (
+  categories: CategoryOption[],
+): Array<CategoryOption & { value: number; title: string; isLeaf?: boolean }> => {
+  return categories.map((category) => ({
+    ...category,
+    value: category.id,
+    title: category.name,
+    children: category.children ? transformCategoriesForTreeSelect(category.children) : undefined,
+    // 如果没有children或children为空，但又不是根节点（有parentId），则可能有子节点需要异步加载
+    isLeaf: category.children ? category.children.length === 0 : false,
+  }))
+}
+
 // 获取元数据
 const fetchMetadata = async () => {
   metadataLoading.value = true
   try {
-    const data = await getGoodsMetadata()
-    metadata.value = data
+    // 只获取分类树数据
+    const categoryTree = await getGoodsCategories()
+
+    // 设置分类数据，其他元数据使用默认值
+    metadata.value = {
+      ...metadata.value,
+      categories: categoryTree,
+    }
   } catch (error) {
     console.error('获取元数据失败:', error)
-    // 如果API调用失败，使用模拟数据
+    // 如果API调用失败，使用模拟数据（保持TreeSelect格式）
     metadata.value = {
       categories: [
-        { id: 1, name: '家用电器' },
-        { id: 2, name: '数码产品' },
-        { id: 3, name: '服装鞋帽' },
-        { id: 4, name: '食品饮料' },
-        { id: 5, name: '图书文具' },
-        { id: 6, name: '家居用品' },
+        {
+          id: 1,
+          name: '家用电器',
+          parentId: 0,
+          children: [
+            { id: 8, name: '大家电', parentId: 1 },
+            { id: 18, name: '小家电', parentId: 1 },
+          ],
+        },
+        {
+          id: 5,
+          name: '数码电子',
+          parentId: 0,
+          children: [
+            { id: 6, name: '数码配件', parentId: 5 },
+            { id: 16, name: '智能穿戴', parentId: 5 },
+            { id: 24, name: '手机数码', parentId: 24 },
+          ],
+        },
+        {
+          id: 21,
+          name: '服装鞋帽',
+          parentId: 0,
+          children: [
+            { id: 22, name: '服装', parentId: 21 },
+            { id: 27, name: '运动鞋', parentId: 21 },
+          ],
+        },
+        {
+          id: 11,
+          name: '食品饮料',
+          parentId: 0,
+          children: [
+            { id: 12, name: '休闲零食', parentId: 11 },
+            { id: 25, name: '茶酒饮料', parentId: 11 },
+          ],
+        },
       ],
       brands: [
         { id: 1, name: '格兰仕' },
@@ -696,7 +804,10 @@ const handleExport = async () => {
     const queryParams: GoodsQueryParams = {}
     // 添加当前的搜索条件
     if (searchForm.name) queryParams.name = searchForm.name
-    if (searchForm.categoryId) queryParams.categoryId = searchForm.categoryId
+    if (searchForm.categoryId && searchForm.categoryId.length > 0) {
+      queryParams.categoryId =
+        searchForm.categoryId.length === 1 ? searchForm.categoryId[0] : searchForm.categoryId
+    }
 
     await exportGoods(queryParams)
     message.success('导出成功')
