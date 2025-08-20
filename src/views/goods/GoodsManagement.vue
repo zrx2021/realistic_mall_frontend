@@ -45,12 +45,19 @@
           <span class="search-label">商品品牌</span>
           <a-select
             v-model:value="searchForm.brandId"
-            placeholder="全部品牌"
-            style="width: 120px"
+            placeholder="请选择品牌"
+            style="width: 200px"
             allow-clear
-            :loading="metadataLoading"
+            mode="multiple"
+            :max-tag-count="2"
+            :loading="brandLoading"
+            show-search
+            :filter-option="false"
+            :not-found-content="brandLoading ? '加载中...' : '暂无数据'"
+            @search="handleBrandSearch"
+            @focus="handleBrandFocus"
           >
-            <a-select-option v-for="brand in metadata.brands" :key="brand.id" :value="brand.id">
+            <a-select-option v-for="brand in brandOptions" :key="brand.id" :value="brand.id">
               {{ brand.name }}
             </a-select-option>
           </a-select>
@@ -352,8 +359,10 @@ import {
   exportGoods,
   getGoodsCategories,
   getGoodsCategorySubTree,
+  getGoodsBrands,
   type GoodsQueryParams,
   type CategoryOption,
+  type BrandOption,
 } from '@/api/goods'
 
 // 搜索表单
@@ -361,7 +370,7 @@ const searchForm = reactive({
   // 基础搜索
   name: '',
   categoryId: [] as number[],
-  brandId: undefined as number | undefined,
+  brandId: [] as number[],
   goodsType: undefined as number | undefined,
 
   // 价格库存
@@ -390,7 +399,7 @@ const showAdvancedSearch = ref(false)
 // 元数据
 const metadata = ref({
   categories: [] as CategoryOption[],
-  brands: [] as { id: number; name: string }[],
+  brands: [] as BrandOption[],
   suppliers: [] as { id: number; name: string }[],
   goodsTypes: [
     { value: 1, label: '实物' },
@@ -413,6 +422,63 @@ const metadata = ref({
 })
 
 const metadataLoading = ref(false)
+
+// 品牌相关状态
+const brandLoading = ref(false)
+const brandSearchKeyword = ref('')
+const brandOptions = ref<BrandOption[]>([])
+
+// 防抖搜索品牌
+let brandSearchTimer: ReturnType<typeof setTimeout> | null = null
+
+// 获取品牌列表
+const fetchBrands = async (keyword?: string) => {
+  brandLoading.value = true
+  try {
+    const brands = await getGoodsBrands(keyword ? { keyword } : undefined)
+    brandOptions.value = brands
+    metadata.value.brands = brands
+  } catch (error) {
+    console.error('获取品牌列表失败:', error)
+    // 使用默认品牌数据
+    const defaultBrands = [
+      { id: 1, name: '格兰仕' },
+      { id: 2, name: '苹果' },
+      { id: 3, name: 'Nike' },
+      { id: 4, name: '三只松鼠' },
+      { id: 5, name: '戴森' },
+      { id: 6, name: '小米' },
+      { id: 7, name: '华为' },
+      { id: 8, name: '美的' },
+    ]
+    brandOptions.value = defaultBrands
+    metadata.value.brands = defaultBrands
+  } finally {
+    brandLoading.value = false
+  }
+}
+
+// 品牌搜索处理
+const handleBrandSearch = (value: string) => {
+  brandSearchKeyword.value = value
+
+  // 清除之前的定时器
+  if (brandSearchTimer) {
+    clearTimeout(brandSearchTimer)
+  }
+
+  // 设置防抖延迟
+  brandSearchTimer = setTimeout(() => {
+    fetchBrands(value)
+  }, 300)
+}
+
+// 品牌下拉框获得焦点时加载初始数据
+const handleBrandFocus = () => {
+  if (brandOptions.value.length === 0) {
+    fetchBrands()
+  }
+}
 
 // 计算转换后的分类数据
 const treeSelectCategories = computed(() => {
@@ -456,10 +522,11 @@ const fetchGoodsData = async () => {
     // 添加搜索条件
     if (searchForm.name) queryParams.name = searchForm.name
     if (searchForm.categoryId && searchForm.categoryId.length > 0) {
-      queryParams.categoryId =
-        searchForm.categoryId.length === 1 ? searchForm.categoryId[0] : searchForm.categoryId
+      queryParams.categoryId = searchForm.categoryId
     }
-    if (searchForm.brandId) queryParams.brandId = searchForm.brandId
+    if (searchForm.brandId && searchForm.brandId.length > 0) {
+      queryParams.brandId = searchForm.brandId
+    }
     if (searchForm.goodsType) queryParams.goodsType = searchForm.goodsType
     if (searchForm.minPrice) queryParams.minPrice = Number(searchForm.minPrice)
     if (searchForm.maxPrice) queryParams.maxPrice = Number(searchForm.maxPrice)
@@ -587,7 +654,7 @@ const handleReset = () => {
   // 重置基础搜索
   searchForm.name = ''
   searchForm.categoryId = []
-  searchForm.brandId = undefined
+  searchForm.brandId = []
   searchForm.goodsType = undefined
 
   // 重置价格库存
@@ -736,16 +803,7 @@ const fetchMetadata = async () => {
           ],
         },
       ],
-      brands: [
-        { id: 1, name: '格兰仕' },
-        { id: 2, name: '苹果' },
-        { id: 3, name: 'Nike' },
-        { id: 4, name: '三只松鼠' },
-        { id: 5, name: '戴森' },
-        { id: 6, name: '小米' },
-        { id: 7, name: '华为' },
-        { id: 8, name: '美的' },
-      ],
+      brands: [],
       suppliers: [
         { id: 1, name: '格兰仕供应商' },
         { id: 2, name: '苹果授权供应商' },
@@ -805,8 +863,10 @@ const handleExport = async () => {
     // 添加当前的搜索条件
     if (searchForm.name) queryParams.name = searchForm.name
     if (searchForm.categoryId && searchForm.categoryId.length > 0) {
-      queryParams.categoryId =
-        searchForm.categoryId.length === 1 ? searchForm.categoryId[0] : searchForm.categoryId
+      queryParams.categoryId = searchForm.categoryId
+    }
+    if (searchForm.brandId && searchForm.brandId.length > 0) {
+      queryParams.brandId = searchForm.brandId
     }
 
     await exportGoods(queryParams)
@@ -901,8 +961,12 @@ const handleGoodsDetailEvent = (event: Event) => {
 
 // 组件挂载时获取数据
 onMounted(async () => {
-  // 并行获取元数据和商品数据
-  await Promise.all([fetchMetadata(), fetchGoodsData()])
+  try {
+    // 并行获取元数据、品牌数据和商品数据
+    await Promise.all([fetchMetadata(), fetchBrands(), fetchGoodsData()])
+  } catch (error) {
+    console.error('数据初始化失败:', error)
+  }
 
   // 监听自定义事件
   window.addEventListener('view-goods-detail', handleGoodsDetailEvent as EventListener)
@@ -910,7 +974,14 @@ onMounted(async () => {
 
 // 组件卸载时清理事件监听
 onUnmounted(() => {
+  // 清理事件监听
   window.removeEventListener('view-goods-detail', handleGoodsDetailEvent as EventListener)
+
+  // 清理定时器
+  if (brandSearchTimer) {
+    clearTimeout(brandSearchTimer)
+    brandSearchTimer = null
+  }
 })
 </script>
 

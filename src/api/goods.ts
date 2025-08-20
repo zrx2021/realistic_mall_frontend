@@ -7,9 +7,9 @@ export interface GoodsQueryParams {
   subTitle?: string // 副标题
 
   // 分类和品牌
-  categoryId?: number | number[] // 分类ID，支持单个或多个
-  brandId?: number // 品牌ID
-  supplierId?: number // 供应商ID
+  categoryId?: number[] // 分类ID数组
+  brandId?: number[] // 品牌ID数组
+  supplierId?: number[] // 供应商ID数组
 
   // 价格相关
   minPrice?: number // 最低价格
@@ -218,8 +218,8 @@ export const getGoodsCategories = () => {
 }
 
 // 获取品牌列表
-export const getGoodsBrands = () => {
-  return get<BrandOption[]>('/goods/brands')
+export const getGoodsBrands = (params?: { keyword?: string }) => {
+  return get<BrandOption[]>('/goods/brands', params)
 }
 
 // 获取供应商列表
