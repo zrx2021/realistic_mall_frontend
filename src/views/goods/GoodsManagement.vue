@@ -88,18 +88,28 @@
         <!-- 售价区间 -->
         <a-flex gap="small" align="center" style="margin-right: 16px">
           <span class="search-label">售价区间</span>
-          <a-input
+          <a-input-number
             v-model:value="searchForm.minPrice"
             placeholder="最低价"
             style="width: 100px"
-            type="number"
+            :min="0"
+            :max="1000000"
+            :step="0.01"
+            string-mode
+            :status="searchForm.minPrice > searchForm.maxPrice ? 'error' : ''"
+            @change="handlePriceChange"
           />
           <span style="margin: 0 4px; color: #999; line-height: 32px">-</span>
-          <a-input
+          <a-input-number
             v-model:value="searchForm.maxPrice"
             placeholder="最高价"
             style="width: 100px"
-            type="number"
+            :min="0"
+            :max="1000000"
+            :step="0.01"
+            string-mode
+            :status="searchForm.minPrice > searchForm.maxPrice ? 'error' : ''"
+            @change="handlePriceChange"
           />
         </a-flex>
 
@@ -116,6 +126,27 @@
             <a-select-option value="low">库存不足</a-select-option>
             <a-select-option value="out">库存为0</a-select-option>
           </a-select>
+        </a-flex>
+
+        <a-flex gap="small" align="center" style="margin-right: 16px">
+          <span class="search-label">库存范围</span>
+          <a-input-number
+            v-model:value="searchForm.minStock"
+            placeholder="最低库存"
+            :min="0"
+            :max="1000000"
+            :step="1"
+            style="width: 100px"
+          />
+          <span style="margin: 0 4px; color: #999; line-height: 32px">-</span>
+          <a-input-number
+            v-model:value="searchForm.maxStock"
+            placeholder="最高库存"
+            :min="0"
+            :max="1000000"
+            :step="1"
+            style="width: 100px"
+          />
         </a-flex>
 
         <!-- 审核状态 -->
@@ -377,6 +408,8 @@ const searchForm = reactive({
   minPrice: '',
   maxPrice: '',
   stockStatus: '',
+  minStock: '',
+  maxStock: '',
   auditStatus: undefined as number | undefined,
 
   // 标签
@@ -530,6 +563,8 @@ const fetchGoodsData = async () => {
     if (searchForm.goodsType) queryParams.goodsType = searchForm.goodsType
     if (searchForm.minPrice) queryParams.minPrice = Number(searchForm.minPrice)
     if (searchForm.maxPrice) queryParams.maxPrice = Number(searchForm.maxPrice)
+    if (searchForm.minStock) queryParams.minStock = Number(searchForm.minStock)
+    if (searchForm.maxStock) queryParams.maxStock = Number(searchForm.maxStock)
     if (searchForm.auditStatus !== undefined) queryParams.auditStatus = searchForm.auditStatus
 
     // 标签筛选
@@ -612,6 +647,16 @@ const fetchGoodsData = async () => {
     pagination.value.total = mockData.length
   } finally {
     loading.value = false
+  }
+}
+
+const handlePriceChange = () => {
+  if (searchForm.minPrice && searchForm.maxPrice) {
+    // 精确到两位小数，如果超过两位，则截取前两位
+    const minPriceDecimalLength = searchForm.minPrice.split('.')[1]?.length || 0
+    const maxPriceDecimalLength = searchForm.maxPrice.split('.')[1]?.length || 0
+    if (minPriceDecimalLength > 2) searchForm.minPrice = searchForm.minPrice.substring(0, 2)
+    if (maxPriceDecimalLength > 2) searchForm.maxPrice = searchForm.maxPrice.substring(0, 2)
   }
 }
 
