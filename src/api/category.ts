@@ -1,4 +1,4 @@
-import { get, post, put, del } from '@/utils/request'
+import { get, post, put, del, upload } from '@/utils/request'
 
 // 分类数据接口（匹配后端实体类）
 export interface CategoryItem {
@@ -126,4 +126,13 @@ export const getCategoryStats = () => {
     withGoods: number
     empty: number
   }>('/category/stats')
+}
+
+// 上传分类图片
+export const uploadCategoryImage = async (file: File): Promise<string> => {
+  const formData = new FormData()
+  formData.append('category', 'goods category')
+  formData.append('file', file)
+
+  return await upload<string>('/file/image/upload', formData)
 }

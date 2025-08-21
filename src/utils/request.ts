@@ -90,5 +90,14 @@ export function del<T>(url: string): Promise<T> {
   return service.delete(url)
 }
 
+// 封装文件上传请求
+export function upload<T>(url: string, formData: FormData): Promise<T> {
+  return service.post(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+}
+
 // 导出 axios 实例
 export default service

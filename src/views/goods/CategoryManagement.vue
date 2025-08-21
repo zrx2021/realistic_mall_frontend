@@ -118,7 +118,20 @@
             </a-form-item>
 
             <a-form-item label="分类图标" name="icon">
-              <a-input v-model:value="formData.icon" placeholder="请输入图标URL" />
+              <a-upload
+                v-model:file-list="iconFileList"
+                :custom-request="handleIconUpload"
+                :before-upload="beforeIconUpload"
+                list-type="picture-card"
+                :max-count="1"
+                accept="image/*"
+                @remove="handleIconRemove"
+              >
+                <div v-if="!formData.icon">
+                  <PlusOutlined />
+                  <div style="margin-top: 8px">上传图标</div>
+                </div>
+              </a-upload>
             </a-form-item>
 
             <a-form-item label="分类描述" name="description">
@@ -189,7 +202,12 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import type { CSSProperties } from 'vue'
 import { message } from 'ant-design-vue'
-import { SearchOutlined, FolderOutlined, FolderOpenOutlined } from '@ant-design/icons-vue'
+import {
+  SearchOutlined,
+  FolderOutlined,
+  FolderOpenOutlined,
+  PlusOutlined,
+} from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
 import {
   getCategoryList,
@@ -197,6 +215,7 @@ import {
   updateCategory,
   deleteCategory,
   getSubCategories,
+  uploadCategoryImage,
   type CategoryItem,
   type CategoryCreateParams,
 } from '@/api/category'
@@ -232,6 +251,18 @@ const expandedKeys = ref<number[]>([])
 const categoryList = ref<CategoryItem[]>([])
 const selectedCategory = ref<CategoryItem | null>(null)
 const isEdit = ref(false)
+
+// 上传文件类型定义
+interface UploadFile {
+  uid: string
+  name: string
+  status: 'uploading' | 'done' | 'error' | 'removed'
+  url?: string
+}
+
+// 文件上传相关
+const iconFileList = ref<UploadFile[]>([])
+const uploadLoading = ref(false)
 
 // 表单相关
 const formRef = ref<FormInstance>()
@@ -474,6 +505,20 @@ const fillFormData = (category: CategoryItem) => {
   formData.seoDescription = category.seoDescription || ''
   formData.createTime = category.createTime
   formData.updateTime = category.updateTime || ''
+
+  // 设置文件列表
+  if (category.icon) {
+    iconFileList.value = [
+      {
+        uid: '-1',
+        name: 'icon.jpg',
+        status: 'done',
+        url: category.icon,
+      },
+    ]
+  } else {
+    iconFileList.value = []
+  }
 }
 
 // 重置表单数据
@@ -492,6 +537,7 @@ const resetFormData = () => {
   formData.seoDescription = ''
   formData.createTime = ''
   formData.updateTime = ''
+  iconFileList.value = []
 }
 
 // 树节点选择
@@ -666,6 +712,69 @@ const handleDelete = async () => {
   }
 }
 
+// 文件上传前验证
+const beforeIconUpload = (file: File) => {
+  const isImage = file.type.startsWith('image/')
+  if (!isImage) {
+    message.error('只能上传图片文件!')
+    return false
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2
+  if (!isLt2M) {
+    message.error('图片大小不能超过 2MB!')
+    return false
+  }
+  return true
+}
+
+// 上传选项类型定义
+interface UploadOptions {
+  file: File
+  onSuccess: (response: any, file: File) => void
+  onError: (error: any, file: File) => void
+  onProgress: (event: { percent: number }) => void
+}
+
+// 自定义上传处理
+const handleIconUpload = async (options: UploadOptions) => {
+  const { file, onSuccess, onError, onProgress } = options
+
+  try {
+    uploadLoading.value = true
+    onProgress({ percent: 50 })
+
+    const imageUrl = await uploadCategoryImage(file)
+    formData.icon = imageUrl
+
+    // 更新文件列表显示
+    iconFileList.value = [
+      {
+        uid: '-1',
+        name: file.name,
+        status: 'done',
+        url: imageUrl,
+      },
+    ]
+
+    onProgress({ percent: 100 })
+    onSuccess(imageUrl, file)
+    message.success('图片上传成功')
+  } catch (error) {
+    console.error('上传失败:', error)
+    onError(error, file)
+    message.error('图片上传失败')
+  } finally {
+    uploadLoading.value = false
+  }
+}
+
+// 移除图片
+const handleIconRemove = () => {
+  formData.icon = ''
+  iconFileList.value = []
+  return true
+}
+
 // 监听选中的分类变化
 watch(selectedCategory, (newCategory) => {
   if (newCategory) {
@@ -772,6 +881,16 @@ export default {
 
 :deep(.ant-form-item-label) {
   font-weight: 500;
+}
+
+:deep(.ant-upload-select-picture-card) {
+  width: 104px;
+  height: 104px;
+}
+
+:deep(.ant-upload-list-picture-card-container) {
+  width: 104px;
+  height: 104px;
 }
 
 /* 响应式布局 */
