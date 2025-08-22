@@ -88,7 +88,7 @@ export const addCategory = (data: CategoryCreateParams) => {
 
 // 更新分类
 export const updateCategory = (id: number, data: CategoryCreateParams) => {
-  return put<CategoryItem>(`/category/${id}`, data)
+  return put<CategoryItem>(`/goods/category/${id}`, data)
 }
 
 // 删除分类

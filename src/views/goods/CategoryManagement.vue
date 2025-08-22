@@ -126,10 +126,26 @@
                 :max-count="1"
                 accept="image/*"
                 @remove="handleIconRemove"
+                :show-upload-list="false"
               >
                 <div v-if="!formData.icon">
                   <PlusOutlined />
                   <div style="margin-top: 8px">上传图标</div>
+                </div>
+                <div v-else class="custom-upload-preview">
+                  <div class="upload-preview-item">
+                    <AuthImage
+                      :src="iconPreviewUrl"
+                      alt="分类图标"
+                      class="preview-image"
+                      :force-auth="true"
+                    />
+                    <div class="upload-preview-actions">
+                      <a-button size="small" class="remove-btn" @click.stop="handleIconRemove"
+                        >移除</a-button
+                      >
+                    </div>
+                  </div>
                 </div>
               </a-upload>
             </a-form-item>
@@ -219,6 +235,7 @@ import {
   type CategoryItem,
   type CategoryCreateParams,
 } from '@/api/category'
+import AuthImage from '@/components/common/AuthImage.vue'
 
 // 树形选择器选项类型
 interface TreeSelectOption {
@@ -335,6 +352,46 @@ const filteredTreeData = computed(() => {
   }
 
   return convertToTreeData(filterCategories(categoryList.value))
+})
+
+// 图标缩略图（通过 axios 拦截器加载）
+const iconPreviewUrl = computed(() => {
+  const src = formData.icon || ''
+  if (!src) return ''
+
+  // 绝对地址 -> 取 pathname，并移除前导 /api
+  if (src.startsWith('http://') || src.startsWith('https://')) {
+    try {
+      const url = new URL(src)
+      const pathname = url.pathname || ''
+      return pathname.startsWith('/api/') ? pathname.slice(4) : pathname
+    } catch (e) {
+      // 非法 URL，继续按下方逻辑处理
+    }
+  }
+
+  // 以 /api/ 开头 -> 去掉 /api 前缀（axios 有 baseURL '/api'）
+  if (src.startsWith('/api/')) {
+    return src.slice(4)
+  }
+
+  // 已是标准后端文件访问路径
+  if (src.startsWith('/file/image/')) {
+    return src
+  }
+
+  // 去掉可能缺失的前导斜杠
+  if (src.startsWith('file/image/')) {
+    return `/${src}`
+  }
+
+  // 仅携带了分类段（支持空格或已编码空格）
+  if (src.startsWith('goods category/') || src.startsWith('goods%20category/')) {
+    return `/file/image/${src}`
+  }
+
+  // 纯文件路径（如 '2025/08/21/xxx.png'）
+  return `/file/image/goods category/${src}`
 })
 
 // 上级分类选项
@@ -505,20 +562,6 @@ const fillFormData = (category: CategoryItem) => {
   formData.seoDescription = category.seoDescription || ''
   formData.createTime = category.createTime
   formData.updateTime = category.updateTime || ''
-
-  // 设置文件列表
-  if (category.icon) {
-    iconFileList.value = [
-      {
-        uid: '-1',
-        name: 'icon.jpg',
-        status: 'done',
-        url: category.icon,
-      },
-    ]
-  } else {
-    iconFileList.value = []
-  }
 }
 
 // 重置表单数据
@@ -537,14 +580,18 @@ const resetFormData = () => {
   formData.seoDescription = ''
   formData.createTime = ''
   formData.updateTime = ''
-  iconFileList.value = []
+}
+
+// 定义树选择事件的类型
+interface TreeSelectInfo {
+  selected: boolean
+  selectedNodes: TreeNodeData[]
+  node: TreeNodeData
+  event: MouseEvent
 }
 
 // 树节点选择
-const handleTreeSelect = (
-  selectedKeys: number[],
-  info: { selected: boolean; selectedNodes: any[]; node: any; event: any },
-) => {
+const handleTreeSelect = (selectedKeys: number[], info: TreeSelectInfo) => {
   if (selectedKeys.length > 0) {
     const categoryId = selectedKeys[0]
     const category = findCategoryById(categoryList.value, categoryId)
@@ -560,9 +607,17 @@ const handleTreeSelect = (
   }
 }
 
+// 定义树节点类型
+interface TreeNode {
+  key: number
+  eventKey?: number
+}
+
 // 异步加载子节点数据
-const loadChildrenData = async (treeNode: any) => {
+const loadChildrenData = async (treeNode: TreeNode) => {
   const nodeKey = treeNode.key || treeNode.eventKey
+  if (!nodeKey) return
+
   const category = findCategoryById(categoryList.value, nodeKey)
 
   if (!category || category.children) {
@@ -730,8 +785,8 @@ const beforeIconUpload = (file: File) => {
 // 上传选项类型定义
 interface UploadOptions {
   file: File
-  onSuccess: (response: any, file: File) => void
-  onError: (error: any, file: File) => void
+  onSuccess: (response: string, file: File) => void
+  onError: (error: Error, file: File) => void
   onProgress: (event: { percent: number }) => void
 }
 
@@ -746,22 +801,13 @@ const handleIconUpload = async (options: UploadOptions) => {
     const imageUrl = await uploadCategoryImage(file)
     formData.icon = imageUrl
 
-    // 更新文件列表显示
-    iconFileList.value = [
-      {
-        uid: '-1',
-        name: file.name,
-        status: 'done',
-        url: imageUrl,
-      },
-    ]
-
     onProgress({ percent: 100 })
     onSuccess(imageUrl, file)
     message.success('图片上传成功')
   } catch (error) {
     console.error('上传失败:', error)
-    onError(error, file)
+    const uploadError = error instanceof Error ? error : new Error('上传失败')
+    onError(uploadError, file)
     message.error('图片上传失败')
   } finally {
     uploadLoading.value = false
@@ -891,6 +937,56 @@ export default {
 :deep(.ant-upload-list-picture-card-container) {
   width: 104px;
   height: 104px;
+}
+
+/* 自定义上传预览样式 */
+.custom-upload-preview {
+  margin-top: 8px;
+}
+
+.upload-preview-item {
+  position: relative;
+  display: inline-block;
+  width: 104px;
+  height: 104px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fafafa;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-preview-actions {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.upload-preview-item:hover .upload-preview-actions {
+  opacity: 1;
+}
+
+.remove-btn {
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
+.remove-btn:hover {
+  color: #ff4d4f !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 /* 响应式布局 */

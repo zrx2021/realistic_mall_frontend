@@ -3,6 +3,39 @@ import { h } from 'vue'
 import { Tag, message } from 'ant-design-vue'
 import AuthImage from '@/components/common/AuthImage.vue'
 
+// 规范化商品图片URL，统一为以 /file/image 开头的相对路径
+function normalizeGoodsImageUrl(src?: string): string {
+  if (!src) return ''
+
+  let s = src
+
+  // 绝对URL -> 取 pathname，并去除前导 /api
+  if (s.startsWith('http://') || s.startsWith('https://')) {
+    try {
+      const url = new URL(s)
+      s = url.pathname || ''
+    } catch {
+      // ignore, fallback to below rules
+    }
+  }
+
+  // 去掉 /api 前缀（axios baseURL 已为 /api）
+  if (s.startsWith('/api/')) {
+    s = s.slice(4)
+  }
+
+  // 已是标准文件访问路径
+  if (s.startsWith('/file/image/')) return s
+  if (s.startsWith('file/image/')) return `/${s}`
+
+  // 以 /goods/ 或 goods/ 开头 -> 补全 /file/image
+  if (s.startsWith('/goods/')) return `/file/image${s}`
+  if (s.startsWith('goods/')) return `/file/image/${s}`
+
+  // 纯文件路径（如 '2025/08/12/xxx.jpg'）默认归类到 goods
+  return `/file/image/goods/${s}`
+}
+
 export interface GoodsItem {
   key: string
   id: number
@@ -130,9 +163,11 @@ export const columns: TableColumnsType<GoodsItem> = [
         import.meta.url,
       ).href
 
+      const src = normalizeGoodsImageUrl(record.mainImage)
+
       return h('div', { style: { display: 'flex', alignItems: 'flex-start', gap: '12px' } }, [
         h(AuthImage, {
-          src: record.mainImage,
+          src,
           fallback: fallbackImage,
           alt: record.name,
           style: {
@@ -144,6 +179,7 @@ export const columns: TableColumnsType<GoodsItem> = [
             display: 'block',
             flexShrink: 0,
           },
+          forceAuth: true,
         }),
         h('div', { style: { flex: 1, minWidth: 0 } }, [
           h(

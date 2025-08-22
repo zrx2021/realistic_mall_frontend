@@ -32,8 +32,19 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse) => {
+    // 针对二进制/图片响应，直接返回数据，走拦截器但不做业务包裹解析
+    const respType = (response.config as { responseType?: string } | undefined)?.responseType
+    const contentType = response.headers ? String(response.headers['content-type'] || '') : ''
+    if (
+      respType === 'blob' ||
+      respType === 'arraybuffer' ||
+      contentType.includes('application/octet-stream') ||
+      contentType.startsWith('image/')
+    ) {
+      return response.data
+    }
+
     const res = response.data
-    // 这里可以根据后端的数据结构进行调整
     if (res.code === 200) {
       return res.data
     } else {
@@ -73,6 +84,12 @@ service.interceptors.response.use(
 // 封装 GET 请求
 export function get<T>(url: string, params?: Record<string, any>): Promise<T> {
   return service.get(url, { params })
+}
+
+// 新增：封装获取二进制/图片的 GET（通过拦截器返回 Blob）
+export async function getBlob(url: string): Promise<Blob> {
+  const data = (await service.get(url, { responseType: 'blob' as const })) as unknown as Blob
+  return data
 }
 
 // 封装 POST 请求
