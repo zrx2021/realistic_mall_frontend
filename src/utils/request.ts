@@ -88,7 +88,15 @@ export function get<T>(url: string, params?: Record<string, any>): Promise<T> {
 
 // 新增：封装获取二进制/图片的 GET（通过拦截器返回 Blob）
 export async function getBlob(url: string): Promise<Blob> {
-  const data = (await service.get(url, { responseType: 'blob' as const })) as unknown as Blob
+  const data = (await service.get(url, {
+    responseType: 'blob' as const,
+    headers: {
+      // 协商更优图片格式（由后端/网关按需支持）
+      Accept: 'image/avif,image/webp,image/apng,image/*;q=0.8,*/*;q=0.5',
+      // 可选：启用浏览器缓存对比（若后端支持强/弱校验）
+      // 'Cache-Control': 'public, max-age=86400',
+    },
+  })) as unknown as Blob
   return data
 }
 

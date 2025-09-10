@@ -706,6 +706,8 @@ const handleReset = () => {
   searchForm.minPrice = ''
   searchForm.maxPrice = ''
   searchForm.stockStatus = ''
+  searchForm.minStock = ''
+  searchForm.maxStock = ''
   searchForm.auditStatus = undefined
 
   // 重置标签
