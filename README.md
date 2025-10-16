@@ -1,6 +1,17 @@
 # mall_realistic_frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+电商管理后台系统 - Vue 3 + TypeScript + Ant Design Vue
+
+## 📚 项目文档
+
+> **所有项目文档已整理到 `markdown/` 文件夹**
+
+- 📖 [文档导航](文档导航.md) - 快速访问所有文档
+- 📂 [文档中心](markdown/README.md) - 完整的文档索引
+- 🗂️ [文档目录结构](markdown/文档目录结构.md) - 可视化目录
+
+### 最新文档
+- ✨ [品牌管理功能](markdown/品牌管理/) - 完整的品牌管理功能文档（4篇）
 
 ## Recommended IDE Setup
 

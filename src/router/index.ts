@@ -50,6 +50,15 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
         },
       },
+      {
+        path: '/goods/brands',
+        name: 'BrandManagement',
+        component: () => import('@/views/goods/BrandManagement.vue'),
+        meta: {
+          title: '品牌管理',
+          requiresAuth: true,
+        },
+      },
     ],
   },
   {
