@@ -419,6 +419,7 @@ const handleOk = async () => {
     confirmLoading.value = true
 
     const brandData = {
+      id: formData.id,
       name: formData.name,
       englishName: formData.englishName,
       logo: formData.logo,
