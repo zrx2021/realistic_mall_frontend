@@ -345,7 +345,7 @@ const fetchBrandData = async () => {
   loading.value = true
   try {
     const queryParams: BrandQueryParams = {
-      keyword: searchKeyword.value,
+      ...(searchKeyword.value && { keyword: searchKeyword.value }),
       pageNumber: pagination.current - 1,
       pageSize: pagination.pageSize,
     }

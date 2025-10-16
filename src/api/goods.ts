@@ -219,7 +219,7 @@ export const getGoodsCategories = () => {
 
 // 获取品牌列表
 export const getGoodsBrands = (params?: { keyword?: string }) => {
-  return get<BrandOption[]>('/goods/brands', params)
+  return get<BrandOption[]>('/goods/brands-list', params)
 }
 
 // 获取供应商列表
