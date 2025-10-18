@@ -103,17 +103,8 @@ const loadImageWithAuth = async (imageUrl: string): Promise<string> => {
         const blob = await match.blob()
         const blobUrl = URL.createObjectURL(blob)
         setCachedBlobUrl(imageUrl, blobUrl)
-        // 后台 revalidate
-        acquire().then(async () => {
-          try {
-            const freshBlob = await getBlob(imageUrl)
-            const resp = new Response(freshBlob, {
-              headers: { 'Content-Type': freshBlob.type || 'application/octet-stream' },
-            })
-            await cache.put(cacheKey, resp)
-          } catch {}
-          release()
-        })
+        // 后台 revalidate - 已禁用，避免重复请求
+        // 如果需要更新缓存，可以在特定场景下手动清除缓存
         return blobUrl
       }
     }

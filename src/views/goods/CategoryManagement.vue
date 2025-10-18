@@ -138,6 +138,7 @@
                       alt="分类图标"
                       class="preview-image"
                       :force-auth="true"
+                      :lazy="false"
                     />
                     <div class="upload-preview-actions">
                       <a-button size="small" class="remove-btn" @click.stop="handleIconRemove"
