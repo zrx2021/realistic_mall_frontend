@@ -2,7 +2,7 @@ import { get, post, put, del, upload } from '@/utils/request'
 
 // 分类数据接口（匹配后端实体类）
 export interface CategoryItem {
-  id: number
+  id: number | null
   name: string
   parentId: number | null
   level: number
@@ -32,6 +32,7 @@ export interface CategoryQueryParams {
 
 // 分类创建/更新参数
 export interface CategoryCreateParams {
+  id: number | null
   name: string
   parentId?: number | null
   level?: number

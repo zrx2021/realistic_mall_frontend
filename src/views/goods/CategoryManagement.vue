@@ -2,8 +2,8 @@
   <a-flex :style="containerStyle" vertical gap="middle">
     <!-- 顶部操作栏 -->
     <a-flex :style="boxStyle" justify="space-between" align="center">
-      <div>
-        <a-button type="primary" @click="handleAddRootCategory">新建一级分类</a-button>
+      <div style="line-height: 32px;">
+        <a-button type="primary" @click="handleAddPrimaryCategory">新建一级分类</a-button>
         <a-button
           v-if="selectedCategory && selectedCategory.level < 3"
           type="default"
@@ -100,8 +100,7 @@
               <a-tree-select
                 v-model:value="formData.parentId"
                 :tree-data="parentCategoryOptions"
-                placeholder="请选择上级分类（不选则为一级分类）"
-                allow-clear
+                placeholder="请选择上级分类"
                 tree-default-expand-all
                 :disabled="isEdit && formData.level === 1"
               />
@@ -236,19 +235,21 @@ import {
   type CategoryCreateParams,
 } from '@/api/category'
 import AuthImage from '@/components/common/AuthImage.vue'
+import { getUniqueId } from '@/utils/uniqueId'
 
 // 树形选择器选项类型
 interface TreeSelectOption {
-  value: number
+  value: number | null
   title: string
-  key: number
+  key: number | null
   children?: TreeSelectOption[]
 }
 
 // 树节点数据类型
 interface TreeNodeData {
+  id: number | null
   title: string
-  key: number
+  key: number | null
   children?: TreeNodeData[]
   isActive: boolean
   goodsCount: number
@@ -261,13 +262,17 @@ interface TreeNodeData {
 const loading = ref(false)
 const saveLoading = ref(false)
 const searchKeyword = ref('')
-const selectedKeys = ref<number[]>([])
-const expandedKeys = ref<number[]>([])
+const selectedKeys = ref<(number | null)[]>([])
+const expandedKeys = ref<(number | null)[]>([])
 
 // 分类数据
-const categoryList = ref<CategoryItem[]>([])
+const categoryList = ref<CategoryItem[]>([]) // 完整数据（包含根节点）
+const rootCategory = ref<CategoryItem | null>(null) // 根节点引用
 const selectedCategory = ref<CategoryItem | null>(null)
+// 编辑状态
 const isEdit = ref(false)
+// 保存新建的分类ID
+const newCategoryIds = ref<number[]>([])
 
 // 上传文件类型定义
 interface UploadFile {
@@ -284,7 +289,7 @@ const uploadLoading = ref(false)
 // 表单相关
 const formRef = ref<FormInstance>()
 const formData = reactive({
-  id: undefined as number | undefined,
+  id: null as number | null,
   name: '',
   parentId: null as number | null,
   level: 1,
@@ -315,22 +320,35 @@ const formRules = {
 // 转换分类数据为树形数据
 const convertToTreeData = (categories: CategoryItem[]): TreeNodeData[] => {
   return categories.map((category) => ({
+    id: category.id ?? null,
     title: category.name,
-    key: category.id,
+    key: category.id ?? null,
     isActive: category.isActive,
     goodsCount: category.goodsCount || 0,
     level: category.level,
     parentId: category.parentId,
     children: category.children ? convertToTreeData(category.children) : undefined,
-    // 支持异步加载：如果是二级分类且没有children，则标记为可加载
-    isLeaf: category.level === 3 || (category.level === 2 && !category.hasChildren),
+    // 如果是三级分类或没有子节点，则标记为叶子节点（不可展开）
+    isLeaf: category.level === 3 || !category.hasChildren,
   }))
+}
+
+// 获取显示用的分类列表（过滤掉根节点）
+const getDisplayCategories = (categories: CategoryItem[]): CategoryItem[] => {
+  // 如果有根节点，返回其子节点；否则返回空数组
+  if (rootCategory.value && rootCategory.value.children && rootCategory.value.children.length > 0) {
+    return rootCategory.value.children
+  }
+  // 注意：不能在这里调用 message.error()，因为这个函数被 computed 调用，会导致无限循环
+  return []
 }
 
 // 过滤后的树形数据
 const filteredTreeData = computed(() => {
+  const displayCategories = getDisplayCategories(categoryList.value)
+  
   if (!searchKeyword.value.trim()) {
-    return convertToTreeData(categoryList.value)
+    return convertToTreeData(displayCategories)
   }
 
   const filterCategories = (categories: CategoryItem[]): CategoryItem[] => {
@@ -351,7 +369,7 @@ const filteredTreeData = computed(() => {
     return result
   }
 
-  return convertToTreeData(filterCategories(categoryList.value))
+  return convertToTreeData(filterCategories(displayCategories))
 })
 
 // 图标缩略图（通过 axios 拦截器加载）
@@ -396,21 +414,39 @@ const iconPreviewUrl = computed(() => {
 
 // 上级分类选项
 const parentCategoryOptions = computed(() => {
-  const buildTreeOptions = (categories: CategoryItem[], excludeId?: number): TreeSelectOption[] => {
+  const options: TreeSelectOption[] = []
+  
+  // 如果有根节点，先添加根节点选项（用于一级分类）
+  if (rootCategory.value) {
+    options.push({
+      value: rootCategory.value.id ?? null,
+      title: rootCategory.value.name,
+      key: rootCategory.value.id ?? null,
+      children: undefined, // 根节点不显示子节点，避免递归
+    })
+  }
+  
+  // 构建其他分类的选项树
+  const buildTreeOptions = (categories: CategoryItem[], excludeId?: number | null): TreeSelectOption[] => {
     return categories
-      .filter((cat) => cat.level <= 2 && cat.id !== excludeId) // 只显示前两级作为父级选项，排除当前编辑的分类
+      .filter((cat) => cat.level > 0 && cat.level <= 2 && cat.id !== excludeId) // 只显示1-2级作为父级选项，排除当前编辑的分类
       .map((cat) => ({
-        value: cat.id,
+        value: cat.id ?? null,
         title: cat.name,
-        key: cat.id,
+        key: cat.id ?? null,
         children: cat.children ? buildTreeOptions(cat.children, excludeId) : undefined,
       }))
   }
-  return buildTreeOptions(categoryList.value, selectedCategory.value?.id)
+  
+  // 添加其他分类选项
+  const displayCategories = getDisplayCategories(categoryList.value)
+  options.push(...buildTreeOptions(displayCategories, selectedCategory.value?.id ?? null))
+  
+  return options
 })
 
 // 根据ID查找分类
-const findCategoryById = (categories: CategoryItem[], id: number): CategoryItem | null => {
+const findCategoryById = (categories: CategoryItem[], id: number | null): CategoryItem | null => {
   for (const category of categories) {
     if (category.id === id) {
       return category
@@ -433,114 +469,42 @@ const fetchCategoryData = async () => {
     const processCategories = (categories: CategoryItem[]): CategoryItem[] => {
       return categories.map((category) => ({
         ...category,
-        // 如果是二级分类，标记可能有子节点（需要异步加载）
-        hasChildren: category.level === 2,
+        hasChildren: category.children && category.children.length > 0,
         // 如果有子分类但children为空，则需要异步加载
         children:
-          category.level === 1 && category.children
+          category.children
             ? processCategories(category.children)
             : undefined,
       }))
     }
 
-    categoryList.value = processCategories(data)
-
-    // 默认展开一级分类
-    const getFirstLevelKeys = (categories: CategoryItem[]): number[] => {
-      return categories.filter((cat) => cat.level === 1).map((cat) => cat.id)
+    // 识别并保存根节点（第一层只有一个节点）
+    if (data.length !== 1) {
+      message.error('数据格式错误：根节点必须且只能有一个')
+      return
     }
-    expandedKeys.value = getFirstLevelKeys(data)
+    
+    if (data[0].level !== 0) {
+      message.error('数据格式错误：根节点的 level 必须为 0')
+      return
+    }
+    
+    // 保存完整的数据（包含根节点）
+    categoryList.value = processCategories(data)
+    
+    // rootCategory 必须指向 categoryList 中的根节点，而不是原始 data[0]
+    // 这样修改 rootCategory 就会同步到 categoryList
+    rootCategory.value = categoryList.value[0] 
+
+    // 默认展开一级分类（界面上的一级分类，实际是level=1）
+    const displayCategories = getDisplayCategories(categoryList.value)
+    const getFirstLevelKeys = (categories: CategoryItem[]): (number | null)[] => {
+      return categories.filter((cat) => cat.level === 1).map((cat) => cat.id ?? null)
+    }
+    expandedKeys.value = getFirstLevelKeys(displayCategories)
   } catch (error) {
     console.error('获取分类数据失败:', error)
-    // 如果API调用失败，使用模拟数据
-    const mockData: CategoryItem[] = [
-      {
-        id: 1,
-        name: '数码家电',
-        parentId: null,
-        level: 1,
-        path: '1',
-        sortOrder: 100,
-        icon: '',
-        description: '数码家电分类',
-        isActive: true,
-        seoTitle: '',
-        seoKeywords: '',
-        seoDescription: '',
-        createTime: '2035-09-19 9:39:39',
-        goodsCount: 2,
-        hasChildren: true,
-        children: [
-          {
-            id: 8,
-            name: '生活电器',
-            parentId: 1,
-            level: 2,
-            path: '1,8',
-            sortOrder: 90,
-            icon: '',
-            description: '生活电器分类',
-            isActive: true,
-            seoTitle: '',
-            seoKeywords: '',
-            seoDescription: '',
-            createTime: '2035-09-19 9:39:39',
-            goodsCount: 23,
-            hasChildren: true,
-            children: [
-              {
-                id: 16,
-                name: '面条机',
-                parentId: 8,
-                level: 3,
-                path: '1,8,16',
-                sortOrder: 80,
-                icon: '',
-                description: '面条机分类',
-                isActive: true,
-                seoTitle: '',
-                seoKeywords: '',
-                seoDescription: '',
-                createTime: '2035-09-19 9:39:39',
-                goodsCount: 16,
-                hasChildren: false,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: 5,
-        name: '户外营销',
-        parentId: null,
-        level: 1,
-        path: '5',
-        sortOrder: 80,
-        icon: '',
-        description: '户外营销分类',
-        isActive: false,
-        seoTitle: '',
-        seoKeywords: '',
-        seoDescription: '',
-        createTime: '2035-09-19 9:39:39',
-        goodsCount: 5,
-        hasChildren: false,
-      },
-    ]
-
-    categoryList.value = mockData
-    const getAllKeys = (categories: CategoryItem[]): number[] => {
-      const keys: number[] = []
-      categories.forEach((category) => {
-        keys.push(category.id)
-        if (category.children) {
-          keys.push(...getAllKeys(category.children))
-        }
-      })
-      return keys
-    }
-    expandedKeys.value = getAllKeys(mockData)
-    message.warning('使用模拟数据，请检查后端接口')
+    message.error('获取分类数据失败')
   } finally {
     loading.value = false
   }
@@ -550,6 +514,7 @@ const fetchCategoryData = async () => {
 const fillFormData = (category: CategoryItem) => {
   formData.id = category.id
   formData.name = category.name
+  // 保持实际的 parentId（包括根节点 ID）
   formData.parentId = category.parentId
   formData.level = category.level
   formData.path = category.path || ''
@@ -566,7 +531,7 @@ const fillFormData = (category: CategoryItem) => {
 
 // 重置表单数据
 const resetFormData = () => {
-  formData.id = undefined
+  formData.id = null
   formData.name = ''
   formData.parentId = null
   formData.level = 1
@@ -582,23 +547,17 @@ const resetFormData = () => {
   formData.updateTime = ''
 }
 
-// 定义树选择事件的类型
-interface TreeSelectInfo {
-  selected: boolean
-  selectedNodes: TreeNodeData[]
-  node: TreeNodeData
-  event: MouseEvent
-}
-
 // 树节点选择
-const handleTreeSelect = (selectedKeys: number[], info: TreeSelectInfo) => {
+const handleTreeSelect = (selectedKeys: (number | null)[]) => {
   if (selectedKeys.length > 0) {
-    const categoryId = selectedKeys[0]
-    const category = findCategoryById(categoryList.value, categoryId)
-    if (category) {
-      selectedCategory.value = category
-      fillFormData(category)
-      isEdit.value = true
+    const categoryId = selectedKeys[0] ?? null
+    if (categoryId) {
+      const category = findCategoryById(categoryList.value, categoryId)
+      if (category) {
+        selectedCategory.value = category
+        fillFormData(category)
+        isEdit.value = true
+      }
     }
   } else {
     selectedCategory.value = null
@@ -668,24 +627,24 @@ const handleSearch = (value: string) => {
 }
 
 // 新建一级分类
-const handleAddRootCategory = () => {
+const handleAddPrimaryCategory = () => {
+  if (!rootCategory.value || !rootCategory.value.id) {
+    message.error('未找到根分类节点')
+    return
+  }
   selectedCategory.value = null
   resetFormData()
-  formData.level = 1
-  formData.parentId = null
-  isEdit.value = false
-  selectedKeys.value = []
+  handleAddCategory(rootCategory.value.id, 1)
 }
 
-// 新建子分类
-const handleAddSubCategory = () => {
-  if (!selectedCategory.value) return
-
-  const newCategory = {
-    id: 0, // 新建时ID为0
-    name: '',
-    parentId: selectedCategory.value.id,
-    level: selectedCategory.value.level + 1,
+// 新建分类
+const handleAddCategory = (parentId: number, level: number) => {
+  const newId = getUniqueId()
+  const newCategory: CategoryItem = {
+    id: newId,
+    name: '新建分类',
+    parentId: parentId,
+    level: level,
     path: '',
     sortOrder: 0,
     icon: '',
@@ -696,23 +655,70 @@ const handleAddSubCategory = () => {
     seoDescription: '',
     createTime: '',
     updateTime: '',
-  } as CategoryItem
+  }
 
+  // 查找父分类并添加子节点
+  const parentCategory = findCategoryById(categoryList.value, parentId)
+  if (parentCategory) {
+    if (!parentCategory.children) {
+      parentCategory.children = []
+    }
+    parentCategory.children.push(newCategory)
+    
+    // 更新 hasChildren 标记
+    parentCategory.hasChildren = true
+  } else {
+    message.error('未找到父分类')
+    return
+  }
+
+  newCategoryIds.value.push(newId)
+  selectedKeys.value = [newId]
+  
+  // 触发响应式更新（创建新数组引用，但保持对象引用不变）
+  categoryList.value = [...categoryList.value]
+  
+  // 选中新建的分类
   selectedCategory.value = newCategory
   fillFormData(newCategory)
-  isEdit.value = false
-  selectedKeys.value = []
+  isEdit.value = true
+}
+
+// 新建子分类
+const handleAddSubCategory = () => {
+  if (!selectedCategory.value) return
+  if (!selectedCategory.value.id) return
+  if (selectedCategory.value.level >= 3) return
+  resetFormData()
+  handleAddCategory(selectedCategory.value.id, selectedCategory.value.level + 1)
 }
 
 // 保存分类
 const handleSave = async () => {
+  if (formData.id === null) {
+    message.error('请先新建分类')
+    return
+  }
+  
+  if (!rootCategory.value || !rootCategory.value.id) {
+    message.error('未找到根分类节点')
+    return
+  }
+  
+  // 验证 parentId
+  if (!formData.parentId) {
+    message.error('请选择上级分类')
+    return
+  }
+  
   try {
     await formRef.value?.validateFields()
     saveLoading.value = true
 
     const categoryData: CategoryCreateParams = {
+      id: formData.id ?? null,
       name: formData.name,
-      parentId: formData.parentId,
+      parentId: formData.parentId, // 直接使用 formData.parentId，不做转换
       level: formData.level,
       sortOrder: formData.sortOrder,
       icon: formData.icon,
@@ -723,12 +729,12 @@ const handleSave = async () => {
       seoDescription: formData.seoDescription,
     }
 
-    if (isEdit.value && formData.id) {
-      await updateCategory(formData.id, categoryData)
-      message.success('更新成功')
-    } else {
+    if (newCategoryIds.value.includes(formData.id)) {
       await addCategory(categoryData)
       message.success('新建成功')
+    } else {
+      await updateCategory(formData.id, categoryData)
+      message.success('更新成功')
     }
 
     await fetchCategoryData()
@@ -822,9 +828,9 @@ const handleIconRemove = () => {
 }
 
 // 监听选中的分类变化
-watch(selectedCategory, (newCategory) => {
-  if (newCategory) {
-    selectedKeys.value = [newCategory.id]
+watch(selectedCategory, (selectedCategory) => {
+  if (selectedCategory) {
+    selectedKeys.value = selectedCategory.id ? [selectedCategory.id ?? null] : []
   }
 })
 
