@@ -4,14 +4,22 @@
     <a-flex :style="boxStyle" justify="space-between" align="center">
       <div style="line-height: 32px;">
         <a-button type="primary" @click="handleAddPrimaryCategory">新建一级分类</a-button>
-        <a-button
-          v-if="selectedCategory && selectedCategory.level < 3"
-          type="default"
-          @click="handleAddSubCategory"
-          style="margin-left: 8px"
+        <a-tooltip 
+          :title="isNewUnsavedCategory ? '请先保存新节点' : ''"
+          :visible="isNewUnsavedCategory && showTooltip ? true : undefined"
         >
-          新建子分类
-        </a-button>
+          <a-button
+            v-if="selectedCategory && selectedCategory.level < 10"
+            type="default"
+            @click="handleAddSubCategory"
+            :disabled="isNewUnsavedCategory"
+            style="margin-left: 8px"
+            @mouseenter="showTooltip = true"
+            @mouseleave="showTooltip = false"
+          >
+            新建子分类
+          </a-button>
+        </a-tooltip>
       </div>
       <a-input-search
         v-model:value="searchKeyword"
@@ -37,7 +45,6 @@
             :tree-data="filteredTreeData"
             :show-icon="true"
             :show-line="true"
-            :load-data="loadChildrenData"
             block-node
             @select="handleTreeSelect"
             @expand="handleTreeExpand"
@@ -230,7 +237,6 @@ import {
   addCategory,
   updateCategory,
   deleteCategory,
-  getSubCategories,
   uploadCategoryImage,
   type CategoryItem,
   type CategoryCreateParams,
@@ -274,6 +280,14 @@ const selectedCategory = ref<CategoryItem | null>(null)
 const isEdit = ref(false)
 // 保存新建的分类ID
 const newCategoryIds = ref<number[]>([])
+// Tooltip显示状态
+const showTooltip = ref(false)
+
+// 计算当前选中的分类是否是未保存的新节点
+const isNewUnsavedCategory = computed(() => {
+  if (!selectedCategory.value || !selectedCategory.value.id) return false
+  return newCategoryIds.value.includes(selectedCategory.value.id)
+})
 
 // 上传文件类型定义
 interface UploadFile {
@@ -329,13 +343,13 @@ const convertToTreeData = (categories: CategoryItem[]): TreeNodeData[] => {
     level: category.level,
     parentId: category.parentId,
     children: category.children ? convertToTreeData(category.children) : undefined,
-    // 如果是三级分类或没有子节点，则标记为叶子节点（不可展开）
-    isLeaf: category.level === 3 || !category.hasChildren,
+    // 叶子节点判断：level === 10 或没有子节点
+    isLeaf: category.level === 10 || !category.children || category.children.length === 0,
   }))
 }
 
 // 获取显示用的分类列表（过滤掉根节点）
-const getDisplayCategories = (categories: CategoryItem[]): CategoryItem[] => {
+const getHideRootNodeCategories = (categories: CategoryItem[]): CategoryItem[] => {
   // 如果有根节点，返回其子节点；否则返回空数组
   if (rootCategory.value && rootCategory.value.children && rootCategory.value.children.length > 0) {
     return rootCategory.value.children
@@ -346,7 +360,7 @@ const getDisplayCategories = (categories: CategoryItem[]): CategoryItem[] => {
 
 // 过滤后的树形数据
 const filteredTreeData = computed(() => {
-  const displayCategories = getDisplayCategories(categoryList.value)
+  const displayCategories = getHideRootNodeCategories(categoryList.value)
   
   if (!searchKeyword.value.trim()) {
     return convertToTreeData(displayCategories)
@@ -430,7 +444,7 @@ const parentCategoryOptions = computed(() => {
   // 构建其他分类的选项树
   const buildTreeOptions = (categories: CategoryItem[], excludeId?: number | null): TreeSelectOption[] => {
     return categories
-      .filter((cat) => cat.level > 0 && cat.level <= 2 && cat.id !== excludeId) // 只显示1-2级作为父级选项，排除当前编辑的分类
+      .filter((cat) => cat.level > 0 && cat.level <= 9 && cat.id !== excludeId) // 只显示1-9级作为父级选项，排除当前编辑的分类
       .map((cat) => ({
         value: cat.id ?? null,
         title: cat.name,
@@ -440,7 +454,7 @@ const parentCategoryOptions = computed(() => {
   }
   
   // 添加其他分类选项
-  const displayCategories = getDisplayCategories(categoryList.value)
+  const displayCategories = getHideRootNodeCategories(categoryList.value)
   options.push(...buildTreeOptions(displayCategories, selectedCategory.value?.id ?? null))
   
   return options
@@ -460,24 +474,12 @@ const findCategoryById = (categories: CategoryItem[], id: number | null): Catego
   return null
 }
 
-// 获取分类数据（前两层）
+// 获取分类数据（所有层级，包含根节点）
 const fetchCategoryData = async () => {
   loading.value = true
   try {
-    const data = await getCategoryList()
-
-    // 为每个分类添加异步加载标记
-    const processCategories = (categories: CategoryItem[]): CategoryItem[] => {
-      return categories.map((category) => ({
-        ...category,
-        hasChildren: category.children && category.children.length > 0,
-        // 如果有子分类但children为空，则需要异步加载
-        children:
-          category.children
-            ? processCategories(category.children)
-            : undefined,
-      }))
-    }
+    // 从根节点（parentId=0）获取所有层级的分类数据
+    const data = await getCategoryList(0)
 
     // 识别并保存根节点（第一层只有一个节点）
     if (data.length !== 1) {
@@ -491,14 +493,13 @@ const fetchCategoryData = async () => {
     }
     
     // 保存完整的数据（包含根节点）
-    categoryList.value = processCategories(data)
+    categoryList.value = data
     
-    // rootCategory 必须指向 categoryList 中的根节点，而不是原始 data[0]
-    // 这样修改 rootCategory 就会同步到 categoryList
+    // rootCategory 必须指向 categoryList 中的根节点
     rootCategory.value = categoryList.value[0] 
 
     // 默认展开一级分类（界面上的一级分类，实际是level=1）
-    const displayCategories = getDisplayCategories(categoryList.value)
+    const displayCategories = getHideRootNodeCategories(categoryList.value)
     const getFirstLevelKeys = (categories: CategoryItem[]): (number | null)[] => {
       return categories.filter((cat) => cat.level === 1).map((cat) => cat.id ?? null)
     }
@@ -564,56 +565,6 @@ const handleTreeSelect = (selectedKeys: (number | null)[]) => {
     selectedCategory.value = null
     resetFormData()
     isEdit.value = false
-  }
-}
-
-// 定义树节点类型
-interface TreeNode {
-  key: number
-  eventKey?: number
-}
-
-// 异步加载子节点数据
-const loadChildrenData = async (treeNode: TreeNode) => {
-  const nodeKey = treeNode.key || treeNode.eventKey
-  if (!nodeKey) return
-
-  const category = findCategoryById(categoryList.value, nodeKey)
-
-  if (!category || category.children) {
-    return // 已经有子节点数据，不需要重复加载
-  }
-
-  try {
-    const subCategories = await getSubCategories(nodeKey)
-
-    // 更新分类数据
-    const updateCategoryChildren = (categories: CategoryItem[]): CategoryItem[] => {
-      return categories.map((cat) => {
-        if (cat.id === nodeKey) {
-          return {
-            ...cat,
-            children: subCategories.map((sub) => ({
-              ...sub,
-              hasChildren: false, // 三级分类没有子节点
-            })),
-            hasChildren: subCategories.length > 0,
-          }
-        }
-        if (cat.children) {
-          return {
-            ...cat,
-            children: updateCategoryChildren(cat.children),
-          }
-        }
-        return cat
-      })
-    }
-
-    categoryList.value = updateCategoryChildren(categoryList.value)
-  } catch (error) {
-    console.error('加载子分类失败:', error)
-    message.error('加载子分类失败')
   }
 }
 
@@ -689,7 +640,12 @@ const handleAddCategory = (parentId: number, level: number) => {
 const handleAddSubCategory = () => {
   if (!selectedCategory.value) return
   if (!selectedCategory.value.id) return
-  if (selectedCategory.value.level >= 3) return
+  if (selectedCategory.value.level >= 10) return
+  // 检查是否是未保存的新节点
+  if (isNewUnsavedCategory.value) {
+    message.warning('请先保存新节点')
+    return
+  }
   resetFormData()
   handleAddCategory(selectedCategory.value.id, selectedCategory.value.level + 1)
 }
@@ -732,9 +688,11 @@ const handleSave = async () => {
 
     if (newCategoryIds.value.includes(formData.id)) {
       await addCategory(categoryData)
+      // 保存成功后，从新建ID列表中移除
+      newCategoryIds.value = newCategoryIds.value.filter(id => id !== formData.id)
       message.success('新建成功')
     } else {
-      await updateCategory(formData.id, categoryData)
+      await updateCategory(categoryData)
       message.success('更新成功')
     }
 

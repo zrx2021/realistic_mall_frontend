@@ -60,9 +60,10 @@ export interface PageResponse<T> {
   last: boolean
 }
 
-// 获取商品分类（前两层）- 匹配后端接口
-export const getCategoryList = () => {
-  return get<CategoryItem[]>('/goods/category')
+// 获取商品分类（所有层级）- 匹配后端接口
+export const getCategoryList = (parentId?: number | null) => {
+  const url = parentId ? `/goods/category/${parentId}` : '/goods/category/1'
+  return get<CategoryItem[]>(url)
 }
 
 // 获取分类列表（分页）
@@ -88,8 +89,8 @@ export const addCategory = (data: CategoryCreateParams) => {
 }
 
 // 更新分类
-export const updateCategory = (id: number, data: CategoryCreateParams) => {
-  return put<CategoryItem>(`/goods/category/${id}`, data)
+export const updateCategory = (data: CategoryCreateParams) => {
+  return put<CategoryItem>(`/goods/category`, data)
 }
 
 // 删除分类
@@ -100,11 +101,6 @@ export const deleteCategory = (id: number) => {
 // 批量删除分类
 export const batchDeleteCategory = (ids: number[]) => {
   return post<void>('/category/batch/delete', { ids })
-}
-
-// 根据父商品分类id获取子商品分类 - 匹配后端接口
-export const getSubCategories = (parentId: number) => {
-  return get<CategoryItem[]>(`/goods/category/sub/${parentId}`)
 }
 
 // 移动分类（调整父级分类）
