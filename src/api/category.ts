@@ -62,7 +62,7 @@ export interface PageResponse<T> {
 
 // 获取商品分类（所有层级）- 匹配后端接口
 export const getCategoryList = (parentId?: number | null) => {
-  const url = parentId ? `/goods/category/${parentId}` : '/goods/category/1'
+  const url = parentId ? `/goods/category?parentId${parentId}` : `/goods/category?parentId=1`
   return get<CategoryItem[]>(url)
 }
 
@@ -128,8 +128,37 @@ export const getCategoryStats = () => {
 // 上传分类图片
 export const uploadCategoryImage = async (file: File): Promise<string> => {
   const formData = new FormData()
-  formData.append('category', 'goods category')
+  formData.append('category', 'goods/category')
   formData.append('file', file)
 
   return await upload<string>('/file/image/upload', formData)
+}
+
+// 批量导入分类数据
+export interface BatchCategoryImportItem {
+  name: string
+  parentId?: number | null
+  sortOrder: number
+  icon?: string
+  description?: string
+  isActive?: boolean
+  children?: BatchCategoryImportItem[]
+}
+
+// Excel 导入分类（30秒超时）
+export const importCategoriesFromExcel = async (file: File): Promise<string> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  
+  return await upload<string>('/goods/category/excel', formData, {
+    timeout: 30000, // 30秒超时
+  })
+}
+
+// Excel 导出分类
+export const exportCategoriesToExcel = (): Promise<Blob> => {
+  return get<Blob>('/goods/category/excel', {}, { 
+    responseType: 'blob',
+    timeout: 30000, // 30秒超时
+  })
 }

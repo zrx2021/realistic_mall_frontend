@@ -2,7 +2,7 @@
   <a-flex :style="containerStyle" vertical gap="middle">
     <!-- 顶部操作栏 -->
     <a-flex :style="boxStyle" justify="space-between" align="center">
-      <div style="line-height: 32px;">
+      <a-flex align="center" gap="small">
         <a-button type="primary" @click="handleAddPrimaryCategory">新建一级分类</a-button>
         <a-tooltip 
           :title="isNewUnsavedCategory ? '请先保存新节点' : ''"
@@ -13,14 +13,28 @@
             type="default"
             @click="handleAddSubCategory"
             :disabled="isNewUnsavedCategory"
-            style="margin-left: 8px"
             @mouseenter="showTooltip = true"
             @mouseleave="showTooltip = false"
           >
             新建子分类
           </a-button>
         </a-tooltip>
-      </div>
+        <a-upload
+          :show-upload-list="false"
+          :before-upload="handleBeforeUpload"
+          :custom-request="handleExcelImport"
+          accept=".xlsx,.xls"
+        >
+          <a-button :loading="importLoading">
+            <CloudUploadOutlined />
+            导入Excel
+          </a-button>
+        </a-upload>
+        <a-button @click="handleExcelExport" :loading="exportLoading">
+          <DownloadOutlined />
+          导出Excel
+        </a-button>
+      </a-flex>
       <a-input-search
         v-model:value="searchKeyword"
         placeholder="搜索分类名称"
@@ -230,6 +244,8 @@ import {
   FolderOutlined,
   FolderOpenOutlined,
   PlusOutlined,
+  CloudUploadOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
 import {
@@ -238,6 +254,8 @@ import {
   updateCategory,
   deleteCategory,
   uploadCategoryImage,
+  importCategoriesFromExcel,
+  exportCategoriesToExcel,
   type CategoryItem,
   type CategoryCreateParams,
 } from '@/api/category'
@@ -268,6 +286,8 @@ interface TreeNodeData {
 // 状态管理
 const loading = ref(false)
 const saveLoading = ref(false)
+const importLoading = ref(false)
+const exportLoading = ref(false)
 const searchKeyword = ref('')
 const selectedKeys = ref<(number | null)[]>([])
 const expandedKeys = ref<(number | null)[]>([])
@@ -387,44 +407,9 @@ const filteredTreeData = computed(() => {
   return convertToTreeData(filterCategories(displayCategories))
 })
 
-// 图标缩略图（通过 axios 拦截器加载）
+// 图标缩略图（通过 AuthImage 组件自动处理路径转换）
 const iconPreviewUrl = computed(() => {
-  const src = formData.icon || ''
-  if (!src) return ''
-
-  // 绝对地址 -> 取 pathname，并移除前导 /api
-  if (src.startsWith('http://') || src.startsWith('https://')) {
-    try {
-      const url = new URL(src)
-      const pathname = url.pathname || ''
-      return pathname.startsWith('/api/') ? pathname.slice(4) : pathname
-    } catch (e) {
-      // 非法 URL，继续按下方逻辑处理
-    }
-  }
-
-  // 以 /api/ 开头 -> 去掉 /api 前缀（axios 有 baseURL '/api'）
-  if (src.startsWith('/api/')) {
-    return src.slice(4)
-  }
-
-  // 已是标准后端文件访问路径
-  if (src.startsWith('/file/image/')) {
-    return src
-  }
-
-  // 去掉可能缺失的前导斜杠
-  if (src.startsWith('file/image/')) {
-    return `/${src}`
-  }
-
-  // 仅携带了分类段（支持空格或已编码空格）
-  if (src.startsWith('goods category/') || src.startsWith('goods%20category/')) {
-    return `/file/image/${src}`
-  }
-
-  // 纯文件路径（如 '2025/08/21/xxx.png'）
-  return `/file/image/goods category/${src}`
+  return formData.icon || ''
 })
 
 // 上级分类选项
@@ -729,6 +714,103 @@ const handleDelete = async () => {
   } catch (error) {
     console.error('删除失败:', error)
     message.error('删除失败')
+  }
+}
+
+// Excel导入前验证
+const handleBeforeUpload = (file: File) => {
+  const isExcel =
+    file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    file.type === 'application/vnd.ms-excel' ||
+    file.name.endsWith('.xlsx') ||
+    file.name.endsWith('.xls')
+
+  if (!isExcel) {
+    message.error('只能上传Excel文件（.xlsx或.xls格式）')
+    return false
+  }
+
+  const isLt10M = file.size / 1024 / 1024 < 10
+  if (!isLt10M) {
+    message.error('文件大小不能超过 10MB')
+    return false
+  }
+
+  return true
+}
+
+// 上传选项类型定义
+interface UploadRequestOption {
+  file: File
+  onSuccess: (response: any) => void
+  onError: (error: Error) => void
+}
+
+// Excel导入处理
+const handleExcelImport = async (options: UploadRequestOption) => {
+  const { file, onSuccess, onError } = options
+
+  try {
+    importLoading.value = true
+    message.loading({ content: '正在导入分类数据，请稍候...', key: 'import', duration: 0 })
+
+    // 调用导入接口，30秒超时
+    const result = await importCategoriesFromExcel(file)
+
+    message.success({ content: '导入成功！', key: 'import', duration: 2 })
+    onSuccess(result)
+
+    // 刷新分类数据
+    await fetchCategoryData()
+  } catch (error: any) {
+    console.error('Excel导入失败:', error)
+    
+    // 判断是否是超时错误
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      message.error({ content: '导入超时（30秒），请检查文件大小或网络连接', key: 'import', duration: 3 })
+    } else {
+      message.error({ content: error.message || '导入失败，请检查文件格式', key: 'import', duration: 3 })
+    }
+    
+    onError(error)
+  } finally {
+    importLoading.value = false
+  }
+}
+
+// Excel导出处理
+const handleExcelExport = async () => {
+  try {
+    exportLoading.value = true
+    message.loading({ content: '正在导出分类数据，请稍候...', key: 'export', duration: 0 })
+
+    // 调用导出接口
+    const blob = await exportCategoriesToExcel()
+
+    // 创建下载链接
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `商品分类_${new Date().getTime()}.xlsx`
+    document.body.appendChild(link)
+    link.click()
+
+    // 清理
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+
+    message.success({ content: '导出成功！', key: 'export', duration: 2 })
+  } catch (error: any) {
+    console.error('Excel导出失败:', error)
+    
+    // 判断是否是超时错误
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      message.error({ content: '导出超时（30秒），数据量过大', key: 'export', duration: 3 })
+    } else {
+      message.error({ content: error.message || '导出失败，请稍后重试', key: 'export', duration: 3 })
+    }
+  } finally {
+    exportLoading.value = false
   }
 }
 

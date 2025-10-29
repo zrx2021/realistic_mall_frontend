@@ -82,8 +82,8 @@ service.interceptors.response.use(
 )
 
 // 封装 GET 请求
-export function get<T>(url: string, params?: Record<string, any>): Promise<T> {
-  return service.get(url, { params })
+export function get<T>(url: string, params?: Record<string, any>, config?: Record<string, any>): Promise<T> {
+  return service.get(url, { params, ...config })
 }
 
 // 新增：封装获取二进制/图片的 GET（通过拦截器返回 Blob）
@@ -116,11 +116,12 @@ export function del<T>(url: string): Promise<T> {
 }
 
 // 封装文件上传请求
-export function upload<T>(url: string, formData: FormData): Promise<T> {
+export function upload<T>(url: string, formData: FormData, config?: Record<string, any>): Promise<T> {
   return service.post(url, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
+    ...config,
   })
 }
 

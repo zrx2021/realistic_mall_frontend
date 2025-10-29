@@ -212,9 +212,9 @@ export const getGoodsCategorySubTree = (parentId: number) => {
   return get<CategoryOption[]>(`/goods/category/sub/${parentId}`)
 }
 
-// 获取商品分类树(前两层)
+// 获取商品分类列表（用于商品管理页面下拉选择）- 匹配后端接口 GET /category?getList=Boolean
 export const getGoodsCategories = () => {
-  return get<CategoryOption[]>('/goods/category')
+  return get<CategoryOption[]>('/goods/category?getList=true')
 }
 
 // 获取品牌列表

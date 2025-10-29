@@ -88,6 +88,43 @@ const imgRef = ref<HTMLImageElement | null>(null)
 const isInView = ref(false)
 let observer: IntersectionObserver | null = null
 
+// 判断是否需要通过后端接口获取图片
+const needsImageApi = (url: string): boolean => {
+  // 完整的 http/https URL 不需要转换
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return false
+  }
+  // data: 和 blob: URL 不需要转换
+  if (url.startsWith('data:') || url.startsWith('blob:')) {
+    return false
+  }
+  // 其他所有情况都需要通过后端接口获取
+  return true
+}
+
+// 将路径转换为后端图片接口路径
+const convertToImageApiUrl = (url: string): string => {
+  if (!needsImageApi(url)) {
+    return url
+  }
+
+  // 提取实际的图片路径
+  let imagePath = url
+
+  // 如果是 /file/image/ 开头的路径，提取后面的实际路径
+  if (imagePath.startsWith('/file/image/')) {
+    imagePath = imagePath.slice(12) // 去掉 '/file/image/'
+  } else if (imagePath.startsWith('file/image/')) {
+    imagePath = imagePath.slice(11) // 去掉 'file/image/'
+  } else if (imagePath.startsWith('/')) {
+    // 去掉开头的 /
+    imagePath = imagePath.slice(1)
+  }
+
+  // 通过后端 /file/image 接口获取，使用查询参数
+  return `/file/image?url=${encodeURIComponent(imagePath)}`
+}
+
 // 使用 axios 获取图片并创建 blob URL（走拦截器）+ 并发限制 + LRU 缓存
 const loadImageWithAuth = async (imageUrl: string): Promise<string> => {
   const cached = getCachedBlobUrl(imageUrl)
@@ -114,7 +151,9 @@ const loadImageWithAuth = async (imageUrl: string): Promise<string> => {
 
   await acquire()
   try {
-    const blob = await getBlob(imageUrl)
+    // 将相对路径转换为后端接口路径
+    const requestUrl = convertToImageApiUrl(imageUrl)
+    const blob = await getBlob(requestUrl)
     const blobUrl = URL.createObjectURL(blob)
     setCachedBlobUrl(imageUrl, blobUrl)
 
