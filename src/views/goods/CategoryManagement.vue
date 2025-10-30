@@ -671,7 +671,9 @@ const handleSave = async () => {
       seoDescription: formData.seoDescription,
     }
 
-    if (newCategoryIds.value.includes(formData.id)) {
+    const isNewCategory = newCategoryIds.value.includes(formData.id)
+    
+    if (isNewCategory) {
       await addCategory(categoryData)
       // 保存成功后，从新建ID列表中移除
       newCategoryIds.value = newCategoryIds.value.filter(id => id !== formData.id)
@@ -681,7 +683,15 @@ const handleSave = async () => {
       message.success('更新成功')
     }
 
+    // 刷新数据
     await fetchCategoryData()
+    
+    // 如果是新建分类，清空选中状态和表单（因为临时ID已被替换）
+    if (isNewCategory) {
+      selectedKeys.value = []
+      selectedCategory.value = null
+      resetFormData()
+    }
   } catch (error) {
     console.error('保存失败:', error)
     message.error('保存失败')
