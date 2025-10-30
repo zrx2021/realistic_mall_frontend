@@ -411,6 +411,7 @@ const fetchGoodsDetail = async (id: number) => {
   loading.value = true
   try {
     goodsDetail.value = await getGoodsDetail(id)
+    goodsDetail.value.images = JSON.parse(goodsDetail.value.images || '[]')
   } catch (error) {
     console.error('获取商品详情失败:', error)
     message.error('获取商品详情失败')

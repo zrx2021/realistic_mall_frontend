@@ -371,6 +371,9 @@
 
     <!-- 商品详情弹窗 -->
     <GoodsDetailModal v-model:open="detailModalOpen" :goods-id="currentGoodsId" />
+
+    <!-- 商品新建/编辑弹窗 -->
+    <GoodsAddEditModal v-model:open="addEditModalOpen" :goods-id="currentEditGoodsId" @success="handleAddEditSuccess" />
   </a-flex>
 </template>
 
@@ -382,6 +385,7 @@ import { columns, mockData, type GoodsItem } from '@/tables/goods'
 import { message } from 'ant-design-vue'
 import type { Dayjs } from 'dayjs'
 import GoodsDetailModal from '@/components/goods/GoodsDetailModal.vue'
+import GoodsAddEditModal from '@/components/goods/GoodsAddEditModal.vue'
 import {
   getGoodsList,
   batchDeleteGoods,
@@ -542,6 +546,10 @@ const selectedRowKeys = ref<string[]>([])
 const detailModalOpen = ref(false)
 const currentGoodsId = ref<number>()
 
+// 新建/编辑弹窗相关
+const addEditModalOpen = ref(false)
+const currentEditGoodsId = ref<number | null>(null)
+
 // 获取商品数据
 const fetchGoodsData = async () => {
   loading.value = true
@@ -632,6 +640,8 @@ const fetchGoodsData = async () => {
       key: item.id ? String(item.id) : item.spuCode || String(index),
       // 确保id有值，如果为null则使用索引+1
       id: item.id || index + 1,
+      // 确保images是数组格式
+      images: JSON.parse(item.images || '[]')
     }))
 
     pagination.value.total = response.totalElements
@@ -900,7 +910,19 @@ const onSelectAll = (selected: boolean, selectedRows: GoodsItem[], changeRows: G
 
 // 新建商品
 const handleAddGoods = () => {
-  message.info('新建商品功能开发中...')
+  currentEditGoodsId.value = null
+  addEditModalOpen.value = true
+}
+
+// 编辑商品
+const handleEditGoods = (record: GoodsItem) => {
+  currentEditGoodsId.value = record.id
+  addEditModalOpen.value = true
+}
+
+// 新建/编辑成功回调
+const handleAddEditSuccess = () => {
+  fetchGoodsData()
 }
 
 // 导出
@@ -1006,6 +1028,13 @@ const handleGoodsDetailEvent = (event: Event) => {
   handleViewDetail(record)
 }
 
+// 监听编辑商品事件
+const handleGoodsEditEvent = (event: Event) => {
+  const customEvent = event as CustomEvent
+  const record = customEvent.detail
+  handleEditGoods(record)
+}
+
 // 组件挂载时获取数据
 onMounted(async () => {
   try {
@@ -1017,12 +1046,14 @@ onMounted(async () => {
 
   // 监听自定义事件
   window.addEventListener('view-goods-detail', handleGoodsDetailEvent as EventListener)
+  window.addEventListener('edit-goods', handleGoodsEditEvent as EventListener)
 })
 
 // 组件卸载时清理事件监听
 onUnmounted(() => {
   // 清理事件监听
   window.removeEventListener('view-goods-detail', handleGoodsDetailEvent as EventListener)
+  window.removeEventListener('edit-goods', handleGoodsEditEvent as EventListener)
 
   // 清理定时器
   if (brandSearchTimer) {

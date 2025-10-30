@@ -105,7 +105,6 @@ onMounted(() => {
   if (!('IntersectionObserver' in window)) {
     // 环境不支持时直接加载
     isInView.value = true
-    loadImage()
     return
   }
   observer = new IntersectionObserver(
@@ -113,7 +112,6 @@ onMounted(() => {
       const entry = entries[0]
       if (entry && entry.isIntersecting) {
         isInView.value = true
-        loadImage()
         if (observer && imgRef.value) observer.unobserve(imgRef.value)
       }
     },

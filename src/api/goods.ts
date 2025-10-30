@@ -89,7 +89,7 @@ export interface GoodsInfo {
   commentCount: number // 评论数
   goodCommentRate: number // 好评率
   mainImage?: string // 主图URL
-  images?: string[] // 商品图片列表
+  images?: string // 商品图片列表
   detailImages?: string[] // 详情图片列表
   description?: string // 商品详细描述
   mobileDescription?: string // 移动端商品描述
@@ -147,8 +147,8 @@ export const addGoods = (data: Omit<GoodsInfo, 'id' | 'createTime' | 'updateTime
 }
 
 // 更新商品
-export const updateGoods = (id: number, data: Partial<GoodsInfo>) => {
-  return put<GoodsInfo>(`/goods/${id}`, data)
+export const updateGoods = (data: Partial<GoodsInfo>) => {
+  return put<GoodsInfo>(`/goods`, data)
 }
 
 // 删除商品
@@ -256,4 +256,14 @@ export const getGoodsStats = () => {
     reviewPassed: number
     lowStock: number
   }>('/goods/stats')
+}
+
+// 上传商品图片
+export const uploadGoodsImage = async (file: File, category: string = 'goods'): Promise<string> => {
+  const { upload } = await import('@/utils/request')
+  const formData = new FormData()
+  formData.append('category', category)
+  formData.append('file', file)
+
+  return await upload<string>('/file/image/upload', formData)
 }
