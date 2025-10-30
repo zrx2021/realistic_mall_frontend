@@ -1,4 +1,4 @@
-import { get, post, put, del } from '@/utils/request'
+import { get, post, put, del, upload } from '@/utils/request'
 
 // 品牌查询参数
 export interface BrandQueryParams {
@@ -100,12 +100,12 @@ export const exportBrands = (params: BrandQueryParams) => {
 }
 
 // 上传品牌LOGO
-export const uploadBrandLogo = (file: File) => {
+export const uploadBrandLogo = async (file: File): Promise<string> => {
   const formData = new FormData()
+  formData.append('category', 'goods/brands')
   formData.append('file', file)
-  formData.append('category', 'goods brand')
 
-  return post<string>('/file/upload/image', formData)
+  return await upload<string>('/file/image/upload', formData)
 }
 
 // 获取所有启用的品牌（用于下拉选择）

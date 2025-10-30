@@ -52,6 +52,7 @@
                 alt="品牌LOGO"
                 class="preview-image"
                 :force-auth="true"
+                :lazy="false"
               />
               <div class="upload-preview-actions">
                 <a-button size="small" class="remove-btn" @click.stop="handleLogoRemove"
@@ -217,6 +218,7 @@ interface UploadFile {
 }
 
 const logoFileList = ref<UploadFile[]>([])
+const uploadLoading = ref(false)
 
 // 表单数据
 const formData = reactive<BrandFormData>({
@@ -287,44 +289,9 @@ const formRules: Record<string, Rule[]> = {
   ],
 }
 
-// LOGO预览URL
+// LOGO预览URL（通过 AuthImage 组件自动处理路径转换）
 const logoPreviewUrl = computed(() => {
-  const src = formData.logo || ''
-  if (!src) return ''
-
-  // 绝对地址 -> 取 pathname，并移除前导 /api
-  if (src.startsWith('http://') || src.startsWith('https://')) {
-    try {
-      const url = new URL(src)
-      const pathname = url.pathname || ''
-      return pathname.startsWith('/api/') ? pathname.slice(4) : pathname
-    } catch (e) {
-      // 非法 URL，继续按下方逻辑处理
-    }
-  }
-
-  // 以 /api/ 开头 -> 去掉 /api 前缀
-  if (src.startsWith('/api/')) {
-    return src.slice(4)
-  }
-
-  // 已是标准后端文件访问路径
-  if (src.startsWith('/file/image/')) {
-    return src
-  }
-
-  // 去掉可能缺失的前导斜杠
-  if (src.startsWith('file/image/')) {
-    return `/${src}`
-  }
-
-  // 仅携带了分类段
-  if (src.startsWith('goods/brands/') || src.startsWith('goods%20brands/')) {
-    return `/file/image/${src}`
-  }
-
-  // 纯文件路径（如 '2025/08/21/xxx.png'）
-  return `/file/image/goods/brands/${src}`
+  return formData.logo || ''
 })
 
 // 文件上传前验证
@@ -355,9 +322,9 @@ const handleLogoUpload = async (options: UploadOptions) => {
   const { file, onSuccess, onError, onProgress } = options
 
   try {
+    uploadLoading.value = true
     onProgress({ percent: 50 })
 
-    // 调用真实的上传 API
     const imageUrl = await uploadBrandLogo(file)
     formData.logo = imageUrl
 
@@ -369,6 +336,8 @@ const handleLogoUpload = async (options: UploadOptions) => {
     const uploadError = error instanceof Error ? error : new Error('上传失败')
     onError(uploadError, file)
     message.error('图片上传失败')
+  } finally {
+    uploadLoading.value = false
   }
 }
 

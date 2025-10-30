@@ -43,6 +43,7 @@
               :alt="record.name"
               class="brand-logo"
               :force-auth="true"
+              :lazy="false"
             />
             <span v-else style="color: #999">-</span>
           </template>
@@ -219,43 +220,9 @@ const columns: TableColumnsType = [
   },
 ]
 
-// 获取LOGO URL
+// 获取LOGO URL（通过 AuthImage 组件自动处理路径转换）
 const getLogoUrl = (logo: string) => {
-  if (!logo) return ''
-
-  // 绝对地址 -> 取 pathname，并移除前导 /api
-  if (logo.startsWith('http://') || logo.startsWith('https://')) {
-    try {
-      const url = new URL(logo)
-      const pathname = url.pathname || ''
-      return pathname.startsWith('/api/') ? pathname.slice(4) : pathname
-    } catch (e) {
-      // 非法 URL，继续按下方逻辑处理
-    }
-  }
-
-  // 以 /api/ 开头 -> 去掉 /api 前缀
-  if (logo.startsWith('/api/')) {
-    return logo.slice(4)
-  }
-
-  // 已是标准后端文件访问路径
-  if (logo.startsWith('/file/image/')) {
-    return logo
-  }
-
-  // 去掉可能缺失的前导斜杠
-  if (logo.startsWith('file/image/')) {
-    return `/${logo}`
-  }
-
-  // 仅携带了分类段
-  if (logo.startsWith('goods brand/') || logo.startsWith('goods%20brand/')) {
-    return `/file/image/${logo}`
-  }
-
-  // 纯文件路径
-  return `/file/image/goods brand/${logo}`
+  return logo || ''
 }
 
 // 模拟数据
