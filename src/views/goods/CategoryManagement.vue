@@ -236,7 +236,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { ref, reactive, onMounted, computed, watch, nextTick } from 'vue'
 import type { CSSProperties } from 'vue'
 import { message } from 'ant-design-vue'
 import {
@@ -575,7 +575,7 @@ const handleAddPrimaryCategory = () => {
 }
 
 // 新建分类
-const handleAddCategory = (parentId: number, level: number) => {
+const handleAddCategory = async (parentId: number, level: number) => {
   const newId = getUniqueId()
   const newCategory: CategoryItem = {
     id: newId,
@@ -610,12 +610,20 @@ const handleAddCategory = (parentId: number, level: number) => {
   }
 
   newCategoryIds.value.push(newId)
-  selectedKeys.value = [newId]
+  
+  // 确保父节点展开
+  if (!expandedKeys.value.includes(parentId)) {
+    expandedKeys.value = [...expandedKeys.value, parentId]
+  }
   
   // 触发响应式更新（创建新数组引用，但保持对象引用不变）
   categoryList.value = [...categoryList.value]
   
+  // 等待 DOM 更新完成后再设置选中状态，避免树组件内部状态不一致
+  await nextTick()
+  
   // 选中新建的分类
+  selectedKeys.value = [newId]
   selectedCategory.value = newCategory
   fillFormData(newCategory)
   isEdit.value = true
@@ -673,6 +681,12 @@ const handleSave = async () => {
 
     const isNewCategory = newCategoryIds.value.includes(formData.id)
     
+    // 如果是新建分类，先清空选中状态（避免树组件内部状态错误）
+    if (isNewCategory) {
+      selectedKeys.value = []
+      selectedCategory.value = null
+    }
+    
     if (isNewCategory) {
       await addCategory(categoryData)
       // 保存成功后，从新建ID列表中移除
@@ -686,10 +700,8 @@ const handleSave = async () => {
     // 刷新数据
     await fetchCategoryData()
     
-    // 如果是新建分类，清空选中状态和表单（因为临时ID已被替换）
+    // 如果是新建分类，重置表单（因为临时ID已被替换）
     if (isNewCategory) {
-      selectedKeys.value = []
-      selectedCategory.value = null
       resetFormData()
     }
   } catch (error) {

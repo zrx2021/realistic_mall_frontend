@@ -129,11 +129,12 @@ export const getGoodsList = (params: GoodsQueryParams) => {
 
   // 构建查询参数（分页参数通过URL传递）
   const urlParams = new URLSearchParams({
+    goodsQueryParams: JSON.stringify(queryParams),
     pageNumber: String((pageNumber || 0) + 1), // 前端从0开始，后端从1开始
     pageSize: String(pageSize || 10),
   })
 
-  return post<PageResponse<GoodsInfo>>(`/goods/list?${urlParams.toString()}`, queryParams)
+  return get<PageResponse<GoodsInfo>>(`/goods?${urlParams.toString()}`)
 }
 
 // 获取商品详情
