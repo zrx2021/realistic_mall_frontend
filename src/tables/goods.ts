@@ -46,8 +46,8 @@ export interface GoodsItem {
   purchaseLimit: number
   minPurchase: number
   shelfTime?: string
-  createdTime: string
-  updatedTime?: string
+  createTime: string
+  updateTime?: string
 }
 
 export const columns: TableColumnsType<GoodsItem> = [
@@ -394,27 +394,34 @@ export const columns: TableColumnsType<GoodsItem> = [
     key: 'timeInfo',
     width: 160,
     customRender: ({ record }) => {
-      const createdTime = record.createdTime
+      const createTime = record.createTime
+      const updateTime = record.updateTime
       const shelfTime = record.shelfTime
 
       return h('div', { style: { fontSize: '12px' } }, [
-        createdTime &&
+        createTime &&
           h(
             'div',
             { style: { color: '#7f8c8d' } },
-            `创建: ${new Date(createdTime).toLocaleDateString()}`,
+            `创建时间: ${new Date(createTime).toLocaleDateString()}`,
+          ),
+        updateTime &&
+          h(
+            'div',
+            { style: { color: '#95a5a6' } },
+            `更新时间: ${new Date(updateTime).toLocaleDateString()}`,
           ),
         shelfTime &&
           h(
             'div',
             { style: { color: '#2ecc71' } },
-            `上架: ${new Date(shelfTime).toLocaleDateString()}`,
+            `上架时间: ${new Date(shelfTime).toLocaleDateString()}`,
           ),
         record.auditTime &&
           h(
             'div',
             { style: { color: '#3498db' } },
-            `审核: ${new Date(record.auditTime).toLocaleDateString()}`,
+            `审核时间: ${new Date(record.auditTime).toLocaleDateString()}`,
           ),
       ])
     },
@@ -554,7 +561,7 @@ export const mockData: GoodsItem[] = [
     purchaseLimit: 5,
     minPurchase: 1,
     shelfTime: '2024-01-10 09:00:00',
-    createdTime: '2024-01-09 15:30:00',
+    createTime: '2024-01-09 15:30:00',
   },
   {
     key: '2',
@@ -598,7 +605,8 @@ export const mockData: GoodsItem[] = [
     purchaseLimit: 2,
     minPurchase: 1,
     shelfTime: '2024-01-15 10:00:00',
-    createdTime: '2024-01-14 16:20:30',
+    createTime: '2024-01-14 16:20:30',
+    updateTime: '2025-11-07 10:00:00',
   },
   {
     key: '3',
@@ -641,7 +649,7 @@ export const mockData: GoodsItem[] = [
     purchaseLimit: 3,
     minPurchase: 1,
     shelfTime: '2024-02-10 14:00:00',
-    createdTime: '2024-02-09 16:45:12',
+    createTime: '2024-02-09 16:45:12',
   },
   {
     key: '4',
@@ -682,7 +690,7 @@ export const mockData: GoodsItem[] = [
     purchaseLimit: 10,
     minPurchase: 1,
     shelfTime: '2024-03-05 09:30:00',
-    createdTime: '2024-03-04 10:30:45',
+    createTime: '2024-03-04 10:30:45',
   },
   {
     key: '5',
@@ -728,6 +736,6 @@ export const mockData: GoodsItem[] = [
     isGift: false,
     purchaseLimit: 1,
     minPurchase: 1,
-    createdTime: '2024-03-20 11:15:22',
+    createTime: '2024-03-20 11:15:22',
   },
 ]

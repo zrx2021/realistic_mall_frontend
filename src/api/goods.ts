@@ -108,8 +108,8 @@ export interface GoodsInfo {
   shelfTime?: string // 上架时间
   createdBy?: number // 创建人ID
   updatedBy?: number // 更新人ID
-  createdTime: string // 创建时间
-  updatedTime?: string // 更新时间
+  createTime: string // 创建时间
+  updateTime?: string // 更新时间
 }
 
 // 分页响应

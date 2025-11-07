@@ -19,16 +19,12 @@
       <!-- 基本信息 -->
       <a-divider orientation="left">基本信息</a-divider>
 
-      <a-form-item label="SPU编码" name="spuCode">
+      <a-form-item label="SPU编码" name="spuCode" required>
         <a-input
           v-model:value="formData.spuCode"
-          placeholder="留空自动生成"
           allow-clear
           :disabled="isEdit"
         />
-        <div style="color: #999; font-size: 12px; margin-top: 4px">
-          留空将自动生成SPU编码
-        </div>
       </a-form-item>
 
       <a-form-item label="商品名称" name="name" required>
@@ -518,6 +514,7 @@ const imagesUploading = ref(false)
 
 // 表单验证规则
 const formRules = {
+  spuCode: [{ required: true, message: '请输入SPU编码', trigger: 'blur' }],
   name: [
     { required: true, message: '请输入商品名称', trigger: 'blur' },
     { min: 1, max: 200, message: '商品名称长度在1-200个字符', trigger: 'blur' },

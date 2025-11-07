@@ -299,7 +299,7 @@
           <a-col :span="8">
             <div class="detail-item">
               <span class="label">创建时间:</span>
-              <span class="value">{{ formatDate(goodsDetail.createdTime) }}</span>
+              <span class="value">{{ formatDate(goodsDetail.createTime) }}</span>
             </div>
           </a-col>
           <a-col :span="8" v-if="goodsDetail.shelfTime">
@@ -308,10 +308,10 @@
               <span class="value">{{ formatDate(goodsDetail.shelfTime) }}</span>
             </div>
           </a-col>
-          <a-col :span="8" v-if="goodsDetail.updatedTime">
+          <a-col :span="8" v-if="goodsDetail.updateTime">
             <div class="detail-item">
               <span class="label">更新时间:</span>
-              <span class="value">{{ formatDate(goodsDetail.updatedTime) }}</span>
+              <span class="value">{{ formatDate(goodsDetail.updateTime) }}</span>
             </div>
           </a-col>
         </a-row>
