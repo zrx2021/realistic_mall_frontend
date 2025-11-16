@@ -20,6 +20,18 @@ export interface Article {
   templateId: number
 }
 
+interface Component {
+  id: number,
+  name: string,
+  icon: string,
+  file: string
+}
+
+export interface ArticleType {
+  name: string,
+  component: Component[]
+}
+
 // 添加文本组件接口定义
 export interface TextComponent {
   titleContent: string
@@ -140,7 +152,7 @@ export const getTemplate = (type: number) => {
         item.id = newLabelId.value
       })
     }
-    if (type === 3) {
+    if (type === 4) {
       // 为商品组件的分组生成新的ID
       const newGroupId = ref(-1)
       newTemplate.value.objData.goodsId = getUniqueId()
@@ -274,7 +286,7 @@ const componentTemplate = [
   {
     id: getUniqueId(),
     name: '商品',
-    type: 3,
+    type: 4,
     objData: {
       goodsId: getUniqueId(),
       componentId: undefined,
@@ -717,69 +729,69 @@ export const availableComponents = ref([
         category: '基础组件',
         file: 'Elevator',
       },
-      { id: 3, name: '商品', icon: '商品', category: '基础组件', file: 'Product' },
-      { id: 4, name: '图片', icon: '图片', category: '基础组件', file: 'Image' },
+      { id: 4, name: '商品', icon: '商品', category: '基础组件', file: 'Product' },
+      { id: 5, name: '图片', icon: '图片', category: '基础组件', file: 'Image' },
       {
-        id: 5,
+        id: 6,
         name: '富文本',
         icon: '富文本',
         category: '基础组件',
         file: 'RichText',
       },
-      { id: 6, name: '搜索', icon: '搜索', category: '基础组件', file: 'Search' },
+      { id: 7, name: '搜索', icon: '搜索', category: '基础组件', file: 'Search' },
       {
-        id: 7,
+        id: 8,
         name: '辅助分割',
         icon: '辅助分割',
         category: '基础组件',
         file: 'Divider',
       },
-      { id: 8, name: '视频', icon: '视频', category: '基础组件', file: 'Video' },
-      { id: 9, name: '公告', icon: '公告', category: '基础组件', file: 'Notice' },
+      { id: 9, name: '视频', icon: '视频', category: '基础组件', file: 'Video' },
+      { id: 10, name: '公告', icon: '公告', category: '基础组件', file: 'Notice' },
     ],
   },
   {
     name: '营销组件',
     components: [
       {
-        id: 10,
+        id: 11,
         name: '优惠券',
         icon: '优惠券',
         category: '营销组件',
         file: 'Coupon',
       },
       {
-        id: 11,
+        id: 12,
         name: '限时折扣',
         icon: '限时折扣',
         category: '营销组件',
         file: 'Discount',
       },
-      { id: 12, name: '秒杀', icon: '秒杀', category: '营销组件', file: 'Seckill' },
-      { id: 13, name: '拼团', icon: '拼团', category: '营销组件', file: 'Group' },
-      { id: 14, name: '满减', icon: '满减', category: '营销组件', file: 'FullReduction' },
-      { id: 15, name: '积分', icon: '积分', category: '营销组件', file: 'Points' },
+      { id: 13, name: '秒杀', icon: '秒杀', category: '营销组件', file: 'Seckill' },
+      { id: 14, name: '拼团', icon: '拼团', category: '营销组件', file: 'Group' },
+      { id: 15, name: '满减', icon: '满减', category: '营销组件', file: 'FullReduction' },
+      { id: 16, name: '积分', icon: '积分', category: '营销组件', file: 'Points' },
     ],
   },
   {
     name: '高级组件',
     components: [
       {
-        id: 16,
+        id: 17,
         name: '轮播图',
         icon: '轮播图',
         category: '高级组件',
         file: 'Carousel',
       },
       {
-        id: 17,
+        id: 18,
         name: '分类导航',
         icon: '分类导航',
         category: '高级组件',
         file: 'Category',
       },
       {
-        id: 18,
+        id: 19,
         name: '会员卡',
         icon: '会员卡',
         category: '高级组件',

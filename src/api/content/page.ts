@@ -1,9 +1,14 @@
+import type { ArticleType } from '@/types/content/content'
 import type { saveRequestDTO } from '@/types/content/pages/savePageDTO'
 import { get, post } from '@/utils/request'
 
 // 账号密码登录
 export const savePage = (data: saveRequestDTO) => {
   return post<number>('/content/article/save', data)
+}
+
+export const getComponentTypes = () => {
+  return get<ArticleType[]>('/content/article/types')
 }
 
 // 获取页面详情

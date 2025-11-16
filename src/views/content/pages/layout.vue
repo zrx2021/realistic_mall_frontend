@@ -161,8 +161,8 @@ import {
   getSettingsComponent,
 } from '@/types/content/content'
 
-import type { Wrapper, Elevator, Goods, Article, TextComponent } from '@/types/content/content'
-import { getPageDetailById } from '@/api/content/page'
+import type { Wrapper, Elevator, Goods, Article, TextComponent, ArticleType } from '@/types/content/content'
+import { getComponentTypes, getPageDetailById } from '@/api/content/page'
 import { getUniqueId } from '@/utils/uniqueId'
 import { savePage } from '@/api/content/page'
 import { message } from 'ant-design-vue'
@@ -176,6 +176,7 @@ const settingIndex = ref(-1)
 const saveBtnDisabled = ref(false)
 const activeTab = ref('基础组件')
 const previewVisible = ref(false)
+const componentTypes = ref<ArticleType[]>([])
 const pageData = ref<Article>({
   id: getUniqueId(),
   status: 0,
@@ -271,6 +272,15 @@ const handleSave = async () => {
 const handlePreview = () => {
   console.log('预览', componentList.value)
   previewVisible.value = true
+}
+
+const fetchArticleType = async () => {
+  try {
+    const typesDetail = await getComponentTypes()
+    componentTypes.value = typesDetail
+  } catch (error) {
+    message.error('获取页面组件失败')
+  }
 }
 
 // 获取页面详情数据
@@ -377,7 +387,8 @@ watch(settingData, (newVal, oldVal) => {
 onMounted(() => {
   initMap()
   initImageMap()
-  indexArray.value = Array(availableComponents.value.length).fill(false)
+  // indexArray.value = Array(availableComponents.value.length).fill(false)
+  fetchArticleType()
 
   const pageId = route.query.id
 
