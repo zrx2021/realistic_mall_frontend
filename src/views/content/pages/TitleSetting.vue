@@ -1,19 +1,22 @@
 <template>
-  <div class="title-setting">
-    <h4>标题</h4>
-    <div class="title-input">
+  <div class="setting-panel">
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">模块标题</span>
+        <span class="section-subtitle">用于组件展示，控制在12个字以内</span>
+      </div>
       <a-input
+        class="section-input"
         v-model:value="title"
-        :style="titleClass"
         placeholder="请输入标题"
         @blur="changing"
       />
-    </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, type CSSProperties, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import type { TextComponent } from '@/types/content/content'
 
 const props = defineProps<{
@@ -23,10 +26,6 @@ const props = defineProps<{
 const emits = defineEmits(['update:objData'])
 
 const title = ref('')
-const titleClass = ref<CSSProperties>({
-  width: '200px',
-})
-
 const changing = () => {
   console.log('TitleSetting changing', title.value)
   if (typeof props.objData === 'string') {
@@ -62,15 +61,46 @@ watch(
 </script>
 
 <style scoped>
-.title-setting {
+.setting-panel {
   width: 100%;
   height: 100%;
   padding: 16px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
 }
 
-h4 {
-  margin-bottom: 12px;
+.setting-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.section-subtitle {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.section-input {
+  width: 100%;
+}
+
+:deep(.ant-input) {
+  border-radius: 6px;
+  border-color: #d9d9d9;
+  padding: 6px 12px;
 }
 </style>
 

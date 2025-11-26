@@ -1,234 +1,276 @@
 <template>
-  <div>
-    <a-radio-group
-      v-model:value="data.templateStyle"
-      button-style="solid"
-      class="display-type-radio"
-      @click="templateStyleWatcherFlag = true"
-    >
-      <a-radio-button value="words">文字型</a-radio-button>
-      <a-radio-button value="fixed">图文型</a-radio-button>
-      <a-radio-button value="image">图片型</a-radio-button>
-    </a-radio-group>
-    <a-divider class="divider" />
-    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">标签位置</h3>
-    <a-radio-group
-      v-model:value="tabsPosition"
-      button-style="solid"
-      class="display-type-radio"
-      @change="handlePositionChange"
-    >
-      <a-radio-button value="top">顶部</a-radio-button>
-      <a-radio-button value="left">左侧</a-radio-button>
-      <a-radio-button value="right">右侧</a-radio-button>
-      <a-radio-button value="bottom">底部</a-radio-button>
-    </a-radio-group>
-    <a-divider class="divider" />
-    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">添加标签</h3>
-    <h5 style="color: #9a9a9a; padding: 5px; margin: 0">
-      标签字数建议在5个字以内，图片建议尺寸100*100像素
-    </h5>
-    <a-flex class="setting-list">
-      <div
-        v-for="item in data.labels.filter((label) => !label.deleted)"
-        :key="item.id"
-        class="setting-item"
-      >
-        <div class="close-btn" @click="deleteTab(item.id)"></div>
-        <div class="tab-image" v-if="!(data.templateStyle === 'words')">
-          <img src="@/assets/logo.svg" alt="logo" />
-          <span>点击</span>
-          <span>上传</span>
-        </div>
-        <div class="input-container">
-          <a-input
-            v-model:value="item.name"
-            placeholder="请输入标签"
-            @blur="handleChange"
-            v-if="data.templateStyle !== 'image'"
-          />
-          <a-select placeholder="请选择目标链接" @blur="handleChange" v-model:value="item.jumpUrl">
-            <a-select-option v-for="option in options" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </a-select-option>
-          </a-select>
-        </div>
+  <div class="setting-panel">
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">样式模板</span>
+        <span class="section-subtitle">在文字、图文、图片模式之间快速切换</span>
       </div>
-      <a-button type="primary" class="add-tag-btn" @click="addTab">添加标签</a-button>
-    </a-flex>
-
-    <div class="style-setting-item">
-      <span class="setting-item-label">填充方式</span>
-      <a-select
-        placeholder="请选择填充方式"
-        @blur="handleChange"
-        v-model:value="data.fillType"
-        class="setting-select"
+      <a-radio-group
+        v-model:value="data.templateStyle"
+        button-style="solid"
+        class="display-type-radio"
+        @click="templateStyleWatcherFlag = true"
       >
-        <a-select-option
-          v-for="item in fillTypeOptions"
-          :key="item.value"
-          :value="item.value"
-          :disabled="
-            (data.templateStyle === 'fixed' || data.templateStyle === 'image') &&
-            item.value === 'underline'
-          "
+        <a-radio-button value="words">文字型</a-radio-button>
+        <a-radio-button value="fixed">图文型</a-radio-button>
+        <a-radio-button value="image">图片型</a-radio-button>
+      </a-radio-group>
+    </section>
+
+    <div class="setting-divider" role="presentation"></div>
+
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">标签位置</span>
+        <span class="section-subtitle">根据页面结构选择合适的导航位置</span>
+      </div>
+      <a-radio-group
+        v-model:value="tabsPosition"
+        button-style="solid"
+        class="display-type-radio"
+        @change="handlePositionChange"
+      >
+        <a-radio-button value="top">顶部</a-radio-button>
+        <a-radio-button value="left">左侧</a-radio-button>
+        <a-radio-button value="right">右侧</a-radio-button>
+        <a-radio-button value="bottom">底部</a-radio-button>
+      </a-radio-group>
+    </section>
+
+    <div class="setting-divider" role="presentation"></div>
+
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">标签内容</span>
+        <span class="section-subtitle">标签建议不超过5字，图片建议尺寸 100×100 像素</span>
+      </div>
+      <a-flex class="setting-list">
+        <div
+          v-for="item in data.labels.filter((label) => !label.deleted)"
+          :key="item.id"
+          class="setting-item"
         >
-          {{ item.label }}
-        </a-select-option>
-      </a-select>
-    </div>
+          <div class="close-btn" @click="deleteTab(item.id)"></div>
+          <div class="tab-image" v-if="!(data.templateStyle === 'words')">
+            <img src="@/assets/logo.svg" alt="logo" />
+            <span>点击</span>
+            <span>上传</span>
+          </div>
+          <div class="input-container">
+            <a-input
+              v-model:value="item.name"
+              placeholder="请输入标签"
+              @blur="handleChange"
+              v-if="data.templateStyle !== 'image'"
+            />
+            <a-select placeholder="请选择目标链接" @blur="handleChange" v-model:value="item.jumpUrl">
+              <a-select-option v-for="option in options" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </a-select-option>
+            </a-select>
+          </div>
+        </div>
+        <a-button type="primary" class="add-tag-btn" @click="addTab">添加标签</a-button>
+      </a-flex>
+    </section>
 
-    <div class="style-setting-item">
-      <span class="setting-item-label">填充形状</span>
-      <a-select
-        placeholder="请选择填充形状"
-        @blur="handleChange"
-        v-model:value="data.fillShape"
-        class="setting-select"
-        :disabled="data.fillType === 'none' || data.fillType === 'underline'"
-      >
-        <a-select-option
-          v-for="item in fillShapeOptions"
-          :key="item.value"
-          :value="item.value"
-          :disabled="data.fillType !== 'none' && item.value === 'none'"
+    <div class="setting-divider" role="presentation"></div>
+
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">填充与边框</span>
+        <span class="section-subtitle">统一控制标签背景、边框与圆角样式</span>
+      </div>
+
+      <div class="style-setting-item">
+        <span class="setting-item-label">填充方式</span>
+        <a-select
+          placeholder="请选择填充方式"
+          @blur="handleChange"
+          v-model:value="data.fillType"
+          class="setting-select"
         >
-          {{ item.label }}
-        </a-select-option>
-      </a-select>
-    </div>
-
-    <div class="style-setting-item" v-if="data.fillShape === 'circle-square'">
-      <span class="setting-item-label">圆角大小</span>
-      <div class="radius-slider">
-        <a-slider
-          v-model:value="data.borderRadius"
-          :min="0"
-          :max="20"
-          :step="1"
-          @change="handleChange"
-        />
-        <span class="radius-value">{{ data.borderRadius }}px</span>
+          <a-select-option
+            v-for="item in fillTypeOptions"
+            :key="item.value"
+            :value="item.value"
+            :disabled="
+              (data.templateStyle === 'fixed' || data.templateStyle === 'image') &&
+              item.value === 'underline'
+            "
+          >
+            {{ item.label }}
+          </a-select-option>
+        </a-select>
       </div>
-    </div>
 
-    <div class="style-setting-item" v-if="data.fillType === 'border'">
-      <span class="setting-item-label">边框大小</span>
-      <div class="size-input">
-        <a-input-number
-          v-model:value="data.borderSize"
-          :min="1"
-          :max="10"
-          :step="1"
-          @change="handleChange"
-        />
-        <span class="unit">px</span>
-      </div>
-    </div>
-
-    <a-divider class="divider" />
-    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">边距设置</h3>
-
-    <div class="style-setting-item">
-      <span class="setting-item-label">自定义样式</span>
-      <a-switch v-model:checked="customBox" @change="handleChange" />
-    </div>
-
-    <template v-if="customBox">
       <div class="style-setting-item">
-        <span class="setting-item-label">上下内边距</span>
+        <span class="setting-item-label">填充形状</span>
+        <a-select
+          placeholder="请选择填充形状"
+          @blur="handleChange"
+          v-model:value="data.fillShape"
+          class="setting-select"
+          :disabled="data.fillType === 'none' || data.fillType === 'underline'"
+        >
+          <a-select-option
+            v-for="item in fillShapeOptions"
+            :key="item.value"
+            :value="item.value"
+            :disabled="data.fillType !== 'none' && item.value === 'none'"
+          >
+            {{ item.label }}
+          </a-select-option>
+        </a-select>
+      </div>
+
+      <div class="style-setting-item" v-if="data.fillShape === 'circle-square'">
+        <span class="setting-item-label">圆角大小</span>
+        <div class="radius-slider">
+          <a-slider
+            v-model:value="data.borderRadius"
+            :min="0"
+            :max="20"
+            :step="1"
+            @change="handleChange"
+          />
+          <span class="radius-value">{{ data.borderRadius }}px</span>
+        </div>
+      </div>
+
+      <div class="style-setting-item" v-if="data.fillType === 'border'">
+        <span class="setting-item-label">边框大小</span>
         <div class="size-input">
           <a-input-number
-            v-model:value="data.paddingVertical"
-            :min="0"
-            :max="50"
+            v-model:value="data.borderSize"
+            :min="1"
+            :max="10"
             :step="1"
             @change="handleChange"
           />
           <span class="unit">px</span>
         </div>
       </div>
+    </section>
 
-      <div class="style-setting-item">
-        <span class="setting-item-label">左右内边距</span>
-        <div class="size-input">
-          <a-input-number
-            v-model:value="data.paddingHorizontal"
-            :min="0"
-            :max="50"
-            :step="1"
-            @change="handleChange"
-          />
-          <span class="unit">px</span>
-        </div>
+    <div class="setting-divider" role="presentation"></div>
+
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">边距设置</span>
+        <span class="section-subtitle">开启自定义后可单独调整组件的内外边距</span>
       </div>
 
       <div class="style-setting-item">
-        <span class="setting-item-label">上下外边距</span>
-        <div class="size-input">
-          <a-input-number
-            v-model:value="data.marginVertical"
-            :min="0"
-            :max="50"
-            :step="1"
-            @change="handleChange"
-          />
-          <span class="unit">px</span>
-        </div>
+        <span class="setting-item-label">自定义样式</span>
+        <a-switch v-model:checked="customBox" @change="handleChange" />
       </div>
 
-      <div class="style-setting-item">
-        <span class="setting-item-label">左右外边距</span>
-        <div class="size-input">
-          <a-input-number
-            v-model:value="data.marginHorizontal"
-            :min="0"
-            :max="50"
-            :step="1"
-            @change="handleChange"
-          />
-          <span class="unit">px</span>
+      <template v-if="customBox">
+        <div class="style-setting-item">
+          <span class="setting-item-label">上下内边距</span>
+          <div class="size-input">
+            <a-input-number
+              v-model:value="data.paddingVertical"
+              :min="0"
+              :max="50"
+              :step="1"
+              @change="handleChange"
+            />
+            <span class="unit">px</span>
+          </div>
+        </div>
+
+        <div class="style-setting-item">
+          <span class="setting-item-label">左右内边距</span>
+          <div class="size-input">
+            <a-input-number
+              v-model:value="data.paddingHorizontal"
+              :min="0"
+              :max="50"
+              :step="1"
+              @change="handleChange"
+            />
+            <span class="unit">px</span>
+          </div>
+        </div>
+
+        <div class="style-setting-item">
+          <span class="setting-item-label">上下外边距</span>
+          <div class="size-input">
+            <a-input-number
+              v-model:value="data.marginVertical"
+              :min="0"
+              :max="50"
+              :step="1"
+              @change="handleChange"
+            />
+            <span class="unit">px</span>
+          </div>
+        </div>
+
+        <div class="style-setting-item">
+          <span class="setting-item-label">左右外边距</span>
+          <div class="size-input">
+            <a-input-number
+              v-model:value="data.marginHorizontal"
+              :min="0"
+              :max="50"
+              :step="1"
+              @change="handleChange"
+            />
+            <span class="unit">px</span>
+          </div>
+        </div>
+      </template>
+    </section>
+
+    <div class="setting-divider" role="presentation"></div>
+
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">标签颜色设置</span>
+        <span class="section-subtitle">快速调整标签的文字、背景及导航底色</span>
+      </div>
+      <div class="style-setting-item" v-for="item in data.colorSetting" :key="item.name">
+        <span class="setting-item-label">{{ item.label }}</span>
+        <div class="color-picker-control">
+          <a-button class="color-reset-btn">重置</a-button>
+          <div class="color-picker">
+            <input
+              type="color"
+              v-model="item.value"
+              :disabled="item.name === 'inactiveBgColor' && data.fillType === 'underline'"
+            />
+            <div class="color-preview" :style="{ backgroundColor: item.value }"></div>
+          </div>
         </div>
       </div>
-    </template>
+    </section>
 
-    <a-divider class="divider" />
-    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">标签颜色设置</h3>
-    <div class="style-setting-item" v-for="item in data.colorSetting" :key="item.name">
-      <span class="setting-item-label">{{ item.label }}</span>
-      <div class="color-picker-control">
-        <a-button class="color-reset-btn">重置</a-button>
-        <div class="color-picker">
-          <input
-            type="color"
-            v-model="item.value"
-            :disabled="item.name === 'inactiveBgColor' && data.fillType === 'underline'"
-          />
-          <div class="color-preview" :style="{ backgroundColor: item.value }"></div>
+    <div class="setting-divider" role="presentation"></div>
+
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">主题预设</span>
+        <span class="section-subtitle">应用常用主题组合，快速获得一致的视觉效果</span>
+      </div>
+      <div class="theme-presets">
+        <div
+          v-for="theme in themePresets"
+          :key="theme.name"
+          class="theme-item"
+          :class="{ active: currentTheme === theme.name }"
+          @click="applyTheme(theme)"
+        >
+          <div class="theme-preview" :style="getThemePreviewStyle(theme)">
+            <div class="preview-tab active">标签1</div>
+            <div class="preview-tab">标签2</div>
+          </div>
+          <span class="theme-name">{{ theme.label }}</span>
         </div>
       </div>
-    </div>
-
-    <a-divider class="divider" />
-    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">主题预设</h3>
-    <div class="theme-presets">
-      <div
-        v-for="theme in themePresets"
-        :key="theme.name"
-        class="theme-item"
-        :class="{ active: currentTheme === theme.name }"
-        @click="applyTheme(theme)"
-      >
-        <div class="theme-preview" :style="getThemePreviewStyle(theme)">
-          <div class="preview-tab active">标签1</div>
-          <div class="preview-tab">标签2</div>
-        </div>
-        <span class="theme-name">{{ theme.label }}</span>
-      </div>
-    </div>
-
-    <a-divider class="divider" />
+    </section>
   </div>
 </template>
 
@@ -562,6 +604,59 @@ watch(
 </script>
 
 <style scoped>
+.setting-panel {
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #fff;
+  overflow-y: auto;
+}
+
+.setting-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.section-subtitle {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.setting-divider {
+  height: 1px;
+  background-color: #f0f0f0;
+}
+
+:deep(.ant-input),
+:deep(.ant-input-number),
+:deep(.ant-select-selector),
+:deep(.ant-radio-button-wrapper) {
+  border-radius: 6px;
+}
+
+:deep(.ant-input),
+:deep(.ant-input-number-input),
+:deep(.ant-select-selector) {
+  border-color: #d9d9d9 !important;
+  min-height: 36px;
+}
+
 .display-type-radio {
   display: flex;
   justify-content: center;
@@ -590,10 +685,6 @@ watch(
   display: flex;
   justify-content: center;
   flex-direction: column;
-}
-
-.divider {
-  margin: 0;
 }
 
 .setting-list {

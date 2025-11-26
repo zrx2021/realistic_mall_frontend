@@ -1,117 +1,130 @@
 <template>
-  <div>
-    <!-- 样式模板选择 -->
-    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">选择样式模板</h3>
-    <h5 style="color: #9a9a9a; padding: 5px; margin: 0">当前模式：{{ currentTemplateLabel }}</h5>
-
-    <div class="template-selector">
-      <div
-        v-for="template in templateOptions"
-        :key="template.value"
-        class="template-option"
-        :class="{ active: data.templateStyle === template.value }"
-        @click="selectTemplate(template.value)"
-      >
-        <div class="template-icon">
-          <!-- 暂时使用占位符，后续替换为实际图标 -->
-          <div class="icon-placeholder">{{ template.icon }}</div>
-        </div>
-        <div class="template-label">{{ template.label }}</div>
+  <div class="setting-panel">
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">选择样式模板</span>
+        <span class="section-subtitle">当前模式：{{ currentTemplateLabel }}</span>
       </div>
-    </div>
 
-    <a-divider class="divider" />
-
-    <!-- 商品/商品分组切换 -->
-    <a-tabs v-model:activeKey="activeTab" @change="handleTabChange">
-      <a-tab-pane key="goods" tab="商品">
-        <!-- 商品选择区域 -->
-        <div class="goods-selection">
-          <div class="goods-item-placeholder">
-            <div class="goods-placeholder"></div>
-            <div class="goods-placeholder"></div>
-            <div class="add-goods-btn" @click="addGoods">
-              <plus-outlined />
-            </div>
+      <div class="template-selector">
+        <div
+          v-for="template in templateOptions"
+          :key="template.value"
+          class="template-option"
+          :class="{ active: data.templateStyle === template.value }"
+          @click="selectTemplate(template.value)"
+        >
+          <div class="template-icon">
+            <div class="icon-placeholder">{{ template.icon }}</div>
           </div>
+          <div class="template-label">{{ template.label }}</div>
         </div>
-      </a-tab-pane>
+      </div>
+    </section>
 
-      <a-tab-pane key="groups" tab="商品分组">
-        <!-- 商品分组管理 -->
-        <div class="groups-section">
-          <h3 style="color: #1f1f1f; padding: 5px; margin: 0">添加商品分组</h3>
-          <h5 style="color: #9a9a9a; padding: 5px; margin: 0">做多添加10个分组</h5>
+    <div class="setting-divider" role="presentation"></div>
 
-          <div class="groups-list">
-            <div v-for="(group, index) in data.groupData" :key="group.groupId" class="group-item">
-              <div class="group-header">
-                <span class="group-name">分组名称：</span>
-                <span class="group-name-value">{{ group.groupName }}</span>
-              </div>
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">商品内容</span>
+        <span class="section-subtitle">选择具体商品或引用商品分组进行展示</span>
+      </div>
 
-              <div class="group-setting">
-                <div class="setting-row">
-                  <span class="setting-label">显示名称：</span>
-                  <a-input
-                    v-model:value="group.displayName"
-                    placeholder="请输入"
-                    class="setting-input"
-                    @blur="handleChange"
-                  />
-                </div>
-
-                <div class="setting-row">
-                  <span class="setting-label">显示个数：</span>
-                  <a-radio-group
-                    v-model:value="group.displayType"
-                    @change="handleDisplayTypeChange(index)"
-                  >
-                    <a-radio value="custom">
-                      <a-input-number
-                        v-model:value="group.displayCount"
-                        :min="1"
-                        :max="100"
-                        :disabled="group.displayType !== 'custom'"
-                        placeholder="请输入"
-                        class="count-input"
-                        @change="handleChange"
-                      />
-                    </a-radio>
-                    <a-radio value="all">全部</a-radio>
-                  </a-radio-group>
-                </div>
+      <a-tabs v-model:activeKey="activeTab" class="setting-tabs" @change="handleTabChange">
+        <a-tab-pane key="goods" tab="商品">
+          <div class="goods-selection">
+            <div class="goods-item-placeholder">
+              <div class="goods-placeholder"></div>
+              <div class="goods-placeholder"></div>
+              <div class="add-goods-btn" @click="addGoods">
+                <plus-outlined />
               </div>
             </div>
-
-            <a-button
-              type="primary"
-              class="add-group-btn"
-              @click="addGroup"
-              :disabled="data.groupData.length >= 10"
-            >
-              添加商品分组
-            </a-button>
           </div>
-        </div>
-      </a-tab-pane>
-    </a-tabs>
+        </a-tab-pane>
 
-    <a-divider class="divider" />
+        <a-tab-pane key="groups" tab="商品分组">
+          <div class="groups-section">
+            <div class="section-header">
+              <span class="section-title">添加商品分组</span>
+              <span class="section-subtitle">最多添加10个分组</span>
+            </div>
 
-    <!-- 展示样式 -->
-    <h3 style="color: #1f1f1f; padding: 5px; margin: 0">展示样式</h3>
-    <div class="display-style-options">
-      <div
-        v-for="style in displayStyleOptions"
-        :key="style.value"
-        class="style-option"
-        :class="{ active: data.displayStyle === style.value }"
-        @click="selectDisplayStyle(style.value)"
-      >
-        {{ style.label }}
+            <div class="groups-list">
+              <div v-for="(group, index) in data.groupData" :key="group.groupId" class="group-item">
+                <div class="group-header">
+                  <span class="group-name">分组名称</span>
+                  <span class="group-name-value">{{ group.groupName }}</span>
+                </div>
+
+                <div class="group-setting">
+                  <div class="setting-row">
+                    <span class="setting-label">显示名称</span>
+                    <a-input
+                      v-model:value="group.displayName"
+                      placeholder="请输入"
+                      class="setting-input"
+                      @blur="handleChange"
+                    />
+                  </div>
+
+                  <div class="setting-row">
+                    <span class="setting-label">显示个数</span>
+                    <a-radio-group
+                      v-model:value="group.displayType"
+                      class="setting-radio-group"
+                      @change="handleDisplayTypeChange(index)"
+                    >
+                      <a-radio value="custom">
+                        <a-input-number
+                          v-model:value="group.displayCount"
+                          :min="1"
+                          :max="100"
+                          :disabled="group.displayType !== 'custom'"
+                          placeholder="请输入"
+                          class="count-input"
+                          @change="handleChange"
+                        />
+                      </a-radio>
+                      <a-radio value="all">全部</a-radio>
+                    </a-radio-group>
+                  </div>
+                </div>
+              </div>
+
+              <a-button
+                type="primary"
+                class="add-group-btn"
+                @click="addGroup"
+                :disabled="data.groupData.length >= 10"
+              >
+                添加商品分组
+              </a-button>
+            </div>
+          </div>
+        </a-tab-pane>
+      </a-tabs>
+    </section>
+
+    <div class="setting-divider" role="presentation"></div>
+
+    <section class="setting-section">
+      <div class="section-header">
+        <span class="section-title">展示样式</span>
+        <span class="section-subtitle">统一控制卡片的边框、背景等视觉效果</span>
       </div>
-    </div>
+      <div class="display-style-options">
+        <div
+          v-for="style in displayStyleOptions"
+          :key="style.value"
+          class="style-option"
+          :class="{ active: data.displayStyle === style.value }"
+          @click="selectDisplayStyle(style.value)"
+        >
+          {{ style.label }}
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -245,8 +258,60 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.divider {
-  margin: 16px 0;
+.setting-panel {
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #fff;
+  overflow-y: auto;
+}
+
+.setting-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.section-subtitle {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.setting-divider {
+  height: 1px;
+  background-color: #f0f0f0;
+}
+
+.setting-tabs {
+  margin-top: -8px;
+}
+
+:deep(.ant-tabs-nav) {
+  margin-bottom: 16px !important;
+}
+
+:deep(.ant-input),
+:deep(.ant-input-number),
+:deep(.ant-input-number-input),
+:deep(.ant-select-selector) {
+  border-radius: 6px;
+  border-color: #d9d9d9 !important;
+  min-height: 36px;
 }
 
 /* 样式模板选择器 */
@@ -390,22 +455,30 @@ onMounted(() => {
 .setting-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .setting-label {
   min-width: 80px;
-  color: #666;
+  color: #595959;
   font-size: 14px;
+  font-weight: 500;
 }
 
 .setting-input {
-  width: 200px;
+  flex: 1;
+  min-width: 0;
+  max-width: 260px;
 }
 
 .count-input {
-  width: 100px;
-  margin-left: 8px;
+  width: 120px;
+}
+
+.setting-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .add-group-btn {
