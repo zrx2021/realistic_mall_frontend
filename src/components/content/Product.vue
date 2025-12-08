@@ -819,6 +819,7 @@ onUnmounted(() => {
 .product-container {
   width: 100%;
   box-sizing: border-box;
+  border: 1px solid transparent;
   overflow: hidden;
 }
 
