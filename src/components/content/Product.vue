@@ -2060,7 +2060,6 @@ onUnmounted(() => {
 
   .sub-products {
     gap: 4px; /* 减小间距适应小屏 */
-    aspect-ratio: 4/1; /* 保持4:1比例 */
     min-width: 0;
   }
 
@@ -2133,7 +2132,6 @@ onUnmounted(() => {
 
   .sub-products {
     gap: 12px;
-    aspect-ratio: 4/1; /* 保持4:1比例 */
   }
 
   .layout-large-image,
