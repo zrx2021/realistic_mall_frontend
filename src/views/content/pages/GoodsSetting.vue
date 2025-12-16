@@ -154,8 +154,6 @@ const data = ref<Goods>({
   showSales: true,
   showTags: true,
   enableSeckill: false,
-  autoPlay: false,
-  playInterval: 3000,
 })
 
 const activeTab = ref('groups') // 默认显示商品分组

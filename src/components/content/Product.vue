@@ -406,8 +406,6 @@ const showData = ref<Goods>({
   showSales: true,
   showTags: true,
   enableSeckill: false,
-  autoPlay: false,
-  playInterval: 3000,
 })
 
 // 环境相关的计算属性

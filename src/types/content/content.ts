@@ -115,8 +115,6 @@ export interface Goods {
   showSales: boolean // 是否显示销量
   showTags: boolean // 是否显示标签
   enableSeckill: boolean // 是否启用秒杀功能
-  autoPlay: boolean // 是否自动轮播（针对某些布局）
-  playInterval: number // 轮播间隔时间
 }
 
 export interface Wrapper {
