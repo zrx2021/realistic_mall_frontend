@@ -49,7 +49,7 @@ export interface ElevatorTabs {
 }
 
 export interface GoodsGroup {
-  groupId: number
+  id: number
   componentId?: number
   groupName: string
   displayCount: number
@@ -156,7 +156,7 @@ export const getTemplate = (type: number) => {
       newTemplate.value.objData.goodsId = getUniqueId()
       newTemplate.value.objData.groupData.forEach((item: GoodsGroup) => {
         newGroupId.value = getUniqueId()
-        item.groupId = newGroupId.value
+        item.id = newGroupId.value
       })
     }
     return newTemplate.value
@@ -660,7 +660,7 @@ const componentTemplate = [
       ],
       groupData: [
         {
-          groupId: getUniqueId(),
+          id: getUniqueId(),
           componentId: undefined,
           groupName: '数码影音',
           displayCount: 8,
@@ -668,7 +668,7 @@ const componentTemplate = [
           displayType: 'custom',
         },
         {
-          groupId: getUniqueId(),
+          id: getUniqueId(),
           componentId: undefined,
           groupName: '家居生活',
           displayCount: 8,
@@ -676,7 +676,7 @@ const componentTemplate = [
           displayType: 'custom',
         },
         {
-          groupId: getUniqueId(),
+          id: getUniqueId(),
           componentId: undefined,
           groupName: '服装美妆',
           displayCount: 4,
@@ -684,7 +684,7 @@ const componentTemplate = [
           displayType: 'custom',
         },
         {
-          groupId: getUniqueId(),
+          id: getUniqueId(),
           componentId: undefined,
           groupName: '食品饮料',
           displayCount: 4,

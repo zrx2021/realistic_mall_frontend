@@ -17,10 +17,10 @@
     >
       <div
         v-for="group in showData.groupData"
-        :key="group.groupId"
+        :key="group.id"
         class="tab-item"
-        :class="{ active: activeGroupId === group.groupId }"
-        @click="switchGroup(group.groupId)"
+        :class="{ active: activeGroupId === group.id }"
+        @click="switchGroup(group.id)"
       >
         {{ group.displayName || group.groupName }}
       </div>
@@ -439,7 +439,7 @@ const allAvailableProducts = computed(() => {
   }
 
   const activeGroup = showData.value.groupData.find(
-    (group) => group.groupId === activeGroupId.value,
+    (group) => group.id === activeGroupId.value,
   )
   if (!activeGroup) {
     return showData.value.goodsList
@@ -737,7 +737,7 @@ watch(
     await nextTick()
     showData.value = { ...newObjData }
     if (showData.value.groupData.length > 0) {
-      activeGroupId.value = showData.value.groupData[0].groupId
+      activeGroupId.value = showData.value.groupData[0].id
     }
     // 重置分页状态
     currentPage.value = 1
@@ -756,7 +756,7 @@ watch(
 onMounted(() => {
   showData.value = { ...props.objData }
   if (showData.value.groupData.length > 0) {
-    activeGroupId.value = showData.value.groupData[0].groupId
+    activeGroupId.value = showData.value.groupData[0].id
   }
 
   // 使用nextTick确保DOM元素已经渲染

@@ -51,7 +51,7 @@
             </div>
 
             <div class="groups-list">
-              <div v-for="(group, index) in data.groupData" :key="group.groupId" class="group-item">
+              <div v-for="(group, index) in data.groupData" :key="group.id" class="group-item">
                 <div class="group-header">
                   <span class="group-name">分组名称</span>
                   <span class="group-name-value">{{ group.groupName }}</span>
@@ -208,7 +208,7 @@ const addGroup = () => {
   }
 
   const newGroup: GoodsGroup & { displayName?: string; displayType?: string } = {
-    groupId: getUniqueId(),
+    id: getUniqueId(),
     componentId: -1,
     groupName: `${data.value.groupData.length === 0 ? '家居生活' : '数码影音'}`,
     displayCount: 10,
@@ -243,7 +243,7 @@ onMounted(() => {
     addGroup()
     // 添加第二个默认分组
     const secondGroup: GoodsGroup & { displayName?: string; displayType?: string } = {
-      groupId: getUniqueId(),
+      id: getUniqueId(),
       componentId: -1,
       groupName: '数码影音',
       displayCount: 10,
