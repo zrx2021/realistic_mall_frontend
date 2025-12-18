@@ -52,7 +52,7 @@ export interface GoodsGroup {
   id: number
   componentId?: number
   goodsCategoryId: number
-  goodsCategoryName: string
+  // goodsCategoryName: string
   displayCount: number
   displayName?: string // 显示名称
   displayType?: 'custom' | 'all' // 显示类型：自定义数量或全部
@@ -100,7 +100,8 @@ export interface GoodsItem {
   isNew?: boolean // 是否新品
   isSeckill?: boolean // 是否秒杀
   seckillEndTime?: string // 秒杀结束时间
-  category: string // 商品分类
+  // category: string // 商品分类
+  categoryIds: number[]
 }
 
 export interface Goods {
@@ -306,7 +307,7 @@ const componentTemplate = [
           discount: 9,
           isHot: true,
           isNew: true,
-          category: '数码影音',
+          categoryIds: [10],
         },
         {
           id: 2,
@@ -320,7 +321,7 @@ const componentTemplate = [
           rating: 4.7,
           tags: ['徕卡', '影像'],
           discount: 8,
-          category: '数码影音',
+          categoryIds: [10],
         },
         {
           id: 3,
@@ -333,7 +334,7 @@ const componentTemplate = [
           sales: 2341,
           rating: 4.6,
           tags: ['降噪', '无线'],
-          category: '数码影音',
+          categoryIds: [10],
         },
         {
           id: 4,
@@ -348,7 +349,7 @@ const componentTemplate = [
           tags: ['新品', '专业'],
           discount: 6,
           isNew: true,
-          category: '数码影音',
+          categoryIds: [10],
         },
         {
           id: 5,
@@ -366,7 +367,7 @@ const componentTemplate = [
           tags: ['热销', 'M1'],
           discount: 8,
           isHot: true,
-          category: '数码影音',
+          categoryIds: [10],
         },
         {
           id: 6,
@@ -383,7 +384,7 @@ const componentTemplate = [
           rating: 4.8,
           tags: ['降噪', '音质'],
           discount: 11,
-          category: '数码影音',
+          categoryIds: [10],
         },
         {
           id: 7,
@@ -400,7 +401,7 @@ const componentTemplate = [
           rating: 4.5,
           tags: ['智能', '健康'],
           discount: 10,
-          category: '数码影音',
+          categoryIds: [10],
         },
         {
           id: 8,
@@ -415,7 +416,7 @@ const componentTemplate = [
           sales: 445,
           rating: 4.6,
           tags: ['游戏', 'OLED'],
-          category: '数码影音',
+          categoryIds: [10],
         },
         // 家居生活类商品
         {
@@ -432,7 +433,7 @@ const componentTemplate = [
           rating: 4.9,
           tags: ['智能', '除螨'],
           isHot: true,
-          category: '家居生活',
+          categoryIds: [100],
         },
         {
           id: 10,
@@ -449,7 +450,7 @@ const componentTemplate = [
           rating: 4.6,
           tags: ['智能', '净化'],
           discount: 10,
-          category: '家居生活',
+          categoryIds: [100],
         },
         {
           id: 11,
@@ -463,7 +464,7 @@ const componentTemplate = [
           rating: 4.4,
           tags: ['节能', '静音'],
           discount: 14,
-          category: '家居生活',
+          categoryIds: [100],
         },
         {
           id: 12,
@@ -478,7 +479,7 @@ const componentTemplate = [
           tags: ['热销', '营养'],
           discount: 25,
           isHot: true,
-          category: '家居生活',
+          categoryIds: [100],
         },
         {
           id: 13,
@@ -495,7 +496,7 @@ const componentTemplate = [
           rating: 4.5,
           tags: ['清洁', '健康'],
           discount: 20,
-          category: '家居生活',
+          categoryIds: [100],
         },
         {
           id: 14,
@@ -507,7 +508,7 @@ const componentTemplate = [
           sales: 156,
           rating: 4.3,
           tags: ['实木', '收纳'],
-          category: '家居生活',
+          categoryIds: [100],
         },
         {
           id: 15,
@@ -521,7 +522,7 @@ const componentTemplate = [
           rating: 4.8,
           tags: ['智能', 'IH'],
           discount: 13,
-          category: '家居生活',
+          categoryIds: [100],
         },
         {
           id: 16,
@@ -535,7 +536,7 @@ const componentTemplate = [
           rating: 4.6,
           tags: ['舒适', '防螨'],
           discount: 18,
-          category: '家居生活',
+          categoryIds: [100],
         },
         // 服装美妆类商品
         {
@@ -550,7 +551,7 @@ const componentTemplate = [
           rating: 4.5,
           tags: ['保暖', '时尚'],
           discount: 25,
-          category: '服装美妆',
+          categoryIds: [1000],
         },
         {
           id: 18,
@@ -564,7 +565,7 @@ const componentTemplate = [
           rating: 4.8,
           tags: ['护肤', '精华'],
           discount: 10,
-          category: '服装美妆',
+          categoryIds: [1000],
         },
         {
           id: 19,
@@ -581,7 +582,7 @@ const componentTemplate = [
           rating: 4.6,
           tags: ['运动', '潮流'],
           discount: 25,
-          category: '服装美妆',
+          categoryIds: [10],
         },
         {
           id: 20,
@@ -595,7 +596,7 @@ const componentTemplate = [
           rating: 4.7,
           tags: ['抗老', '修护'],
           discount: 11,
-          category: '服装美妆',
+          categoryIds: [1000],
         },
         // 秒杀商品
         {
@@ -612,7 +613,7 @@ const componentTemplate = [
           discount: 33,
           isSeckill: true,
           seckillEndTime: '2024-12-31T23:59:59',
-          category: '数码影音',
+          categoryIds: [10],
         },
         {
           id: 22,
@@ -628,7 +629,7 @@ const componentTemplate = [
           discount: 31,
           isSeckill: true,
           seckillEndTime: '2024-12-31T23:59:59',
-          category: '食品饮料',
+          categoryIds: [10000],
         },
         {
           id: 23,
@@ -642,7 +643,7 @@ const componentTemplate = [
           rating: 4.5,
           tags: ['营养', '家庭装'],
           discount: 22,
-          category: '食品饮料',
+          categoryIds: [10000],
         },
         {
           id: 24,
@@ -656,15 +657,15 @@ const componentTemplate = [
           rating: 4.2,
           tags: ['零食', '礼包'],
           discount: 24,
-          category: '食品饮料',
+          categoryIds: [10000],
         },
       ],
       groupData: [
         {
           id: getUniqueId(),
           componentId: undefined,
-          goodsCategoryId: getUniqueId(),
-          goodsCategoryName: '数码影音',
+          goodsCategoryId: 10,
+          // goodsCategoryName: '数码影音',
           displayCount: 8,
           displayName: '数码潮品',
           displayType: 'custom',
@@ -672,8 +673,8 @@ const componentTemplate = [
         {
           id: getUniqueId(),
           componentId: undefined,
-          goodsCategoryId: getUniqueId(),
-          goodsCategoryName: '家居生活',
+          goodsCategoryId: 100,
+          // goodsCategoryName: '家居生活',
           displayCount: 8,
           displayName: '精选好物',
           displayType: 'custom',
@@ -681,8 +682,8 @@ const componentTemplate = [
         {
           id: getUniqueId(),
           componentId: undefined,
-          goodsCategoryId: getUniqueId(),
-          goodsCategoryName: '服装美妆',
+          goodsCategoryId: 1000,
+          // goodsCategoryName: '服装美妆',
           displayCount: 4,
           displayName: '时尚美妆',
           displayType: 'custom',
@@ -690,8 +691,8 @@ const componentTemplate = [
         {
           id: getUniqueId(),
           componentId: undefined,
-          goodsCategoryId: getUniqueId(),
-          goodsCategoryName: '食品饮料',
+          goodsCategoryId: 10000,
+          // goodsCategoryName: '食品饮料',
           displayCount: 4,
           displayName: '美食推荐',
           displayType: 'custom',

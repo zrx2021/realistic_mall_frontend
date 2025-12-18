@@ -54,8 +54,21 @@
               <div v-for="(group, index) in data.groupData" :key="group.id" class="group-item">
                 <div class="group-header">
                   <span class="group-name">分组</span>
-                  <span class="group-name-value">{{ group.goodsCategoryName }}</span>
+                  <a-tree-select
+                    v-model:value="group.goodsCategoryId"
+                    style="width: 200px"
+                    allow-clear
+                    :max-tag-count="2"
+                    :loading="metadataLoading"
+                    :tree-data="treeSelectCategories"
+                    :load-data="loadChildrenData"
+                    :show-search="true"
+                    :filter-tree-node="filterTreeNode"
+                    :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+                  />
                 </div>
+
+
 
                 <div class="group-setting">
                   <div class="setting-row">
@@ -134,12 +147,90 @@ import { PlusOutlined } from '@ant-design/icons-vue'
 import type { Goods, GoodsGroup } from '@/types/content/content'
 import { getUniqueId } from '@/utils/uniqueId'
 import { message } from 'ant-design-vue'
+import { getGoodsCategories, getGoodsCategorySubTree, type CategoryOption } from '@/api/goods'
 
 const props = defineProps<{
   objData: Goods
 }>()
 
 const emits = defineEmits(['update:objData'])
+
+const categoryTree = ref<CategoryOption[]>([])
+
+// 分组是否正在加载
+const metadataLoading = ref(false)
+
+// TreeSelect过滤函数
+const filterTreeNode = (searchValue: string, treeNode: { title: string }) => {
+  return treeNode.title.toLowerCase().includes(searchValue.toLowerCase())
+}
+
+// 计算转换后的分类数据
+const treeSelectCategories = computed(() => {
+  return transformCategoriesForTreeSelect(categoryTree.value || [])
+})
+
+// 转换分组数据为TreeSelect格式
+const transformCategoriesForTreeSelect = (
+  categories: CategoryOption[],
+): Array<CategoryOption & { value: number; title: string; isLeaf?: boolean }> => {
+  return categories.map((category) => ({
+    ...category,
+    value: category.id,
+    title: category.name,
+    children: category.children ? transformCategoriesForTreeSelect(category.children) : undefined,
+    // 如果没有children或children为空，但又不是根节点（有parentId），则可能有子节点需要异步加载
+    isLeaf: category.children ? category.children.length === 0 : false,
+  }))
+}
+
+const fetchGoodsCategories = async () => {
+  categoryTree.value = await getGoodsCategories();
+}
+
+// 异步加载子分类数据
+const loadChildrenData = async (treeNode: {
+  dataRef: { children?: unknown[]; isLeaf?: boolean }
+  value: number
+}) => {
+  const { dataRef, value } = treeNode
+
+  // 如果已经有子节点数据，则不再加载
+  if (dataRef.children && dataRef.children.length > 0) {
+    return
+  }
+
+  try {
+    // 调用API获取子分类
+    const subCategories = await getGoodsCategorySubTree(value)
+
+    // 如果没有子分类，标记为叶子节点
+    if (!subCategories || subCategories.length === 0) {
+      dataRef.isLeaf = true
+      dataRef.children = []
+      return
+    }
+
+    // 转换为TreeSelect格式
+    const transformedChildren = transformCategoriesForTreeSelect(subCategories)
+
+    // 更新原始数据
+    dataRef.children = transformedChildren
+
+    // 为第三层分类标记为叶子节点（假设只有三层分类结构）
+    transformedChildren.forEach((child: { children?: unknown[]; isLeaf?: boolean }) => {
+      child.isLeaf = true // 第三层分类直接标记为叶子节点
+    })
+
+    // 触发重新渲染
+    categoryTree.value = [...categoryTree.value]
+  } catch (error) {
+    console.error('加载子分类失败:', error)
+    // 出错时也标记为叶子节点，避免重复尝试
+    dataRef.isLeaf = true
+    dataRef.children = []
+  }
+}
 
 const data = ref<Goods>({
   goodsId: -1,
@@ -211,7 +302,7 @@ const addGroup = () => {
     id: getUniqueId(),
     componentId: -1,
     goodsCategoryId: -1,
-    goodsCategoryName: `${data.value.groupData.length === 0 ? '家居生活' : '数码影音'}`,
+    // goodsCategoryName: `${data.value.groupData.length === 0 ? '家居生活' : '数码影音'}`,
     displayCount: 10,
     displayName: '',
     displayType: 'custom',
@@ -247,13 +338,14 @@ onMounted(() => {
       id: getUniqueId(),
       componentId: -1,
       goodsCategoryId: -1,
-      goodsCategoryName: '数码影音',
+      // goodsCategoryName: '数码影音',
       displayCount: 10,
       displayName: '',
       displayType: 'custom',
     }
     data.value.groupData.push(secondGroup)
   }
+  fetchGoodsCategories()
 })
 </script>
 

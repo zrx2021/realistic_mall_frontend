@@ -22,7 +22,8 @@
         :class="{ active: activeGroupId === group.id }"
         @click="switchGroup(group.id)"
       >
-        {{ group.displayName || group.goodsCategoryName }}
+        <!-- {{ group.displayName || group.goodsCategoryName }} -->
+        {{ group.displayName}}
       </div>
     </div>
 
@@ -57,10 +58,8 @@
               />
               <div v-else class="product-image placeholder">
                 <div class="placeholder-content">
-                  <div class="placeholder-icon">
-                    {{ getCategoryIcon(currentProducts[0]?.category || '') }}
-                  </div>
-                  <div class="placeholder-text">{{ currentProducts[0]?.name || '商品图片' }}</div>
+                  <div class="placeholder-icon">📦</div>
+                  <div class="placeholder-text">图片无法加载</div>
                 </div>
               </div>
               <!-- 商品标签 -->
@@ -138,8 +137,8 @@
               />
               <div v-else class="product-image placeholder">
                 <div class="placeholder-content">
-                  <div class="placeholder-icon">{{ getCategoryIcon(product?.category || '') }}</div>
-                  <div class="placeholder-text">{{ product?.name || '商品图片' }}</div>
+                  <div class="placeholder-icon">📦</div>
+                  <div class="placeholder-text">图片无法加载</div>
                 </div>
               </div>
               <!-- 商品标签 -->
@@ -192,9 +191,9 @@
             />
             <div v-else class="product-image placeholder">
               <div class="placeholder-content">
-                <div class="placeholder-icon">{{ getCategoryIcon(product?.category || '') }}</div>
-                <div class="placeholder-text">{{ product?.name || '商品图片' }}</div>
-              </div>
+                  <div class="placeholder-icon">📦</div>
+                  <div class="placeholder-text">图片无法加载</div>
+                </div>
             </div>
             <!-- 商品标签 -->
             <div v-if="showData.showTags && product?.tags" class="product-tags">
@@ -259,8 +258,8 @@
             />
             <div v-else class="product-image placeholder">
               <div class="placeholder-content">
-                <div class="placeholder-icon">{{ getCategoryIcon(product?.category || '') }}</div>
-                <div class="placeholder-text">{{ product?.name || '商品图片' }}</div>
+                <div class="placeholder-icon">📦</div>
+                <div class="placeholder-text">图片无法加载</div>
               </div>
             </div>
             <!-- 商品标签 -->
@@ -325,9 +324,9 @@
             />
             <div v-else class="product-image placeholder">
               <div class="placeholder-content">
-                <div class="placeholder-icon">{{ getCategoryIcon(product?.category || '') }}</div>
-                <div class="placeholder-text">{{ product?.name || '商品图片' }}</div>
-              </div>
+                  <div class="placeholder-icon">📦</div>
+                  <div class="placeholder-text">图片无法加载</div>
+                </div>
             </div>
             <!-- 商品标签 -->
             <div v-if="showData.showTags && product?.tags" class="product-tags">
@@ -446,7 +445,8 @@ const allAvailableProducts = computed(() => {
   }
 
   // 根据分组筛选商品
-  return showData.value.goodsList.filter((product) => product.category === activeGroup.goodsCategoryName)
+  // return showData.value.goodsList.filter((product) => product.category === activeGroup.goodsCategoryName)
+  return showData.value.goodsList.filter((product) => product.categoryIds.includes(activeGroup.goodsCategoryId))
 })
 
 // 检查是否还有更多商品
@@ -717,17 +717,6 @@ const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
   img.style.display = 'none'
   // 可以在这里设置默认图片或显示占位符
-}
-
-// 根据商品类别获取图标
-const getCategoryIcon = (category: string) => {
-  const iconMap: Record<string, string> = {
-    数码影音: '📱',
-    家居生活: '🏠',
-    服装美妆: '👗',
-    食品饮料: '🍎',
-  }
-  return iconMap[category] || '📦'
 }
 
 // 监听props变化并更新showData
