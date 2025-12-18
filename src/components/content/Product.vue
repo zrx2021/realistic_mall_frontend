@@ -22,7 +22,7 @@
         :class="{ active: activeGroupId === group.id }"
         @click="switchGroup(group.id)"
       >
-        {{ group.displayName || group.groupName }}
+        {{ group.displayName || group.goodsCategoryName }}
       </div>
     </div>
 
@@ -446,7 +446,7 @@ const allAvailableProducts = computed(() => {
   }
 
   // 根据分组筛选商品
-  return showData.value.goodsList.filter((product) => product.category === activeGroup.groupName)
+  return showData.value.goodsList.filter((product) => product.category === activeGroup.goodsCategoryName)
 })
 
 // 检查是否还有更多商品

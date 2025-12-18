@@ -51,7 +51,8 @@ export interface ElevatorTabs {
 export interface GoodsGroup {
   id: number
   componentId?: number
-  groupName: string
+  goodsCategoryId: number
+  goodsCategoryName: string
   displayCount: number
   displayName?: string // 显示名称
   displayType?: 'custom' | 'all' // 显示类型：自定义数量或全部
@@ -662,7 +663,8 @@ const componentTemplate = [
         {
           id: getUniqueId(),
           componentId: undefined,
-          groupName: '数码影音',
+          goodsCategoryId: getUniqueId(),
+          goodsCategoryName: '数码影音',
           displayCount: 8,
           displayName: '数码潮品',
           displayType: 'custom',
@@ -670,7 +672,8 @@ const componentTemplate = [
         {
           id: getUniqueId(),
           componentId: undefined,
-          groupName: '家居生活',
+          goodsCategoryId: getUniqueId(),
+          goodsCategoryName: '家居生活',
           displayCount: 8,
           displayName: '精选好物',
           displayType: 'custom',
@@ -678,7 +681,8 @@ const componentTemplate = [
         {
           id: getUniqueId(),
           componentId: undefined,
-          groupName: '服装美妆',
+          goodsCategoryId: getUniqueId(),
+          goodsCategoryName: '服装美妆',
           displayCount: 4,
           displayName: '时尚美妆',
           displayType: 'custom',
@@ -686,7 +690,8 @@ const componentTemplate = [
         {
           id: getUniqueId(),
           componentId: undefined,
-          groupName: '食品饮料',
+          goodsCategoryId: getUniqueId(),
+          goodsCategoryName: '食品饮料',
           displayCount: 4,
           displayName: '美食推荐',
           displayType: 'custom',
@@ -699,8 +704,6 @@ const componentTemplate = [
       showSales: true,
       showTags: true,
       enableSeckill: false,
-      autoPlay: false,
-      playInterval: 3000,
     } as Goods,
   },
 ]

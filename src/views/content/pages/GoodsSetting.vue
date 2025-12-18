@@ -53,8 +53,8 @@
             <div class="groups-list">
               <div v-for="(group, index) in data.groupData" :key="group.id" class="group-item">
                 <div class="group-header">
-                  <span class="group-name">分组名称</span>
-                  <span class="group-name-value">{{ group.groupName }}</span>
+                  <span class="group-name">分组</span>
+                  <span class="group-name-value">{{ group.goodsCategoryName }}</span>
                 </div>
 
                 <div class="group-setting">
@@ -210,7 +210,8 @@ const addGroup = () => {
   const newGroup: GoodsGroup & { displayName?: string; displayType?: string } = {
     id: getUniqueId(),
     componentId: -1,
-    groupName: `${data.value.groupData.length === 0 ? '家居生活' : '数码影音'}`,
+    goodsCategoryId: -1,
+    goodsCategoryName: `${data.value.groupData.length === 0 ? '家居生活' : '数码影音'}`,
     displayCount: 10,
     displayName: '',
     displayType: 'custom',
@@ -245,7 +246,8 @@ onMounted(() => {
     const secondGroup: GoodsGroup & { displayName?: string; displayType?: string } = {
       id: getUniqueId(),
       componentId: -1,
-      groupName: '数码影音',
+      goodsCategoryId: -1,
+      goodsCategoryName: '数码影音',
       displayCount: 10,
       displayName: '',
       displayType: 'custom',
