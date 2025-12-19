@@ -405,6 +405,7 @@ const showData = ref<Goods>({
   showSales: true,
   showTags: true,
   enableSeckill: false,
+  enableGroup: false
 })
 
 // 环境相关的计算属性

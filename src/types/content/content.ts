@@ -117,6 +117,7 @@ export interface Goods {
   showSales: boolean // 是否显示销量
   showTags: boolean // 是否显示标签
   enableSeckill: boolean // 是否启用秒杀功能
+  enableGroup: boolean // 是否开启分组
 }
 
 export interface Wrapper {

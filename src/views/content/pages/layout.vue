@@ -441,6 +441,7 @@ body {
 .editor-area {
   padding: 20px;
   height: 100%;
+  width: 640px;
   overflow-y: auto;
 }
 

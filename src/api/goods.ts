@@ -137,6 +137,15 @@ export const getGoodsList = (params: GoodsQueryParams) => {
   return get<PageResponse<GoodsInfo>>(`/goods?${urlParams.toString()}`)
 }
 
+export const getGoodsByCategoryId = (categoryId: number, pageNumber: number, pageSize: number) => {
+  const urlParams = new URLSearchParams({
+    categoryId: String(categoryId),
+    pageNumber: String((pageNumber || 0) + 1), // 前端从0开始，后端从1开始
+    pageSize: String(pageSize || 10),
+  })
+  return get<PageResponse<GoodsInfo>>(`/goods/by-category?${urlParams.toString()}`)
+}
+
 // 获取商品详情
 export const getGoodsDetail = (id: number) => {
   return get<GoodsInfo>(`/goods/${id}`)

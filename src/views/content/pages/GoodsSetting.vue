@@ -30,6 +30,11 @@
         <span class="section-subtitle">选择具体商品或引用商品分组进行展示</span>
       </div>
 
+      <div class="style-setting-item">
+        <span class="setting-item-label">是否开启分组</span>
+        <a-switch v-model:checked="data.enableGroup"/>
+      </div>
+
       <a-tabs v-model:activeKey="activeTab" class="setting-tabs" @change="handleTabChange">
         <a-tab-pane key="goods" tab="商品">
           <div class="goods-selection">
@@ -52,25 +57,28 @@
 
             <div class="groups-list">
               <div v-for="(group, index) in data.groupData" :key="group.id" class="group-item">
-                <div class="group-header">
-                  <span class="group-name">分组</span>
-                  <a-tree-select
-                    v-model:value="group.goodsCategoryId"
-                    style="width: 200px"
-                    allow-clear
-                    :max-tag-count="2"
-                    :loading="metadataLoading"
-                    :tree-data="treeSelectCategories"
-                    :load-data="loadChildrenData"
-                    :show-search="true"
-                    :filter-tree-node="filterTreeNode"
-                    :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-                  />
-                </div>
+                <!-- <div class="group-header">
 
-
+                </div> -->
 
                 <div class="group-setting">
+                  <div class="setting-row">
+                    <span class="group-name">分组</span>
+                    <a-tree-select
+                      v-model:value="group.goodsCategoryId"
+                      style="width: 200px"
+                      allow-clear
+                      :max-tag-count="2"
+                      :loading="metadataLoading"
+                      :tree-data="treeSelectCategories"
+                      :load-data="loadChildrenData"
+                      :show-search="true"
+                      :filter-tree-node="filterTreeNode"
+                      :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+                      @change="(value: number) => handleCategoryChange(value, index)"
+                    />
+                  </div>
+
                   <div class="setting-row">
                     <span class="setting-label">显示名称</span>
                     <a-input
@@ -83,6 +91,9 @@
 
                   <div class="setting-row">
                     <span class="setting-label">显示个数</span>
+                  </div>
+
+                  <div class="setting-row">
                     <a-radio-group
                       v-model:value="group.displayType"
                       class="setting-radio-group"
@@ -95,7 +106,7 @@
                           :max="100"
                           :disabled="group.displayType !== 'custom'"
                           placeholder="请输入"
-                          class="count-input"
+                          size="small"
                           @change="handleChange"
                         />
                       </a-radio>
@@ -144,10 +155,10 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
-import type { Goods, GoodsGroup } from '@/types/content/content'
+import type { Goods, GoodsGroup, GoodsItem } from '@/types/content/content'
 import { getUniqueId } from '@/utils/uniqueId'
 import { message } from 'ant-design-vue'
-import { getGoodsCategories, getGoodsCategorySubTree, type CategoryOption } from '@/api/goods'
+import { getGoodsByCategoryId, getGoodsCategories, getGoodsCategorySubTree, type CategoryOption, type GoodsInfo } from '@/api/goods'
 
 const props = defineProps<{
   objData: Goods
@@ -156,6 +167,8 @@ const props = defineProps<{
 const emits = defineEmits(['update:objData'])
 
 const categoryTree = ref<CategoryOption[]>([])
+
+const goodsListLoading = ref(false)
 
 // 分组是否正在加载
 const metadataLoading = ref(false)
@@ -182,6 +195,65 @@ const transformCategoriesForTreeSelect = (
     // 如果没有children或children为空，但又不是根节点（有parentId），则可能有子节点需要异步加载
     isLeaf: category.children ? category.children.length === 0 : false,
   }))
+}
+
+const findCategoryNameById = (id: number, categories: CategoryOption[]): string | null => {
+  for (const category of categories) {
+    if (category.id === id) {
+      return category.name
+    }
+    if (category.children && category.children.length > 0) {
+      const found = findCategoryNameById(id, category.children)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+const handleCategoryChange = async (categoryId: number | undefined, index: number) => {
+  if (!categoryId) {
+    return
+  }
+
+  const group = data.value.groupData[index]
+
+  // 1. 自动填充显示名称
+  const categoryName = findCategoryNameById(categoryId, categoryTree.value)
+  if (categoryName && (!group.displayName || group.displayName.trim() === '')) {
+    data.value.groupData[index].displayName = categoryName
+  }
+
+  data.value.goodsList = []
+
+  const pageSize = group.displayType === 'all' ? 20 : group.displayCount || 10
+
+  goodsListLoading.value = true
+
+  const response = await getGoodsByCategoryId(categoryId, 0, pageSize)
+
+  const goodsItemList: GoodsItem[] = response.content.map((goodsInfo: GoodsInfo) => ({
+        id: goodsInfo.id,
+        name: goodsInfo.name,
+        description: goodsInfo.subTitle || '',
+        price: goodsInfo.minPrice, // 使用最低售价
+        originalPrice: goodsInfo.marketPrice, // 市场价作为原价
+        imageUrl: goodsInfo.mainImage || '', // 主图
+        stock: goodsInfo.totalStock, // 总库存
+        sales: goodsInfo.salesCount, // 销量
+        rating: goodsInfo.goodCommentRate, // 好评率
+        tags: [], // 暂时没有标签数据
+        discount: goodsInfo.marketPrice > 0
+          ? Math.round((1 - goodsInfo.minPrice / goodsInfo.marketPrice) * 100)
+          : 0,
+        isHot: goodsInfo.isHot,
+        isNew: goodsInfo.isNew,
+        categoryIds: [goodsInfo.categoryId], // 分类ID数组
+      }))
+
+  data.value.goodsList = goodsItemList
+
+
+  handleChange()
 }
 
 const fetchGoodsCategories = async () => {
@@ -245,6 +317,7 @@ const data = ref<Goods>({
   showSales: true,
   showTags: true,
   enableSeckill: false,
+  enableGroup: true
 })
 
 const activeTab = ref('groups') // 默认显示商品分组
@@ -564,7 +637,7 @@ onMounted(() => {
 }
 
 .count-input {
-  width: 120px;
+  width: 20px;
 }
 
 .setting-radio-group {
