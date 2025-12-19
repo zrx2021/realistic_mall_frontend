@@ -49,12 +49,13 @@
         <div class="main-product">
           <div class="product-card large" @click="handleProductClick(currentProducts[0])">
             <div class="product-image-container">
-              <img
+              <AuthImage
                 v-if="currentProducts[0]?.imageUrl"
                 :src="currentProducts[0].imageUrl"
                 :alt="currentProducts[0].name"
                 class="product-image"
-                @error="handleImageError"
+                :forceAuth="true"
+                :lazy="true"
               />
               <div v-else class="product-image placeholder">
                 <div class="placeholder-content">
@@ -128,12 +129,13 @@
             @click="handleProductClick(product)"
           >
             <div class="product-image-container">
-              <img
+              <AuthImage
                 v-if="product?.imageUrl"
                 :src="product.imageUrl"
                 :alt="product.name"
                 class="product-image"
-                @error="handleImageError"
+                :forceAuth="true"
+                :lazy="true"
               />
               <div v-else class="product-image placeholder">
                 <div class="placeholder-content">
@@ -182,12 +184,13 @@
           @click="handleProductClick(product)"
         >
           <div class="product-image-container">
-            <img
-              v-if="product?.imageUrl"
-              :src="product.imageUrl"
-              :alt="product.name"
-              class="product-image"
-              @error="handleImageError"
+            <AuthImage
+                v-if="product?.imageUrl"
+                :src="product.imageUrl"
+                :alt="product.name"
+                class="product-image"
+                :forceAuth="true"
+                :lazy="true"
             />
             <div v-else class="product-image placeholder">
               <div class="placeholder-content">
@@ -249,12 +252,13 @@
           @click="handleProductClick(product)"
         >
           <div class="product-image-container">
-            <img
-              v-if="product?.imageUrl"
-              :src="product.imageUrl"
-              :alt="product.name"
-              class="product-image"
-              @error="handleImageError"
+            <AuthImage
+                v-if="product.imageUrl"
+                :src="product.imageUrl"
+                :alt="product.name"
+                class="product-image"
+                :forceAuth="true"
+                :lazy="true"
             />
             <div v-else class="product-image placeholder">
               <div class="placeholder-content">
@@ -315,12 +319,13 @@
           @click="handleProductClick(product)"
         >
           <div class="product-image-container">
-            <img
-              v-if="product?.imageUrl"
-              :src="product.imageUrl"
-              :alt="product.name"
-              class="product-image"
-              @error="handleImageError"
+            <AuthImage
+                v-if="product?.imageUrl"
+                :src="product.imageUrl"
+                :alt="product.name"
+                class="product-image"
+                :forceAuth="true"
+                :lazy="true"
             />
             <div v-else class="product-image placeholder">
               <div class="placeholder-content">
@@ -386,6 +391,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import type { Goods, GoodsItem } from '@/types/content/content'
 import type { ComponentEnvironment } from '@/types/environment'
+import AuthImage from '@/components/common/AuthImage.vue';
 
 const props = defineProps<{
   objData: Goods
@@ -711,13 +717,6 @@ const addToCart = (product?: GoodsItem) => {
   console.log('添加到购物车:', product)
   // 这里可以添加购物车逻辑
   // cartStore.addItem(product)
-}
-
-// 处理图片加载错误
-const handleImageError = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  img.style.display = 'none'
-  // 可以在这里设置默认图片或显示占位符
 }
 
 // 监听props变化并更新showData

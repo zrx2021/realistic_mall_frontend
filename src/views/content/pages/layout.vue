@@ -382,7 +382,7 @@ watch(settingData, (newVal, oldVal) => {
     console.log('settingType.value === 999', newVal)
     pageData.value = newVal as Article
   }
-})
+}, { deep: true })
 
 onMounted(() => {
   initMap()
