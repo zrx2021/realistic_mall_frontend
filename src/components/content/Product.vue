@@ -23,7 +23,7 @@
         @click="switchGroup(group.id)"
       >
         <!-- {{ group.displayName || group.goodsCategoryName }} -->
-        {{ group.displayName}}
+        {{ group.displayName }}
       </div>
     </div>
 
@@ -46,133 +46,134 @@
     >
       <!-- 一大两小布局 -->
       <div v-if="showData.templateStyle === 'oneMainTwoSub'" class="layout-one-main-two-sub">
-        <div class="main-product">
-          <div class="product-card large" @click="handleProductClick(currentProducts[0])">
-            <div class="product-image-container">
-              <AuthImage
-                v-if="currentProducts[0]?.imageUrl"
-                :src="currentProducts[0].imageUrl"
-                :alt="currentProducts[0].name"
-                class="product-image"
-                :forceAuth="true"
-                :lazy="true"
-              />
-              <div v-else class="product-image placeholder">
-                <div class="placeholder-content">
-                  <div class="placeholder-icon">📦</div>
-                  <div class="placeholder-text">图片无法加载</div>
+        <template
+          v-for="(group, groupIndex) in groupedOneMainTwoSubProducts"
+          :key="group[0]?.id ?? `group-${groupIndex}`"
+        >
+          <div v-if="group[0]" class="main-product">
+            <div class="product-card large" @click="handleProductClick(group[0])">
+              <div class="product-image-container">
+                <AuthImage
+                  v-if="group[0]?.imageUrl"
+                  :src="group[0].imageUrl"
+                  :alt="group[0].name"
+                  class="product-image"
+                  :forceAuth="true"
+                  :lazy="true"
+                />
+                <div v-else class="product-image placeholder">
+                  <div class="placeholder-content">
+                    <div class="placeholder-icon">📦</div>
+                    <div class="placeholder-text">图片无法加载</div>
+                  </div>
                 </div>
-              </div>
-              <!-- 商品标签 -->
-              <div v-if="showData.showTags && currentProducts[0]?.tags" class="product-tags">
-                <span
-                  v-for="tag in currentProducts[0].tags.slice(0, 2)"
-                  :key="tag"
-                  class="tag"
-                  :class="getTagClass(tag)"
-                >
-                  {{ tag }}
-                </span>
-              </div>
-              <!-- 秒杀倒计时 -->
-              <div
-                v-if="showData.enableSeckill && currentProducts[0]?.isSeckill"
-                class="seckill-timer"
-              >
-                <span class="timer-label">秒杀</span>
-                <span class="timer-text">{{ formatTime(currentProducts[0].seckillEndTime) }}</span>
-              </div>
-            </div>
-            <div class="product-info">
-              <div class="product-title on-main-two-sub">
-                {{ currentProducts[0]?.name || '这里显示商品名称，最多显示1行' }}
-              </div>
-              <div class="product-desc on-main-two-sub">
-                {{ currentProducts[0]?.description || '这里显示商品描述，最多显示1行' }}
-              </div>
-              <!-- 评分和销量 -->
-              <div
-                v-if="showData.showRating || showData.showSales"
-                class="product-meta on-main-two-sub"
-              >
-                <div v-if="showData.showRating && currentProducts[0]?.rating" class="rating">
-                  <span class="stars">{{ getStars(currentProducts[0].rating) }}</span>
-                  <span class="rating-text">{{ currentProducts[0].rating }}</span>
-                </div>
-                <div v-if="showData.showSales && currentProducts[0]?.sales" class="sales">
-                  已售{{ formatSales(currentProducts[0].sales) }}
-                </div>
-              </div>
-              <div class="product-footer">
-                <div v-if="showData.showPrice" class="price-container">
-                  <span class="product-price">¥{{ currentProducts[0]?.price || 99 }}</span>
-                  <span v-if="currentProducts[0]?.originalPrice" class="original-price"
-                    >¥{{ currentProducts[0].originalPrice }}</span
+                <!-- 商品标签 -->
+                <div v-if="showData.showTags && group[0]?.tags" class="product-tags">
+                  <span
+                    v-for="tag in group[0].tags.slice(0, 2)"
+                    :key="tag"
+                    class="tag"
+                    :class="getTagClass(tag)"
                   >
+                    {{ tag }}
+                  </span>
                 </div>
+                <!-- 秒杀倒计时 -->
+                <div v-if="showData.enableSeckill && group[0]?.isSeckill" class="seckill-timer">
+                  <span class="timer-label">秒杀</span>
+                  <span class="timer-text">{{ formatTime(group[0].seckillEndTime) }}</span>
+                </div>
+              </div>
+              <div class="product-info">
+                <div class="product-title on-main-two-sub">
+                  {{ group[0]?.name || '这里显示商品名称，最多显示1行' }}
+                </div>
+                <div class="product-desc on-main-two-sub">
+                  {{ group[0]?.description || '这里显示商品描述，最多显示1行' }}
+                </div>
+                <!-- 评分和销量 -->
                 <div
-                  v-if="showData.showCart"
-                  class="cart-icon"
-                  @click.stop="addToCart(currentProducts[0])"
+                  v-if="
+                    (showData.showRating && group[0]?.rating) ||
+                    (showData.showSales && group[0]?.sales)
+                  "
+                  class="product-meta on-main-two-sub"
                 >
-                  🛒
+                  <div v-if="showData.showRating && group[0]?.rating" class="rating">
+                    <span class="stars">{{ getStars(group[0].rating) }}</span>
+                    <span class="rating-text">{{ group[0].rating }}</span>
+                  </div>
+                  <div v-if="showData.showSales && group[0]?.sales" class="sales">
+                    已售{{ formatSales(group[0].sales) }}
+                  </div>
+                </div>
+                <div class="product-footer">
+                  <div v-if="showData.showPrice" class="price-container">
+                    <span class="product-price">¥{{ group[0]?.price || 99 }}</span>
+                    <span v-if="group[0]?.originalPrice" class="original-price"
+                      >¥{{ group[0].originalPrice }}</span
+                    >
+                  </div>
+                  <div v-if="showData.showCart" class="cart-icon" @click.stop="addToCart(group[0])">
+                    🛒
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="sub-products">
-          <div
-            v-for="(product, index) in currentProducts.slice(1, 3)"
-            :key="product?.id || index"
-            class="product-card"
-            @click="handleProductClick(product)"
-          >
-            <div class="product-image-container">
-              <AuthImage
-                v-if="product?.imageUrl"
-                :src="product.imageUrl"
-                :alt="product.name"
-                class="product-image"
-                :forceAuth="true"
-                :lazy="true"
-              />
-              <div v-else class="product-image placeholder">
-                <div class="placeholder-content">
-                  <div class="placeholder-icon">📦</div>
-                  <div class="placeholder-text">图片无法加载</div>
+          <div v-if="group.length > 1" class="sub-products">
+            <div
+              v-for="(product, index) in group.slice(1, 3)"
+              :key="product?.id || `sub-${groupIndex}-${index}`"
+              class="product-card"
+              @click="handleProductClick(product)"
+            >
+              <div class="product-image-container">
+                <AuthImage
+                  v-if="product?.imageUrl"
+                  :src="product.imageUrl"
+                  :alt="product.name"
+                  class="product-image"
+                  :forceAuth="true"
+                  :lazy="true"
+                />
+                <div v-else class="product-image placeholder">
+                  <div class="placeholder-content">
+                    <div class="placeholder-icon">📦</div>
+                    <div class="placeholder-text">图片无法加载</div>
+                  </div>
                 </div>
-              </div>
-              <!-- 商品标签 -->
-              <div v-if="showData.showTags && product?.tags" class="product-tags">
-                <span
-                  v-for="tag in product.tags.slice(0, 1)"
-                  :key="tag"
-                  class="tag"
-                  :class="getTagClass(tag)"
-                >
-                  {{ tag }}
-                </span>
-              </div>
-            </div>
-            <div class="product-info">
-              <div class="product-title">
-                {{ product?.name || '这里显示商品名称，最多显示2行' }}
-              </div>
-              <div class="product-footer">
-                <div v-if="showData.showPrice" class="price-container">
-                  <span class="product-price">¥{{ product?.price || 99 }}</span>
-                  <span v-if="product?.originalPrice" class="original-price"
-                    >¥{{ product.originalPrice }}</span
+                <!-- 商品标签 -->
+                <div v-if="showData.showTags && product?.tags" class="product-tags">
+                  <span
+                    v-for="tag in product.tags.slice(0, 1)"
+                    :key="tag"
+                    class="tag"
+                    :class="getTagClass(tag)"
                   >
+                    {{ tag }}
+                  </span>
                 </div>
-                <div v-if="showData.showCart" class="cart-icon" @click.stop="addToCart(product)">
-                  🛒
+              </div>
+              <div class="product-info">
+                <div class="product-title">
+                  {{ product?.name || '这里显示商品名称，最多显示2行' }}
+                </div>
+                <div class="product-footer">
+                  <div v-if="showData.showPrice" class="price-container">
+                    <span class="product-price">¥{{ product?.price || 99 }}</span>
+                    <span v-if="product?.originalPrice" class="original-price"
+                      >¥{{ product.originalPrice }}</span
+                    >
+                  </div>
+                  <div v-if="showData.showCart" class="cart-icon" @click.stop="addToCart(product)">
+                    🛒
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </template>
       </div>
 
       <!-- 两列布局 -->
@@ -185,18 +186,18 @@
         >
           <div class="product-image-container">
             <AuthImage
-                v-if="product?.imageUrl"
-                :src="product.imageUrl"
-                :alt="product.name"
-                class="product-image"
-                :forceAuth="true"
-                :lazy="true"
+              v-if="product?.imageUrl"
+              :src="product.imageUrl"
+              :alt="product.name"
+              class="product-image"
+              :forceAuth="true"
+              :lazy="true"
             />
             <div v-else class="product-image placeholder">
               <div class="placeholder-content">
-                  <div class="placeholder-icon">📦</div>
-                  <div class="placeholder-text">图片无法加载</div>
-                </div>
+                <div class="placeholder-icon">📦</div>
+                <div class="placeholder-text">图片无法加载</div>
+              </div>
             </div>
             <!-- 商品标签 -->
             <div v-if="showData.showTags && product?.tags" class="product-tags">
@@ -253,12 +254,12 @@
         >
           <div class="product-image-container">
             <AuthImage
-                v-if="product.imageUrl"
-                :src="product.imageUrl"
-                :alt="product.name"
-                class="product-image"
-                :forceAuth="true"
-                :lazy="true"
+              v-if="product.imageUrl"
+              :src="product.imageUrl"
+              :alt="product.name"
+              class="product-image"
+              :forceAuth="true"
+              :lazy="true"
             />
             <div v-else class="product-image placeholder">
               <div class="placeholder-content">
@@ -320,18 +321,18 @@
         >
           <div class="product-image-container">
             <AuthImage
-                v-if="product?.imageUrl"
-                :src="product.imageUrl"
-                :alt="product.name"
-                class="product-image"
-                :forceAuth="true"
-                :lazy="true"
+              v-if="product?.imageUrl"
+              :src="product.imageUrl"
+              :alt="product.name"
+              class="product-image"
+              :forceAuth="true"
+              :lazy="true"
             />
             <div v-else class="product-image placeholder">
               <div class="placeholder-content">
-                  <div class="placeholder-icon">📦</div>
-                  <div class="placeholder-text">图片无法加载</div>
-                </div>
+                <div class="placeholder-icon">📦</div>
+                <div class="placeholder-text">图片无法加载</div>
+              </div>
             </div>
             <!-- 商品标签 -->
             <div v-if="showData.showTags && product?.tags" class="product-tags">
@@ -391,7 +392,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import type { Goods, GoodsItem } from '@/types/content/content'
 import type { ComponentEnvironment } from '@/types/environment'
-import AuthImage from '@/components/common/AuthImage.vue';
+import AuthImage from '@/components/common/AuthImage.vue'
 
 const props = defineProps<{
   objData: Goods
@@ -411,7 +412,7 @@ const showData = ref<Goods>({
   showSales: true,
   showTags: true,
   enableSeckill: false,
-  enableGroup: false
+  enableGroup: false,
 })
 
 // 环境相关的计算属性
@@ -444,16 +445,16 @@ const allAvailableProducts = computed(() => {
     return showData.value.goodsList
   }
 
-  const activeGroup = showData.value.groupData.find(
-    (group) => group.id === activeGroupId.value,
-  )
+  const activeGroup = showData.value.groupData.find((group) => group.id === activeGroupId.value)
   if (!activeGroup) {
     return showData.value.goodsList
   }
 
   // 根据分组筛选商品
   // return showData.value.goodsList.filter((product) => product.category === activeGroup.goodsCategoryName)
-  return showData.value.goodsList.filter((product) => product.categoryIds.includes(activeGroup.goodsCategoryId))
+  return showData.value.goodsList.filter((product) =>
+    product.categoryIds.includes(activeGroup.goodsCategoryId),
+  )
 })
 
 // 检查是否还有更多商品
@@ -467,6 +468,15 @@ const hasMoreProducts = computed(() => {
 const currentProducts = computed(() => {
   const endIndex = currentPage.value * pageSize.value
   return allAvailableProducts.value.slice(0, endIndex)
+})
+
+// 将商品按3个一组分组（1大2小为一组）
+const groupedOneMainTwoSubProducts = computed(() => {
+  const groups: GoodsItem[][] = []
+  for (let i = 0; i < currentProducts.value.length; i += 3) {
+    groups.push(currentProducts.value.slice(i, i + 3))
+  }
+  return groups
 })
 
 const switchGroup = (groupId: number) => {
@@ -1110,8 +1120,17 @@ onUnmounted(() => {
 /* 编辑环境 - 两列布局 */
 .env-editing .layout-two-columns {
   max-width: 800px;
+  width: 100%;
   gap: 12px;
   padding: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* 编辑环境下，两列卡片占满可用宽度，避免压缩成单行 */
+.env-editing .layout-two-columns .product-card {
+  max-width: none;
+  width: 100%;
+  justify-self: stretch;
 }
 
 /* 预览环境 - 两列布局 */
@@ -1144,7 +1163,8 @@ onUnmounted(() => {
 
 /* 编辑环境 - 大图模式 */
 .env-editing .layout-large-image {
-  max-width: 600px;
+  max-width: 100%;
+  width: 100%;
   gap: 20px;
   padding: 12px;
 }
@@ -1152,6 +1172,7 @@ onUnmounted(() => {
 /* 预览环境 - 大图模式 */
 .env-preview .layout-large-image {
   max-width: none; /* 移除最大宽度限制，占满模拟器宽度 */
+  width: 100%;
   gap: 16px;
   padding: 8px;
 }
@@ -1159,6 +1180,7 @@ onUnmounted(() => {
 /* 全屏环境 - 大图模式 */
 .env-fullscreen .layout-large-image {
   max-width: 100%;
+  width: 100%;
   gap: 24px;
   padding: 16px;
 }
@@ -1178,7 +1200,8 @@ onUnmounted(() => {
 
 /* 编辑环境 - 列表模式 */
 .env-editing .layout-list {
-  max-width: 600px;
+  max-width: 100%;
+  width: 100%;
   gap: 16px;
   padding: 12px;
 }
@@ -1186,6 +1209,7 @@ onUnmounted(() => {
 /* 预览环境 - 列表模式 */
 .env-preview .layout-list {
   max-width: none; /* 移除最大宽度限制，占满模拟器宽度 */
+  width: 100%;
   gap: 12px;
   padding: 8px;
 }
@@ -1193,6 +1217,7 @@ onUnmounted(() => {
 /* 全屏环境 - 列表模式 */
 .env-fullscreen .layout-list {
   max-width: 100%;
+  width: 100%;
   gap: 20px;
   padding: 16px;
 }
@@ -1264,7 +1289,8 @@ onUnmounted(() => {
 }
 
 .product-card.large-image {
-  height: 320px;
+  height: auto;
+  min-height: 380px; /* 给大图卡片足够高度，避免文字区被压缩 */
 }
 
 .product-card.list-item {
@@ -1623,7 +1649,13 @@ onUnmounted(() => {
 
 .product-card.large-image .product-info {
   padding: 16px;
-  min-height: 100px;
+  min-height: 140px; /* 留出更多文本展示空间 */
+}
+
+/* 大图模式的图片区域单独控制高度，避免整体塌缩 */
+.product-card.large-image .product-image-container {
+  min-height: 220px;
+  flex: 0 0 auto;
 }
 
 .list-item .product-info {
@@ -1650,8 +1682,8 @@ onUnmounted(() => {
 }
 
 .product-title.largeImage {
-  -webkit-line-clamp: 1;
-  max-height: 1.5em;
+  -webkit-line-clamp: 2;
+  max-height: 3em;
   font-size: 16px;
   line-height: 1.5;
   margin-bottom: 6px;
@@ -1811,14 +1843,15 @@ onUnmounted(() => {
 }
 
 .product-desc.largeImage {
-  font-size: 12px;
-  color: #999;
-  line-height: 1.3;
-  margin-bottom: 8px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 10px;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product-desc.on-main-two-sub {
@@ -2076,6 +2109,13 @@ onUnmounted(() => {
     grid-template-columns: 1fr;
     gap: 8px;
     padding: 6px;
+  }
+
+  /* 编辑环境下仍保持两列，避免商品单行堆叠 */
+  .env-editing .layout-two-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
   }
 
   .layout-large-image,
