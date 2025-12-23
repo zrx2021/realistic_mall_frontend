@@ -441,7 +441,8 @@ const isLoading = ref(false)
 
 // 获取所有可用商品（不分页）
 const allAvailableProducts = computed(() => {
-  if (showData.value.groupData.length === 0) {
+  // 未开启分组，或没有分组数据时，直接使用用户设置的商品列表
+  if (!showData.value.enableGroup || showData.value.groupData.length === 0) {
     return showData.value.goodsList
   }
 

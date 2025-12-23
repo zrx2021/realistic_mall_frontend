@@ -151,6 +151,24 @@ export const getGoodsDetail = (id: number) => {
   return get<GoodsInfo>(`/goods/${id}`)
 }
 
+// 批量获取商品详情（根据ID列表）
+export const getGoodsByIds = async (ids: number[]): Promise<GoodsInfo[]> => {
+  if (!ids || ids.length === 0) {
+    return []
+  }
+
+  try {
+    // 优先尝试批量接口
+    return await post<GoodsInfo[]>('/goods/batch', { ids })
+  } catch (error) {
+    // 如果批量接口不存在，降级为循环调用单个接口
+    console.warn('批量获取商品接口不可用，降级为单个接口调用', error)
+    const goodsPromises = ids.map((id) => getGoodsDetail(id).catch(() => null))
+    const goodsResults = await Promise.all(goodsPromises)
+    return goodsResults.filter((goods): goods is GoodsInfo => goods !== null)
+  }
+}
+
 // 新增商品
 export const addGoods = (data: Omit<GoodsInfo, 'id' | 'createTime' | 'updateTime'>) => {
   return post<GoodsInfo>('/goods', data)

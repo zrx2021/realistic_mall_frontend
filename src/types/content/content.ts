@@ -21,14 +21,14 @@ export interface Article {
 }
 
 interface Component {
-  id: number,
-  name: string,
-  icon: string,
+  id: number
+  name: string
+  icon: string
   file: string
 }
 
 export interface ArticleType {
-  name: string,
+  name: string
   component: Component[]
 }
 
@@ -105,6 +105,7 @@ export interface GoodsItem {
 }
 
 export interface Goods {
+  id?: number
   goodsId: number
   componentId?: number
   templateStyle: string

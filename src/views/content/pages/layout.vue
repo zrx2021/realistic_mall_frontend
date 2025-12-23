@@ -161,12 +161,21 @@ import {
   getSettingsComponent,
 } from '@/types/content/content'
 
-import type { Wrapper, Elevator, Goods, Article, TextComponent, ArticleType } from '@/types/content/content'
-import { getComponentTypes, getPageDetailById } from '@/api/content/page'
+import type {
+  Wrapper,
+  Elevator,
+  Goods,
+  Article,
+  TextComponent,
+  ArticleType,
+  GoodsItem,
+} from '@/types/content/content'
+import { getComponentTypes, getPageDetailById, type ComponentVO } from '@/api/content/page'
 import { getUniqueId } from '@/utils/uniqueId'
 import { savePage } from '@/api/content/page'
 import { message } from 'ant-design-vue'
 import { transformComponentData, transformComponentListToBackend } from '@/utils/componentTransform'
+import { getGoodsByIds, type GoodsInfo } from '@/api/goods'
 import MobilePreview from '@/components/dialog/MobilePreview.vue'
 
 const router = useRouter()
@@ -283,6 +292,94 @@ const fetchArticleType = async () => {
   }
 }
 
+/**
+ * 将 GoodsInfo 转换为 GoodsItem
+ */
+const convertGoodsInfoToGoodsItem = (goodsInfo: GoodsInfo): GoodsItem => {
+  return {
+    id: goodsInfo.id,
+    name: goodsInfo.name,
+    description: goodsInfo.subTitle || '',
+    price: goodsInfo.minPrice,
+    originalPrice: goodsInfo.marketPrice,
+    imageUrl: goodsInfo.mainImage || '',
+    stock: goodsInfo.totalStock,
+    sales: goodsInfo.salesCount,
+    rating: goodsInfo.goodCommentRate,
+    tags: [], // 标签数据需要从其他字段提取或单独获取
+    discount:
+      goodsInfo.marketPrice > 0
+        ? Math.round((1 - goodsInfo.minPrice / goodsInfo.marketPrice) * 100)
+        : 0,
+    isHot: goodsInfo.isHot,
+    isNew: goodsInfo.isNew,
+    categoryIds: [goodsInfo.categoryId],
+  }
+}
+
+/**
+ * 批量加载商品组件的商品详情
+ */
+const loadGoodsForComponents = async (
+  goodsComponents: Array<{ component: ComponentVO; index: number }>,
+) => {
+  try {
+    // 收集所有需要加载的商品 ID
+    const allGoodsIds: number[] = []
+    const componentIdMap = new Map<number, number[]>() // component.id -> goodsIds[]
+
+    goodsComponents.forEach(({ component }) => {
+      const goodsListData = (component.objData as Record<string, unknown>).goodsList as number[]
+      if (goodsListData && goodsListData.length > 0) {
+        allGoodsIds.push(...goodsListData)
+        componentIdMap.set(component.id, goodsListData)
+      }
+    })
+
+    if (allGoodsIds.length === 0) {
+      return
+    }
+
+    // 去重
+    const uniqueGoodsIds = Array.from(new Set(allGoodsIds))
+
+    // 批量获取商品详情
+    const goodsInfoList = await getGoodsByIds(uniqueGoodsIds)
+
+    // 创建 ID 到商品详情的映射
+    const goodsInfoMap = new Map<number, GoodsInfo>()
+    goodsInfoList.forEach((goodsInfo) => {
+      goodsInfoMap.set(goodsInfo.id, goodsInfo)
+    })
+
+    // 更新每个商品组件的 goodsList
+    goodsComponents.forEach(({ component, index }) => {
+      const goodsIds = componentIdMap.get(component.id) || []
+      const goodsItems: GoodsItem[] = goodsIds
+        .map((id) => goodsInfoMap.get(id))
+        .filter((goodsInfo): goodsInfo is GoodsInfo => goodsInfo !== undefined)
+        .map(convertGoodsInfoToGoodsItem)
+
+      // 更新组件数据
+      const goodsComponent = componentList.value[index]
+      if (goodsComponent && goodsComponent.type === 4) {
+        const goodsData = goodsComponent.objData as Goods
+        goodsData.goodsList = goodsItems
+        componentList.value[index].objData = goodsData
+        indexData.value[index] = goodsData
+
+        // 如果当前选中的是这个组件，更新 settingData
+        if (settingIndex.value === index) {
+          settingData.value = goodsData
+        }
+      }
+    })
+  } catch (error) {
+    console.error('加载商品详情失败:', error)
+    message.error('加载商品详情失败')
+  }
+}
+
 // 获取页面详情数据
 const fetchPageDetail = async (id: number) => {
   try {
@@ -306,22 +403,46 @@ const fetchPageDetail = async (id: number) => {
     const sortedComponents = [...pageDetail.components].sort((a, b) => a.pageOrder - b.pageOrder)
 
     // 转换后端组件数据为前端需要的格式
-    sortedComponents.forEach((component) => {
+    const goodsComponentsToLoad: Array<{ component: ComponentVO; index: number }> = []
+
+    sortedComponents.forEach((component, index) => {
       const template = getTemplate(component.typeId)
 
       if (template) {
         // 创建组件
+        const transformedData = transformComponentData(component)
+
+        // 如果是商品组件且 goodsList 是 ID 数组，需要后续加载商品详情
+        if (component.typeId === 4) {
+          const goodsData = transformedData as Goods
+          const goodsListData = (component.objData as Record<string, unknown>).goodsList
+          // 检查是否是 ID 数组
+          if (
+            Array.isArray(goodsListData) &&
+            goodsListData.length > 0 &&
+            typeof goodsListData[0] === 'number' &&
+            !goodsData.enableGroup // 未开启分组时才需要加载商品详情
+          ) {
+            goodsComponentsToLoad.push({ component, index })
+          }
+        }
+
         const newComponent: Wrapper = {
           id: component.id,
           type: component.typeId,
           name: template.name,
-          objData: transformComponentData(component),
+          objData: transformedData,
         }
 
         componentList.value.push(newComponent)
         indexData.value.push(newComponent.objData)
       }
     })
+
+    // 批量加载商品详情（如果商品组件有 ID 数组）
+    if (goodsComponentsToLoad.length > 0) {
+      await loadGoodsForComponents(goodsComponentsToLoad)
+    }
 
     // 如果有组件，默认选中第一个
     if (componentList.value.length > 0) {
@@ -352,37 +473,41 @@ const goBack = () => {
   })
 }
 
-watch(settingData, (newVal, oldVal) => {
-  if (settingType.value < 998) {
-    indexData.value[settingIndex.value] = newVal
-    componentList.value[settingIndex.value].objData = newVal
+watch(
+  settingData,
+  (newVal, oldVal) => {
+    if (settingType.value < 998) {
+      indexData.value[settingIndex.value] = newVal
+      componentList.value[settingIndex.value].objData = newVal
 
-    // 只有当数据真正发生变化时才重新渲染组件
-    if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
-      // 保存当前滚动位置
-      const editorArea = document.querySelector('.editor-area')
-      const settingsContent = document.querySelector('.settings-content')
-      const editorScrollTop = editorArea?.scrollTop || 0
-      const settingsScrollTop = settingsContent?.scrollTop || 0
+      // 只有当数据真正发生变化时才重新渲染组件
+      if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+        // 保存当前滚动位置
+        const editorArea = document.querySelector('.editor-area')
+        const settingsContent = document.querySelector('.settings-content')
+        const editorScrollTop = editorArea?.scrollTop || 0
+        const settingsScrollTop = settingsContent?.scrollTop || 0
 
-      refreshKeysArray.value[settingIndex.value] = getUniqueId()
+        refreshKeysArray.value[settingIndex.value] = getUniqueId()
 
-      // 在下一个tick恢复滚动位置
-      nextTick(() => {
-        if (editorArea) {
-          editorArea.scrollTop = editorScrollTop
-        }
-        if (settingsContent) {
-          settingsContent.scrollTop = settingsScrollTop
-        }
-      })
+        // 在下一个tick恢复滚动位置
+        nextTick(() => {
+          if (editorArea) {
+            editorArea.scrollTop = editorScrollTop
+          }
+          if (settingsContent) {
+            settingsContent.scrollTop = settingsScrollTop
+          }
+        })
+      }
     }
-  }
-  if (settingType.value === 999) {
-    console.log('settingType.value === 999', newVal)
-    pageData.value = newVal as Article
-  }
-}, { deep: true })
+    if (settingType.value === 999) {
+      console.log('settingType.value === 999', newVal)
+      pageData.value = newVal as Article
+    }
+  },
+  { deep: true },
+)
 
 onMounted(() => {
   initMap()
