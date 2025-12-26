@@ -24,6 +24,12 @@
       >
         <!-- {{ group.displayName || group.goodsCategoryName }} -->
         {{ group.displayName }}
+        <!-- 删除按钮：至少有三个分组时显示（删除后至少保留两个分组） -->
+        <div
+          v-if="showData.groupData.length > 2"
+          class="close-btn"
+          @click.stop="deleteGroup(group.id)"
+        ></div>
       </div>
     </div>
 
@@ -483,6 +489,36 @@ const groupedOneMainTwoSubProducts = computed(() => {
 const switchGroup = (groupId: number) => {
   activeGroupId.value = groupId
   // 切换分组时重置分页
+  currentPage.value = 1
+
+  // 延迟检查吸顶状态，确保DOM已更新
+  nextTick(() => {
+    updateStickyState()
+  })
+}
+
+// 删除分组
+const deleteGroup = (groupId: number) => {
+  // 至少保留两个分组（删除后至少还有2个分组）
+  if (showData.value.groupData.length <= 2) {
+    return
+  }
+
+  // 如果删除的是当前激活的分组，需要切换到其他分组
+  if (activeGroupId.value === groupId) {
+    const remainingGroups = showData.value.groupData.filter((g) => g.id !== groupId)
+    if (remainingGroups.length > 0) {
+      activeGroupId.value = remainingGroups[0].id
+    }
+  }
+
+  // 从分组数据中移除
+  const index = showData.value.groupData.findIndex((g) => g.id === groupId)
+  if (index !== -1) {
+    showData.value.groupData.splice(index, 1)
+  }
+
+  // 重置分页
   currentPage.value = 1
 
   // 延迟检查吸顶状态，确保DOM已更新
@@ -985,6 +1021,54 @@ onUnmounted(() => {
 .tab-item.active:hover {
   background: linear-gradient(135deg, #40a9ff, #1890ff);
   transform: translateY(-2px);
+}
+
+/* 删除按钮样式 - 与电梯导航组件一致 */
+.close-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #95a5a6;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.close-btn:hover {
+  background: #e74c3c;
+  transform: scale(1);
+}
+
+.close-btn::before,
+.close-btn::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 2px;
+  background: white;
+}
+
+.close-btn::before {
+  transform: rotate(45deg);
+}
+
+.close-btn::after {
+  transform: rotate(-45deg);
+}
+
+/* 鼠标悬停时显示删除按钮 */
+.tab-item:hover .close-btn {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* 商品展示区域 */
